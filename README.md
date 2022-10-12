@@ -76,7 +76,7 @@ Az eszköz 3.3v-5v tápfeszültséget igényel melyet a telefon OTG-USB-n keresz
 A fejlesztés Arduino C++ és ESP mikrokontrollerek segítségével történik. Az eszközök elkészítését és a firmware megírását szívesen elvállalom, a csapat minden tagjának tudom biztosítani az alap hardvert a teszteléshez. De persze a hardver mockolása is lehetséges a fejlesztés elején. Készítettem már hasonló eszközt ami napelemmel üzemel és WIFI-n keresztül kommunikál.
 
 <p align="center">
-<img style="display: inline-block; width: 40%; height: 40%; max-width: 25%" src="https://people.inf.elte.hu/sabuaai/kepek/kep4.jpg"><img style="display: inline-block; width: 40%; height: 40%; max-width: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep5.jpg"><img style="display: inline-block; width: 40%; height: 40%; max-width: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep6.jpg">
+<img style="float:left; width: 25%; height: 40%; max-width: 25%" src="https://people.inf.elte.hu/sabuaai/kepek/kep4.jpg"><img style="float:left; width: 40%; height: 40%; max-width: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep5.jpg"><img style="width: 40%; height: 40%; max-width: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep6.jpg">
 </p>
 
 #### 3.) A weboldal:
