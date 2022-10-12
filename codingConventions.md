@@ -1,0 +1,1 @@
+## A projekt során alkalmazott kódolási és névkonvenciók
