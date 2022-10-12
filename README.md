@@ -3,6 +3,7 @@
 #### [Projekt 5] Időjárási kamera keretrendszer régi mobilokhoz. [Mobil, IoT, Web, Újrahasznosítás]
 
 [![Időjárási kamera](https://people.inf.elte.hu/sabuaai/kepek/videokep.jpg)](https://www.youtube.com/watch?v=zTQyIcUM9w0)
+
 (A projekt bemutató videója)
 (Video URL: https://www.youtube.com/watch?v=zTQyIcUM9w0)
 
