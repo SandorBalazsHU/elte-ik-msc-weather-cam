@@ -4,7 +4,8 @@
 
 ### A projekt web API-ja.
 
-#### Az alkalmazás feladata:
+#### Az alkalmazás alapvető  feladata:
+Egy API-t nyújt a biztonságos bejelentkezéshez, kép és adatfeltöltéshez a mobil eszközök számára. /Esetleg REST API/
 
 ## User story-k:
 TODO
