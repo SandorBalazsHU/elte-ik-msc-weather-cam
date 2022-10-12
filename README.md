@@ -5,8 +5,9 @@
 #### [Projekt 5] Időjárási kamera keretrendszer régi mobilokhoz. [Mobil, IoT, Web, Újrahasznosítás]
 
 <p align="center">
-
-[![Időjárási kamera](https://people.inf.elte.hu/sabuaai/kepek/videokep.jpg)](https://www.youtube.com/watch?v=zTQyIcUM9w0)
+<a href="https://www.youtube.com/watch?v=zTQyIcUM9w0">
+<img style="width: 40%; height: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/videokep.jpg">
+</a>
 (A projekt bemutató videója)
 (Video URL: https://www.youtube.com/watch?v=zTQyIcUM9w0)
 </p>
@@ -16,7 +17,7 @@
 Egy könnyen telepíthető mobil alkalmazás, mely a kamera képét beállított időközönként szenzor adatokkal feliratozva feltölti egy szerverre ahol regisztráció után ezek tárolódnak és megtekinthetőek.
 
 <p align="center">
-<img width="40%" height="40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep1.jpg">
+<img style="width: 40%; height: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep1.jpg">
 </p>
 
 ### Az ötlet részletes kifejtése:
@@ -30,7 +31,7 @@ Ha felkeltette a projekt az érdeklődésedet és otthon vagy a JAVA mobil és P
 Ha sikerült felkeltenem az érdeklődésed, az alábbiakban olvashatsz a projekt működéséről és a tervezett felépítéséről.
 
 <p align="center">
-<img width="40%" height="40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep2.jpg">
+<img style="width: 40%; height: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep2.jpg">
 </p>
 
 ### A projekt részei:
@@ -56,7 +57,7 @@ A weboldal a képeket galériába rendezi a mért adatokkal együtt. Ebből vide
 Van lehetőség regisztrációra és az adatok vizualizációjára és közzétételére is. Az adatvizualizáció és a statisztika a weboldal fontos eleme, cél, hogy a mért adatok minél szemléletesebben legyenek ábrázolva a videó mellett.
 
 <p align="center">
-<img width="40%" height="40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep3.jpg">
+<img style="width: 40%; height: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep3.jpg">
 </p>
 
 ### A technikai megoldások:
@@ -75,7 +76,7 @@ Az eszköz 3.3v-5v tápfeszültséget igényel melyet a telefon OTG-USB-n keresz
 A fejlesztés Arduino C++ és ESP mikrokontrollerek segítségével történik. Az eszközök elkészítését és a firmware megírását szívesen elvállalom, a csapat minden tagjának tudom biztosítani az alap hardvert a teszteléshez. De persze a hardver mockolása is lehetséges a fejlesztés elején. Készítettem már hasonló eszközt ami napelemmel üzemel és WIFI-n keresztül kommunikál.
 
 <p align="center">
-<img display="block" width="50%" height="50%" src="https://people.inf.elte.hu/sabuaai/kepek/kep4.jpg"><img display="block" width="50%" height="50%" src="https://people.inf.elte.hu/sabuaai/kepek/kep5.jpg"><img display="block" width="50%" height="50%" src="https://people.inf.elte.hu/sabuaai/kepek/kep6.jpg">
+<img style="display: inline-block; width: 40%; height: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep4.jpg"><img style="display: inline-block; width: 40%; height: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep5.jpg"><img style="display: inline-block; width: 40%; height: 40%" src="https://people.inf.elte.hu/sabuaai/kepek/kep6.jpg">
 </p>
 
 #### 3.) A weboldal:
