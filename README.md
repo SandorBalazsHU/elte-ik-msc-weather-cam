@@ -1,13 +1,16 @@
-# elte-ik-msc-weather-cam
-## ELTE IK MSC Haladó Szoftvertechnológia projekt. Időjárási kamera [Projekt 5]
+## ELTE IK MSC Haladó Szoftvertechnológia projekt.
 
-### [Projekt 5] Időjárási kamera keretrendszer régi mobilokhoz.
-### [Mobil, IoT, Web, Újrahasznosítás]
+#### [Projekt 5] Időjárási kamera keretrendszer régi mobilokhoz. [Mobil, IoT, Web, Újrahasznosítás]
 
+[![Időjárási kamera](https://people.inf.elte.hu/sabuaai/kepek/videokep.jpg)](https://www.youtube.com/watch?v=zTQyIcUM9w0)
+(A projekt bemutató videója)
+(Video URL: https://www.youtube.com/watch?v=zTQyIcUM9w0)
 
 ### Minimum Viable Product:
 
 Egy könnyen telepíthető mobil alkalmazás, mely a kamera képét beállított időközönként szenzor adatokkal feliratozva feltölti egy szerverre ahol regisztráció után ezek tárolódnak és megtekinthetőek.
+
+![My Remote Image](https://people.inf.elte.hu/sabuaai/kepek/kep1.jpg)
 
 ### Az ötlet részletes kifejtése:
 A projekt célja eszközt biztosítani a fiókban porosodó, régi, de még működőképes mobiltelefonok felhasználására, hogy időjárási, vagy távfelügyeleti kameraként folytathassák az életüket.
@@ -18,6 +21,8 @@ Tehát van egy használt, de még sok potenciált rejtő mobil platformunk és e
 A felhasználandó eszközök: Git, Maven, Android (JAVA/Kotlin), Junit, Mockito, PHP, PHPUnit, HTML, JS, Arduino C++, ESP8266, ESP32, GoogleTest
 Ha felkeltette a projekt az érdeklődésedet és otthon vagy a JAVA mobil és PHP webfejlesztésben, netán érdekel az IoT jelentkezz bátran a fórumban. Én vagyok a projekt ötletgazdája, szívesen válaszolok a felmerülő kérdésekre.
 Ha sikerült felkeltenem az érdeklődésed, az alábbiakban olvashatsz a projekt működéséről és a tervezett felépítéséről.
+
+![My Remote Image](https://people.inf.elte.hu/sabuaai/kepek/kep2.jpg)
 
 ### A projekt részei:
 A rendszer három részből áll.
@@ -41,6 +46,8 @@ Az eszköz táp alá helyezése és konfigurálása után wifi-n vagy BT-n keres
 A weboldal a képeket galériába rendezi a mért adatokkal együtt. Ebből videót és grafikont alkot.
 Van lehetőség regisztrációra és az adatok vizualizációjára és közzétételére is. Az adatvizualizáció és a statisztika a weboldal fontos eleme, cél, hogy a mért adatok minél szemléletesebben legyenek ábrázolva a videó mellett.
 
+![My Remote Image](https://people.inf.elte.hu/sabuaai/kepek/kep3.jpg)
+
 ### A technikai megoldások:
 Git, Maven, Android (JAVA/Kotlin), Junit, Mockito, PHP, PHPUnit, HTML, JS, Arduino C++, ESP, GoogleTest
 
@@ -55,6 +62,8 @@ A hardver több verzióban is elkészülhet. Ez a minimális kiadás, ebből gy�
 A fejlettebb kiadásban a szenzorok száma növelhető (Pára, légminőség, szálló por mennyisége stb.). Gombok és kijelző is használható igény szerint. ESP32 vezérlővel BT kapcsolat is lehetséges.
 Az eszköz 3.3v-5v tápfeszültséget igényel melyet a telefon OTG-USB-n keresztül, vagy PowerBank-ról is kaphat. A kábel hosszát, (max 1,5m) növelve a célhardver kihelyezhető az ablakon túlra. Az a fejlettebb kiadásban hajtható 3.3v-os akkumulátorról vagy napelemről is, de az alap modell vezetékes táplálású lesz.
 A fejlesztés Arduino C++ és ESP mikrokontrollerek segítségével történik. Az eszközök elkészítését és a firmware megírását szívesen elvállalom, a csapat minden tagjának tudom biztosítani az alap hardvert a teszteléshez. De persze a hardver mockolása is lehetséges a fejlesztés elején. Készítettem már hasonló eszközt ami napelemmel üzemel és WIFI-n keresztül kommunikál.
+
+![My Remote Image](https://people.inf.elte.hu/sabuaai/kepek/kep4.jpg)![My Remote Image](https://people.inf.elte.hu/sabuaai/kepek/kep5.jpg)![My Remote Image](https://people.inf.elte.hu/sabuaai/kepek/kep6.jpg)
 
 #### 3.) A weboldal:
 A weboldalhoz PHP backendet használnék, hogy a projektet minél könnyebben reprodukálhassák. Emellett rendelkezem 8GB PHP MYSQL Apache szerverrel, amit szabadon használhatunk Backend gyanánt. A frontendnek bootstrap-et képzeltem el az egyszerűség kedvéért, de bármi más is lehet.
