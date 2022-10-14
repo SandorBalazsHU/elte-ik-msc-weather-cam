@@ -1,6 +1,15 @@
 <p align="justify">
 
-## ELTE IK MSC Haladó Szoftvertechnológia projekt.
+# ELTE IK MSC Haladó Szoftvertechnológia projekt.
+
+## Szerepkörök
+| Felelős | Szerepkör |
+|-|-|
+| Szokoli Mátyás | mobil alkalmazás fejlesztését Kotlin-ban |
+| Ladomérszky Bence | Jenkins CI/CD konfigurálást és besegít a frontendben |
+| Ertl Dénes | frontend fejlesztését és besegít a backend API tervezésébe |
+| Harmaci Marcell | PHP backend, adatbázis |
+| Sándor Balázs | hardver készítést és a hardver kódot, valamint segít amiben tud |
 
 #### [Projekt 5] Időjárási kamera keretrendszer régi mobilokhoz. [Mobil, IoT, Web, Újrahasznosítás]
 
