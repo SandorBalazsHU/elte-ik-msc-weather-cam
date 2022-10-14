@@ -1,0 +1,7 @@
+node
+{
+    stage("TEST STAGE")
+    {
+        print("Hello world! (ofc, what else, also im running from GIT kekw)")
+    }
+}
