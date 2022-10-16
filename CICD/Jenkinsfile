@@ -3,7 +3,7 @@ node
 
     stage("HARDWARE COMPILE")
     {
-        sh "echo ls -l"
+        sh "ls -l"
         sh "cd Hardware"
         sh "echo -----START COMPILE-----"
         sh "arduino-cli compile --fqbn esp8266:esp8266:nodemcu ESP8266WeatherStation.ino"
