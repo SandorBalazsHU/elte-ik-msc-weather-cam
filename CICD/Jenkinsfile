@@ -1,6 +1,7 @@
 node
 {
-
+    currentBuild.displayName = "vm_weather_onCommit_" + currentBuild.number
+    
     stage("CLONE WS")
     {
         sh "rm -r elte-ik-msc-weather-cam"
