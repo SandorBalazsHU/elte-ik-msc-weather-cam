@@ -1,7 +1,11 @@
 node
 {
-    stage("TEST STAGE")
+
+    stage("HARDWARE COMPILE")
     {
-        print("Hello world! (ofc, what else, also im running from GIT kekw TESTT)")
+        sh "echo ls -l"
+        sh "cd Hardware"
+        sh "echo -----START COMPILE-----"
+        sh "arduino-cli compile --fqbn esp8266:esp8266:nodemcu ESP8266WeatherStation.ino"
     }
 }
