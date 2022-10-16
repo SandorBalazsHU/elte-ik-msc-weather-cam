@@ -1,11 +1,19 @@
 node
 {
 
+    stage("CLONE WS")
+    {
+        sh "git clone https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
+    }
+
     stage("HARDWARE COMPILE")
     {
         sh "ls -l"
-        sh "cd Hardware"
         sh "echo -----START COMPILE-----"
-        sh "arduino-cli compile --fqbn esp8266:esp8266:nodemcu ESP8266WeatherStation.ino"
+        sh "arduino-cli compile --fqbn esp8266:esp8266:nodemcu elte-ik-msc-weather-cam/Hardware/ESP8266WeatherStation.ino"
+    }
+    stage("CLEAN WS")
+    {
+        sh "rm -r elte-ik-msc-weather-cam"
     }
 }
