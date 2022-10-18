@@ -15,8 +15,6 @@
 #include <Wire.h>
 #include "SdFat.h"
 #include "sdios.h"
-#include "RTClib.h"
-#include <NTPClient.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <ESP8266WebServer.h>
@@ -34,21 +32,23 @@ bool bme280Status = false;
 //Senzor variables
 float temperature, humidity, pressure, altitude, wifiStrength;
 
-//RTC init
-RTC_DS3231 rtc;
-const long utcOffsetInSeconds = 3600;
-//char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-bool rtcStatus = false;
-
 //SD
 SdFs sd;
 FsFile file;
 const uint8_t SD_CS_PIN = 2;
 
 //WIFI datas
-const char* ssid = "SB";
-const char* password = "117aSd558qWe94*";
-const char* APssid = "SBWeather";
+/*/ Set your Static IP address
+IPAddress local_IP(157, 181, 199, 122);
+// Set your Gateway IP address
+IPAddress gateway(157, 181, 192, 1);
+IPAddress subnet(255, 255, 248, 0);
+IPAddress primaryDNS(157, 181, 199, 5);   //optional
+IPAddress secondaryDNS(8, 8, 8, 8); //optional
+*/
+const char* ssid = "KCSSK";
+const char* password = "PASSPHASE";
+const char* APssid = "WeatherStation";
 const char* APpassword = "11755894";
 //WIFI Connection trying overtime
 #define OVERTIME 10
@@ -56,10 +56,6 @@ const char* APpassword = "11755894";
 int timeout = 0;
 //Modul is online?
 boolean isOnline = false;
-
-// Define NTP Client to get time
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 //Webserver start
 ESP8266WebServer server(80);              
@@ -69,7 +65,7 @@ bool l = true;
 void setup() {
   //Serial start for DEBUG
   Serial.begin(115200);
-  delay(100);
+  delay(1000);
 
   //LED INIT
   pinMode(LED_BUILTIN, OUTPUT);
@@ -89,6 +85,11 @@ void setup() {
 
   //Wifi setup Station mode
   WiFi.mode(WIFI_STA);
+
+  /*/WIFI IP CONFIG
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("STA Failed to configure");
+  }*/ 
 
   //connect to your local wi-fi network
   WiFi.begin(ssid, password);
@@ -115,6 +116,8 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
     delay(200);
     digitalWrite(LED_BUILTIN, HIGH);
+    Serial.print("IP address:\t");
+    Serial.println(WiFi.localIP());
   }else{
     Serial.println("WIFI Connection ERROR");
     Serial.print("WIFI status: ");
@@ -130,23 +133,6 @@ void setup() {
     WiFi.softAP(APssid, APpassword);
     Serial.print("WIFI status: ");
     Serial.println(wifiStatuscode(WiFi.status()));
-  }
-  
-  //RTC update from WIFI
-  if(isOnline) timeClient.begin();
-  if (!(rtcStatus= rtc.begin())) {
-    Serial.println("Couldn't find RTC");
-  }
-  if(isOnline && rtcStatus)
-  {
-    Serial.println("RTC OK");
-    if(timeClient.update()){
-      rtc.adjust(DateTime(timeClient.getEpochTime()));
-      Serial.print("RTC updated from NTP: ");
-      Serial.println(timeClient.getEpochTime());
-    }else{
-      Serial.println("NTP ERROR");
-    }
   }
   
   //Webserver initialisation
@@ -169,9 +155,8 @@ void setup() {
 
 //Main loop
 void loop() {
-  DateTime currentTime = rtc.now();
 
-  if(currentTime.second() %10 == 0) {
+  if(millis() %1000 == 0) {
     if(l) {
       if (!file.open("data.csv", FILE_WRITE)) {
         Serial.println("File open failed");
@@ -182,8 +167,6 @@ void loop() {
       altitude = bme.readAltitude(pressure);
       
       String ptr = "";
-      ptr += String(currentTime.year(), DEC) + '.' + String(currentTime.month(), DEC) + '.' + String(currentTime.day(), DEC) + ";";
-      ptr += String(currentTime.hour()+1, DEC) + ':' + String(currentTime.minute(), DEC) + ':' + String(currentTime.second(), DEC) + ";";
       ptr +=temperature;
       ptr +=";";
       ptr +=humidity;
@@ -211,24 +194,22 @@ void outputHTML() {
   digitalWrite(LED_BUILTIN, LOW);
   delay(200);
   digitalWrite(LED_BUILTIN, HIGH);
-  DateTime currentTime = rtc.now();
   temperature = bme.readTemperature();
   humidity = bme.readHumidity();
   pressure = (bme.readPressure() / 100.0f) + 10.44f;
   altitude = bme.readAltitude(pressure);
   wifiStrength = WiFi.RSSI();
-  server.send(200, "text/html", sendHTML(temperature, humidity, pressure, altitude, wifiStrength, currentTime)); 
+  server.send(200, "text/html", sendHTML(temperature, humidity, pressure, altitude, wifiStrength)); 
 }
 
 //Create output RAW data
 void outputRAW() {
-  DateTime currentTime = rtc.now();
   temperature = bme.readTemperature();
   humidity = bme.readHumidity();
   pressure = bme.readPressure() / 100.0F;
   altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
   wifiStrength = WiFi.RSSI();
-  server.send(200, "text/plain", sendRAW(temperature, humidity, pressure, altitude, wifiStrength, currentTime)); 
+  server.send(200, "text/plain", sendRAW(temperature, humidity, pressure, altitude, wifiStrength)); 
 }
 
 //Notfound page
@@ -237,7 +218,7 @@ void outputNotFound(){
 }
 
 //Raw data string creator
-String sendRAW(float temperature,float humidity,float pressure,float altitude, float wifiStrength, DateTime currentTime){
+String sendRAW(float temperature,float humidity,float pressure,float altitude, float wifiStrength){
   String ptr = "[";
   ptr +=sizeof(temperature);
   ptr +=",";
@@ -248,14 +229,12 @@ String sendRAW(float temperature,float humidity,float pressure,float altitude, f
   ptr +=altitude;
   ptr +=",";
   ptr +=wifiStrength;
-  ptr +=",";
-  ptr += sizeof(currentTime.unixtime());
   ptr +="]";
   return ptr;
 }
 
 //HTML Creator
-String sendHTML(float temperature,float humidity,float pressure,float altitude, float wifiStrength, DateTime currentTime){
+String sendHTML(float temperature,float humidity,float pressure,float altitude, float wifiStrength){
   String ptr = "<!DOCTYPE html> <html>\n";
   ptr +="<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
   ptr +="<meta http-equiv=\"refresh\" content=\"5\">\n";
@@ -282,9 +261,6 @@ String sendHTML(float temperature,float humidity,float pressure,float altitude, 
   ptr +="m</p>";
   ptr +="<p>WIFI strength: ";
   ptr +=wifiStrength;
-  ptr +="</p>";
-  ptr +="<p>RTC time:  ";
-  ptr += String(currentTime.year(), DEC) + '/' + String(currentTime.month(), DEC) + '/' + String(currentTime.day(), DEC) + " " + String(currentTime.hour(), DEC) + ':' + String(currentTime.minute(), DEC) + ':' + String(currentTime.second(), DEC);
   ptr +="</p>";
   ptr +="</div>\n";
   ptr +="</body>\n";
