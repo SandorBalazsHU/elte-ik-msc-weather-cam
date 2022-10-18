@@ -1,4 +1,4 @@
-# A projekt web API-ja.
+# The project's web API
 REST API for communication with the web page and the Android app.
 
 ## Project structure
