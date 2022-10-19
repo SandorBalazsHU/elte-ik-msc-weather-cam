@@ -12,6 +12,7 @@
  * Features:
  * 
  */
+#include <SPI.h>
 #include <Wire.h>
 #include "SdFat.h"
 #include "sdios.h"
@@ -20,17 +21,32 @@
 #include <ESP8266WebServer.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 using namespace sdfat;
+
+//Pressure init
+#define SEALEVELPRESSURE_HPA (1013.25)
+// OLED display width, in pixels
+#define SCREEN_WIDTH 128
+// OLED display height, in pixels
+#define SCREEN_HEIGHT 64 
+// Reset pin # (or -1 if sharing Arduino reset pin)
+#define OLED_RESET     -1 
+// See datasheet for Address
+#define SCREEN_ADDRESS 0x3C 
+
+//OLED
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 //Sensor
 Adafruit_BME280 bme;
 //Senzor status
 bool bme280Status = false;
-//Pressure init
-#define SEALEVELPRESSURE_HPA (1013.25)
 //Senzor variables
 float temperature, humidity, pressure, altitude, wifiStrength;
+
 
 //SD
 SdFs sd;
@@ -65,7 +81,7 @@ bool l = true;
 void setup() {
   //Serial start for DEBUG
   Serial.begin(115200);
-  delay(1000);
+  delay(2000);
 
   //LED INIT
   pinMode(LED_BUILTIN, OUTPUT);
@@ -81,6 +97,21 @@ void setup() {
     Serial.println("BME280 Init ERROR");
   }else{
     Serial.println("BME280 Init OK");
+  }
+
+  //TODO Display is on variable
+
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 OLED allocation failed"));
+  }else{
+    Serial.println(F("SSD1306 OLED allocation successful"));
+    // Show initial display buffer contents on the screen --
+    // the library initializes this with an Adafruit splash screen.
+    display.display();
+    delay(500); // Pause for 2 seconds
+    // Clear the buffer
+    display.clearDisplay();
   }
 
   //Wifi setup Station mode
@@ -156,7 +187,7 @@ void setup() {
 //Main loop
 void loop() {
 
-  if(millis() %1000 == 0) {
+  if(millis() %2000 == 0) {
     if(l) {
       if (!file.open("data.csv", FILE_WRITE)) {
         Serial.println("File open failed");
@@ -166,6 +197,22 @@ void loop() {
       pressure = (bme.readPressure() / 100.0f) + 10.44f;
       altitude = bme.readAltitude(pressure);
       
+
+      display.clearDisplay();
+
+      display.setTextSize(1);             // Normal 1:1 pixel scale
+      display.setTextColor(SSD1306_WHITE);        // Draw white text
+      display.setCursor(0,0);             // Start at top-left corner
+      display.println(F("Hello, world!"));
+      display.println(WiFi.localIP());
+      display.println(temperature);
+      display.println(humidity);
+      display.println(pressure);
+      display.println(altitude);
+
+      display.setTextColor(SSD1306_WHITE);
+      display.display();
+
       String ptr = "";
       ptr +=temperature;
       ptr +=";";
