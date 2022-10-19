@@ -1,0 +1,1173 @@
+openapi: 3.0.3
+info:
+  title: Weather-Cam-API (OpenAPI 3.0)
+  description: |
+    Weather-Cam-API is a REST API created as a part a software project at Eötvös Loránd university. The goal of the project is to turn old/unused mobile phones and an [esp8266](https://www.espressif.com/en/products/socs/esp8266) into a diy weather stations capable of recording photos, temperature, pressure and humidity data.
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+externalDocs:
+  description: Github page for the project
+  url: https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam
+servers:
+  - url: https://api.weather.s-b-x.com/v1
+  - url: https://mock.weather.s-b-x.com/v1
+  - url: https://{environment}.{server}/{version}
+    variables:
+      version:
+        default: v1
+      server:
+        default: https://api.weather.s-b-x.com
+      environment:
+        default: api
+tags:
+  - name: measurements
+    description: Resources to the sensor data recorded by the esp8266.
+    externalDocs:
+      description: Find out more
+      url: https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam/blob/main/README.md
+  - name: pictures
+    description: Resources to the pictures sent by the mobile phone.
+    externalDocs:
+      description: Find out more
+      url: https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam/blob/main/README.md
+  - name: stations
+    description: Resources to the weather stations.
+    externalDocs:
+      description: Find out more
+      url: https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam/blob/main/README.md
+  - name: user
+    description: Resources to the user data.
+    externalDocs:
+      description: Find out more
+      url: https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam/blob/main/README.md
+paths:
+  /stations/{station_id}/measurements/{measurement_id}:
+    get:
+      summary: Find a single measurement of a station.
+      description: |
+        ## Functionality: 
+        Returns a measurement identified by measurement_id of a station identified by station_id.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      parameters:
+        - $ref: '#/components/parameters/measurement_id'
+        - $ref: '#/components/parameters/station_id'
+      responses:
+        '200':
+          description: __Successfully__ found the requested measurement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexedMeasurement'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to find the requested measurement.
+
+            *Possible causes*:
+              - Measurement with given measurement_id does not exist.
+              - Station with given station_id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      security:
+        - bearerAuth: []
+      operationId: getStationMeasurementById
+      tags:
+        - measurements
+  /stations/{station_id}/measurements/latest:
+    get:
+      summary: Find the latest measurement of a station.
+      description: |
+        ## Functionality: 
+        Returns the __latest__ measurement recieved from the weather station.  
+
+        *Note*: The latest measurement is defined as the last measurement of station with station_id processed by the server.
+
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+      responses:
+        '200':
+          description: __Successfully__ found the requested measurement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexedMeasurement'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to find the requested measurement.
+
+            *Possible causes*:
+              - There are no measurements for this station on the server.
+              
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      operationId: getLatestStationMeasurement
+      security:
+        - bearerAuth: []
+      tags:
+        - measurements
+        
+  /stations/{station_id}/measurements/first:
+    get:
+      summary: Find the first measurement of a station.
+      description: |
+        ## Functionality: 
+        Returns the __first__ measurement recieved from the weather station.  
+
+        *Note*: The first measurement is defined as the first measurement of station with station_id processed by the server.
+
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+      responses:
+        '200':
+          description: __Successfully__ found the requested measurement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexedMeasurement'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to find the requested measurement.
+
+            *Possible causes*:
+              - There are no measurements for this station on the server.
+              
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      operationId: getFirstStationMeasurement
+      security:
+        - bearerAuth: []
+      tags:
+        - measurements
+  /stations/{station_id}/measurements:
+    get:
+      summary: Find multiple measurements of a station in a given time range or relative to a measurement.
+      description: |
+        ## Functionality: 
+        Returns __multiple__ measurements of a station in a given time range or relative to a measurement.
+        
+        __Important__: Parameters pairs date_begin, date_end and measurement_id, offset are mutually exclusive. Either use date_begin and date_end or measurement_id and offset when sending a request. Mixing them will throw a bad request error.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+        - in: query
+          name: date_begin
+          description: |
+            date_begin is the timestamp of which the returned measurements must be chronologically bigger or equal to.
+
+            date_begin follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.
+          schema:
+            type: number
+            format: int64
+        - in: query
+          name: date_end
+          description: |
+            date_end is the timestamp of which the returned measurements must be chronologically smaller or equal to.
+
+            date_end follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.
+          schema:
+            type: number
+            format: int64
+        - in: query
+          name: measurement_id
+          description: |
+            measurement_id is a __unique__ identifier for measurements. 
+
+            measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: offset
+          description: |
+            offset is the number of measurements to be returned before or after the measurement provided in parameter measurement_id.
+
+            The signed property of offset is used to decide the returned measurements.
+            For more information see the table below:
+
+            | offset value | result |
+            |---|---|
+            | offset < 0 | If a measurement with measurement_id for station with sation_id exist than an array containing the measurement identified by measurement_id and an additional abs(offset) amount of measurements chronologically __before__ measurement_id is returned.   |
+            | offset > 0 | If a measurement with measurement_id for station with sation_id exist than an array containing the measurement identified by measurement_id and an additional abs(offset) amount of measurements chronologically __after__ measurement_id is returned.   |
+            | offset = 0 | If a measurement with measurement_id for station with sation_id exist than an array containing the measurement identified by measurement_id is returned.   |
+          schema:
+            type: number
+            format: int64
+      tags:
+        - measurements
+      operationId: getStationMeasurementsByQuery
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: __Successfully__ found the requested measurements.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexedMeasurementArray'
+        '206':
+          description: |
+            __Successfully__ found part of the requested measurements.  
+
+            *Note*: This response is returned when only a part of the requested measurements can be retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexedMeasurementArray'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to find the requested measurements.
+
+            *Possible causes*:
+              - Measurement with given measurement_id does not exist.
+              - Station with given station_id does not exist.
+              
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /stations/measurements:
+    post:
+      tags:
+        - measurements
+      summary: Add new measurements to server
+      description: |
+        ## Functionality: 
+        Add __multiple__ measurements a station to the server.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid API key.
+        ---
+      operationId: addMeasurements
+      requestBody:
+        required: true
+        description: |
+          **Important**:  
+
+          New measurements sent to the server do **not** contain a unique identifiers station_id and measurement_id like the ones recieved by the server.  
+          Unique identifiers are assigned by the server upon processing the measurements.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeasurementArray'
+      responses:
+        '201':
+          description: __Successfully__ uploaded new measurements to the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      security:
+        - apiKeyAuth: []
+        
+  /stations/{station_id}/api/:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+      summary: Returns part of the API key for a station.
+      description: |
+        ## Functionality: 
+          Returns the API key of the station identified by station_id with only the first 4 and last 4 characters visible. Every other character is replaced by an 'X' character
+          
+          
+          ---
+          ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+          ---
+      tags:
+        - stations
+      operationId: getPartialApiKey
+      responses:
+        '200':
+          description: __Successfully__ pinged the station.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 19fsXXXX-XXXX-XXXX-XXXX-XXXXXXXXc0d1
+        '400':
+          description: |
+            __Failed__ to ping station.
+
+            *Possible causes*:
+              - Malformed input parameter.
+              - The station is offline.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      security:
+        - bearerAuth: []
+        
+  /stations/{station_id}/ping:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+      summary: Pings the weather station.
+      description: |
+        ## Functionality: 
+          Returns the status of a __single__ weather station. 
+          
+          ---
+          ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+          ---
+      tags:
+        - stations
+      operationId: getStationStatus
+      responses:
+        '200':
+          description: __Successfully__ pinged the station.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: |
+            __Failed__ to ping station.
+
+            *Possible causes*:
+              - Malformed input parameter.
+              - The station is offline.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      security:
+        - bearerAuth: []
+  /stations/pictures/storage:
+    get:
+      summary: Returns information about the storage server for the pictures.
+      description: |
+        ## Functionality: 
+          Returns information about the storage server for the pictures.
+          
+          
+          ---
+          ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+          ---
+      tags:
+        - stations
+      operationId: getPictureStorageInfo
+      responses:
+        '200':
+          description: Successfully recieved storage information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageInfo'
+        '400':
+          description: |
+            __Failed__ to recieve storage information.
+
+            *Possible causes*:
+              - The storage server is offline.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      security:
+        - bearerAuth: []
+  /stations/measurements/storage:
+    get:
+      summary: Returns information about the storage server for the measurements.
+      description: |
+        ## Functionality: 
+          Returns information about the storage server for the pictures.
+          
+          
+          ---
+          ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+          ---
+      tags:
+        - stations
+      operationId: getMeasurementStorageInfo
+      responses:
+        '200':
+          description: Successfully recieved storage information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageInfo'
+        '400':
+          description: |
+            __Failed__ to recieve storage information.
+
+            *Possible causes*:
+              - The storage server is offline.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      security:
+        - bearerAuth: []
+  /stations/status/{status_code}:
+    put:
+      parameters:
+        - in: path
+          name: status_code
+          schema:
+            type: number
+          required: true
+      summary: Update the status of the weather station.
+      tags:
+        - stations
+      description: |
+        ## Functionality: 
+          Updates the status of the weather station.
+          
+          
+          ---
+          ### Prerequisites:
+          - This endpoint can only be used with a valid API key.
+          ---
+      operationId: updateStationStatus
+      responses:
+        '200':
+          description: __Successfully__ updated the status of the weather station.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: __Failed__ to update the status of the weather station.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          $ref: '#/components/responses/UnauthorizedAPI'
+      security:
+        - apiKeyAuth: []
+  /stations/{station_id}/pictures/{picture_id}:
+    parameters:
+      - in: path
+        name: picture_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/station_id'
+    get:
+      summary: Find picture by id.
+      description: |
+        ## Functionality: 
+          Returns a picture identified by picture_id of a station identified by station_id.
+
+
+          
+          ---
+          ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+          ---
+      tags:
+        - pictures
+      operationId: getPictureById
+      responses:
+        '200':
+          description: __Successfully__ found the requested picture.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to find the requested picture.
+
+            *Possible causes*:
+              - Picture with given picture_id does not exist.
+              - Station with given station_id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      security:
+        - bearerAuth: []
+  /stations/{station_id}/pictures/latest:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+      summary: Find last picture.
+      description: |
+        ## Functionality: 
+        Returns the __latest__ picture recieved from the weather station.  
+
+        *Note*: The latest picture is defined as the last picture of station with station_id processed by the server.
+
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      tags:
+        - pictures
+      operationId: getLastPicture
+      responses:
+        '200':
+          description: __Successfully__ found the requested picture.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to find the requested picture.
+
+            *Possible causes*:
+              - There are no pictures for this station on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      security:
+        - bearerAuth: []
+  /stations/{station_id}/pictures:
+    get:
+      summary: Find picture relative to other picture.
+      description: |
+        ## Functionality: 
+        Returns a __single__ picture relative to an other picture.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+        - in: query
+          name: picture_id
+          description: |
+            picture_id is a __unique__ identifier for pictures. 
+
+            picture_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: offset
+          description: |
+            offset is a signed integer this signed property of is used to calculate the returned picture.
+            For more information see the table below:
+
+            | offset value | result |
+            |---|---|
+            | offset < 0 | If a picture with picture_id exist than the picture abs(offset) __before__ picture_id is returned.   |
+            | offset > 0 | If a picture with picture_id exist than the picture abs(offset) __after__ picture_id is returned.   |
+            | offset = 0 | If a record with picture_id exist than the picture identified by picture_id is returned.   |
+          required: true
+          schema:
+            type: number
+            format: int64
+      tags:
+        - pictures
+      operationId: getRelativePicture
+      responses:
+        '200':
+          description: __Successfully__ found the requested picture.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to find the requested picture.
+
+            *Possible causes*:
+              - Picture with given picture_id does not exist.
+              - Picture offset before or after picture identified by picture_id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      security:
+        - bearerAuth: []
+  /stations/pictures:
+    post:
+      description: |
+        ## Functionality: 
+        Upload picture to the server.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid API key.
+        ---
+      tags:
+        - pictures
+      summary: Add picture to server.
+      operationId: addPicture
+      requestBody:
+        description: Server
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: __Successfully__ uploaded the requested picture.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedAPI'
+      security:
+        - apiKeyAuth: []
+  /user/login:
+    get:
+      tags:
+        - user
+      summary: Logs user into the system
+      description: |
+        ## Functionality: 
+        Returns a JWT token. This token can later be used to authenticate requests.
+
+        ---
+      operationId: loginUser
+      parameters:
+        - name: username
+          in: query
+          description: The unique username for the user.
+          required: false
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password associated with the username.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: __Successfully__ logged in user.
+          headers:
+            Authorization:
+              schema:
+                type: string
+                example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiw...
+              description: Authorization header containing the JWT key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: Invalid username or password supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /user/logout:
+    get:
+      tags:
+        - user
+      summary: Logs out current logged in user.
+      description: |
+        ## Functionality: 
+        Logs out current logged in user.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      operationId: logoutUser
+      responses:
+        '200':
+          description: __Successfully__ logged out user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      security:
+        - bearerAuth: []
+  /user/stations:
+    get:
+      summary: Returns an array of stations registered with the user.
+      description: |
+        ## Functionality: 
+        Returns an array of stations associated with the user.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      responses:
+        '200':
+          description: Successfully recieved array of stations associated with the user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationArray'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      operationId: getStations
+      tags:
+        - user
+      security:
+        - bearerAuth: []
+    post:
+      summary: Add new stations to the user.
+      description: |
+        ## Functionality: 
+        Adds a new station to the list of stations associated with the user.
+        
+        __Important__: This response contains information about the newly added station and it's API key.  The API key is only recieved once after creating a new station make sure to __write it down__ somewhere! After this only parts of the API key can be accessed by the user.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      responses:
+        '200':
+          description: __Successfully__ added new station.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationApiKey'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      operationId: addStations
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+  /user/stations/{station_id}: 
+    put:
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+        
+      summary: Generate new API key for a station.
+      description: |
+        ## Functionality: 
+        Generate new API key for a station. This can be used to revoke all access of a weather station.
+        
+        __Important__: After a new API key is generated stations that use this API key lose access to upload measurements. If you want to continue using the weather station you need to update the API key in the mobile app.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      responses:
+        '200':
+          description: __Successfully__ updated station.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationApiKey'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to update API key of the station.
+
+            *Possible causes*:
+              - Station with given station_id does not exist.
+      operationId: updateStation
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+  /user/register:
+    post:
+      summary: Add new user.
+      description: |
+        ## Functionality: 
+        Adds a new user to the server.
+
+        ---
+      tags:
+        - user
+      parameters:
+        - name: username
+          in: query
+          description: The unique username of the new user
+          required: false
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password of the new user
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: __Successfully__ added user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: |
+            __Failed__ to add new user. Username already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /user/{username}:
+    put:
+      tags:
+        - user
+      summary: Update user data.
+      description: |
+        ## Functionality: 
+        Updates the data of an already existing user.
+
+        ---
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+        ---
+      parameters:
+        - $ref: '#/components/parameters/username'
+      requestBody:
+        description: |
+          **Important:**The user_id of the user cannot be updated with this endpoint.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: __Successfully__ modified user data.
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+    delete:
+      tags:
+        - user
+      summary: Delete user.
+      description: |
+        ## Functionality: 
+        Deletes a user.
+
+        ---
+        ### Prerequisites:
+        - This endpoint can only be used with a valid JWT token.
+        ---
+      operationId: deleteUser
+      parameters:
+        - $ref: '#/components/parameters/username'
+      responses:
+        '200':
+          description: __Successfully__ deleted user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    IndexedMeasurement:
+      description: |
+        IndexedMeasurement is the same as Measurement with the exception of added properties station_id and measurement_id.  
+        station_id and measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+      allOf:
+        - $ref: '#/components/schemas/Measurement'
+        - type: object
+          properties:
+            measurement_id:
+              type: string
+              format: uuid
+              pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+              description: |
+                measurement_id is a __unique__ identifier for measurements.  
+                measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+            station_id:
+              type: string
+              format: uuid
+              pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+              description: |
+                station_id is a __unique__ identifier for weather stations.  
+                station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+    Measurement:
+      description: Measurement contains the data recorded by the sensors. 
+      type: object
+      properties:
+        temperature:
+          description: temperature in celsius.
+          type: number
+          format: float
+          example: 22.3
+        pressure:
+          description: pressure in millibars.
+          type: number
+          format: float
+          example: 1013.25
+        humidity:
+          description: humidity in percentage.
+          type: number
+          format: float
+          example: 66.6
+    MeasurementArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Measurement'
+    IndexedMeasurementArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/IndexedMeasurement'
+    StorageInfo:
+      description: StorageInfo contains data about the storage usage of the server.
+      type: object
+      properties:
+        total_storage:
+          description: total_storage is the total amount of storage in bytes.
+          type: integer
+          format: int64
+          example: 564234234235
+        used_storage:
+          description: total_storage is the amount of free storage in bytes.
+          type: integer
+          format: int64
+          example: 324534534533
+    User:
+      description: User contains all the user information.
+      type: object
+      properties:
+        user_id:
+          description: | 
+            user_id is the unique identifier of the user.
+            station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+          type: string
+          format: uuid
+          pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+          example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+        username:
+          description: username is a unique name used to identify the user.
+          type: string
+          example: theUser
+        password:
+          type: string
+          example: '12345'
+    Station:
+      description: Station contains information about a weather station.
+      type: object
+      properties:
+        station_id:
+          description: |
+            station_id is a __unique__ identifier for stations. 
+
+            station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+          type: string
+          format: uuid
+          pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+          example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+        station_name:
+          type: string
+          description: station_name is the unique name of the station.
+          example: home_station_01
+    StationApiKey:
+      type: object
+      description: | 
+        StationApiKey contains information about the newly added station and it's api_key.  
+        **Important**: The api_key is only recieved once after creating a new station make sure to write it down somewhere! 
+      properties:
+        station_id:
+          type: string
+          description: |
+            station_id is a __unique__ identifier for stations. 
+
+            station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+          format: uuid
+          pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+          example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+        api_key:
+          type: string
+          format: uuid
+          description: | 
+            api_key gives access to upload measurements to the server.  
+    StationArray:
+      type: array
+      example:
+                - station_id: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+                  station_name: home_station_01
+                - station_id: b530dde2-62b3-492f-a20c-4eee39ac3909
+                  station_name: home_station_02
+      items:
+        $ref: '#/components/schemas/Station'
+    ApiResponse:
+      description: ApiResponse contains information about the result of a request.
+      type: object
+      properties:
+        code:
+          description: code is the status of the returned request. code follows the [HTTP response codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
+          type: integer
+          format: int32
+          example: 420
+        type:
+          description: type is used to categorize responses. The different types of responses can be found [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status).
+          type: string
+          example: example
+        message:
+          description: message is a more detailed information about the response.
+          type: string
+          example: An example message of type example generated by an example API response
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      name: api_key
+      in: header
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+      NotFound:
+        description: The specified resource was not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+      UnauthorizedJWT:
+        description: |
+            __Failed__ to authorize request with the provided JWT token.
+
+            *Possible causes*:
+              - JWT token is invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+              
+      UnauthorizedAPI:
+        description: |
+            __Failed__ to authenticate request with the provided API key.
+
+            *Possible causes*:
+              - API key is invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
+      
+      BadRequest:
+          description: |
+            __Failed__ to process request.
+
+            *Possible causes*:
+              - Malformed or missing input parameter.
+  parameters:
+    measurement_id:
+      in: path
+      name: measurement_id
+      required: true
+      description: |
+            measurement_id is a __unique__ identifier for measurements. 
+
+            measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+
+      schema:
+        type: string
+        format: uuid
+        pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+    station_id:
+      in: path
+      name: station_id
+      required: true
+      description: |
+            station_id is a __unique__ identifier for weather stations
+
+            station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+      schema:
+        type: string
+        format: uuid
+        pattern: ^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$
+        
+    username:
+      name: username
+      in: path
+      required: true
+      description: The unique username of the user.
+      schema:
+        type: string
+            
