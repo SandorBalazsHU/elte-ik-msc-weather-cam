@@ -1,5 +1,6 @@
 # The project's web API
-REST API for communication with the web page and the Android app.
+REST API for communication with the web page and the Android app.  
+Read the [API documentation here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/SandorBalazsHU/elte-ik-msc-weather-cam/main/Documentation/WebApi/weather-cam-web-api.yaml)!
 
 ## Project structure
 
