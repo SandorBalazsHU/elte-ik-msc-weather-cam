@@ -1131,11 +1131,15 @@ components:
               $ref: '#/components/schemas/ApiResponse'
       
       BadRequest:
-          description: |
+        description: |
             __Failed__ to process request.
 
             *Possible causes*:
               - Malformed or missing input parameter.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponse'
   parameters:
     measurement_id:
       in: path
