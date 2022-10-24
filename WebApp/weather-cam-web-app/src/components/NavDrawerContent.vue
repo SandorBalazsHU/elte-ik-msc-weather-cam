@@ -4,15 +4,13 @@
       <div class="my-2">
         <div v-if="themeStore.theme === 'dark'" class="w-100">
           <v-img
-            style="width: 80%; margin: auto"
-            lazy-src="src/assets/nav-cloud-dark.svg"
+            class="nav-logo-img"
             src="src/assets/nav-cloud-dark.svg"
           ></v-img>
         </div>
         <div v-else class="w-100">
           <v-img
-            style="width: 80%; margin: auto"
-            lazy-src="src/assets/nav-cloud-light.svg"
+            class="nav-logo-img"
             src="src/assets/nav-cloud-light.svg"
           ></v-img>
         </div>
@@ -25,35 +23,46 @@
           :prepend-icon="link.icon"
           :title="link.name"
           :value="link.name"
+          @click="router.push(link.routerLink)"
         ></v-list-item>
       </v-list>
     </div>
 
     <div class="flex-grow-0">
       <v-divider></v-divider>
-      <div :key="contact.icon" v-for="contact in contacts">
-        <v-btn :icon="contact.icon" variant="text"></v-btn
-        ><span>{{ contact.name }}</span>
-      </div>
+      <v-list nav>
+        <v-list-item
+          :key="contact.name"
+          v-for="contact in contacts"
+          :prepend-icon="contact.icon"
+          :title="contact.name"
+          :value="contact.name"
+        ></v-list-item>
+      </v-list>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { useThemeStore } from "@/store/theme.js";
-import { defineComponent } from "vue";
+import type { NavDrawerLinks, NavDrawerContacts } from "@/App.vue.js";
+import { useRouter } from "vue-router";
+export interface Props {
+  links: NavDrawerLinks;
+  contacts: NavDrawerContacts;
+}
 
-export default defineComponent({
-  components: {},
-  props: {
-    links: Array<{ icon: string; name: string }>,
-    contacts: Array<{ icon: string; name: string }>,
-  },
-  setup(props) {
-    const themeStore = useThemeStore();
-    return { props, themeStore };
-  },
-});
+const props = defineProps<Props>();
+const themeStore = useThemeStore();
+const router = useRouter();
 </script>
 
-<style scoped></style>
+<style scoped>
+.nav-justify {
+  justify-content: space-between;
+}
+.nav-logo-img {
+  width: 80%;
+  margin: auto;
+}
+</style>

@@ -1,20 +1,20 @@
 <template>
   <v-app>
-    <v-navigation-drawer app>
+    <v-navigation-drawer v-if="!mobile" app>
       <nav-drawer-content
         :contacts="contacts"
         :links="navDrawerLinks"
       ></nav-drawer-content>
     </v-navigation-drawer>
-    <v-navigation-drawer v-model="drawer" expand-on-hover rail temporary>
+    <v-navigation-drawer v-else v-model="drawer">
       <nav-drawer-content
         :contacts="contacts"
         :links="navDrawerLinks"
       ></nav-drawer-content>
     </v-navigation-drawer>
-    <v-app-bar :density="mobile ? 'compact' : ''" :elevation="2" app>
+    <v-app-bar :density="mobile ? 'compact' : 'default'" :elevation="2" app>
       <v-app-bar-nav-icon
-        @click="drawer = !drawer"
+        @click="!mobile ? (drawer = true) : (drawer = !drawer)"
         class="d-lg-none"
       ></v-app-bar-nav-icon>
       <v-app-bar-title>Weather camera</v-app-bar-title>
@@ -28,12 +28,19 @@
       </v-avatar>
 
       <v-btn
+        v-if="!mobile"
         @click="changeTheme(themeStore.nextTheme)"
         color="dark"
         variant="tonal"
         prepend-icon="mdi-theme-light-dark"
         >{{ themeStore.theme }} mode</v-btn
       >
+      <v-btn
+        v-else
+        @click="changeTheme(themeStore.nextTheme)"
+        icon="mdi-theme-light-dark"
+        color="dark"
+      ></v-btn>
     </v-app-bar>
 
     <v-main>
@@ -59,17 +66,27 @@ export default defineComponent({
     NavDrawerContent,
   },
   setup() {
-    const navDrawerLinks = [
-      { name: "Home", icon: "mdi-home" },
-      { name: "Weather stations", icon: "mdi-access-point-network" },
-      { name: "My account", icon: "mdi-account" },
-      { name: "Settings", icon: "mdi-cog-outline" },
-      { name: "About us", icon: "mdi-book-open-blank-variant" },
+    const navDrawerLinks: NavDrawerLinks = [
+      { name: "Home", icon: "mdi-home", routerLink: "/" },
+      {
+        name: "Weather stations",
+        icon: "mdi-access-point-network",
+        routerLink: "/stations",
+      },
+      { name: "My account", icon: "mdi-account", routerLink: "/account" },
+      { name: "Settings", icon: "mdi-cog-outline", routerLink: "/settings" },
+      {
+        name: "About us",
+        icon: "mdi-book-open-blank-variant",
+        routerLink: "/about",
+      },
     ];
     const themeStore = useThemeStore();
     const drawer = ref(false);
     const mobile = reactive(vuetify.display.mobile);
-    const contacts: Contacts = [{ icon: "mdi-github", name: "Github" }];
+    const contacts: NavDrawerContacts = [
+      { icon: "mdi-github", name: "Github" },
+    ];
 
     function changeTheme(theme: ColorThemes) {
       themeStore.change(theme);
@@ -98,14 +115,16 @@ export default defineComponent({
     };
   },
 });
-export type Contacts = Array<{ icon: string; name: string }>;
+type NavDrawerContacts = Array<{ icon: string; name: string }>;
+type NavDrawerLinks = Array<{
+  icon: string;
+  name: string;
+  routerLink: string;
+}>;
+export type { NavDrawerContacts, NavDrawerLinks };
 </script>
 
 <style scoped>
-.nav-justify {
-  justify-content: space-between;
-}
-
 footer {
   justify-content: right;
 }
