@@ -29,7 +29,7 @@
 
       <v-btn
         v-if="!mobile"
-        @click="changeTheme(themeStore.nextTheme)"
+        @click="themeStore.change(themeStore.nextTheme)"
         color="dark"
         variant="tonal"
         prepend-icon="mdi-theme-light-dark"
@@ -37,7 +37,7 @@
       >
       <v-btn
         v-else
-        @click="changeTheme(themeStore.nextTheme)"
+        @click="themeStore.change(themeStore.nextTheme)"
         icon="mdi-theme-light-dark"
         color="dark"
       ></v-btn>
@@ -50,7 +50,14 @@
     </v-main>
 
     <v-footer app>
-      <div>Weather Camera App ({{ new Date().getFullYear() }})</div>
+      <div
+        :class="{
+          'text-grey': themeStore.theme === 'dark',
+          'text-grey-darken-1': themeStore.theme !== 'dark',
+        }"
+      >
+        Weather Camera App ({{ new Date().getFullYear() }})
+      </div>
     </v-footer>
   </v-app>
 </template>
@@ -58,7 +65,7 @@
 <script lang="ts">
 import { ref, reactive, defineComponent, onMounted } from "vue";
 import vuetify from "./plugins/vuetify";
-import { useThemeStore, type ColorThemes } from "./store/theme";
+import { useThemeStore } from "./store/theme";
 import NavDrawerContent from "./components/NavDrawerContent.vue";
 
 export default defineComponent({
@@ -86,16 +93,13 @@ export default defineComponent({
     const mobile = reactive(vuetify.display.mobile);
     const contacts: NavDrawerContacts = [
       { icon: "mdi-github", name: "Github" },
+      { icon: "mdi-api", name: "API" },
     ];
-
-    function changeTheme(theme: ColorThemes) {
-      themeStore.change(theme);
-      vuetify.theme.global.name.value = themeStore.theme;
-    }
 
     onMounted(() => {
       themeStore.$subscribe((_, state) => {
         localStorage.setItem("theme", JSON.stringify(state));
+        vuetify.theme.global.name.value = themeStore.theme;
       });
       let preferedTheme = themeStore.$state;
       let savedTheme = localStorage.getItem("theme");
@@ -103,14 +107,13 @@ export default defineComponent({
         preferedTheme = JSON.parse(savedTheme);
       }
       themeStore.$patch(preferedTheme);
-      changeTheme(themeStore.$state.theme);
     });
+
     return {
       contacts,
       mobile,
       drawer,
       themeStore,
-      changeTheme,
       navDrawerLinks,
     };
   },
