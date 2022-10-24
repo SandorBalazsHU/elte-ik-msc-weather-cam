@@ -1,64 +1,16 @@
-<script setup lang="ts">
-import { ref, reactive, computed } from "vue";
-import vuetify from "./plugins/vuetify";
-
-const drawer = ref(false);
-const mobile = reactive(vuetify.display.mobile);
-const theme = reactive(vuetify.theme.global.name);
-const navDrawerLinks = [
-  "Home",
-  "Weather stations",
-  "My account",
-  "Settings",
-  "About us",
-];
-const contacts: Array<{ icon: string; name: string }> = [
-  { icon: "mdi-github", name: "Github" },
-];
-
-function setTheme(newTheme: string) {
-  return (theme.value = newTheme);
-}
-const switchTheme = computed(() => {
-  return theme.value === "dark" ? "light" : "dark";
-});
-</script>
-
 <template>
   <v-app>
     <v-navigation-drawer app>
-      <navigation-drawer-content></navigation-drawer-content>
-      <div class="nav-justify d-flex flex-column h-100">
-        <div class="flex-grow-0">
-          <div class="my-2">
-            <div v-if="theme === 'dark'" class="w-100">
-              <v-img
-                style="width: 80%; margin: auto"
-                lazy-src="src/assets/nav-cloud-dark.svg"
-                src="src/assets/nav-cloud-dark.svg"
-              ></v-img>
-            </div>
-            <div v-else class="w-100">
-              <v-img
-                style="width: 80%; margin: auto"
-                lazy-src="src/assets/nav-cloud-light.svg"
-                src="src/assets/nav-cloud-light.svg"
-              ></v-img>
-            </div>
-          </div>
-          <v-divider></v-divider>
-        </div>
-
-        <div class="flex-grow-0">
-          <v-divider></v-divider>
-          <div :key="contact.icon" v-for="contact in contacts">
-            <v-btn :icon="contact.icon" variant="text"></v-btn
-            ><span>{{ contact.name }}</span>
-          </div>
-        </div>
-      </div>
+      <nav-drawer-content
+        :contacts="contacts"
+        :links="navDrawerLinks"
+      ></nav-drawer-content>
     </v-navigation-drawer>
-    <v-navigation-drawer v-model="drawer" absolute temporary>
+    <v-navigation-drawer v-model="drawer" expand-on-hover rail temporary>
+      <nav-drawer-content
+        :contacts="contacts"
+        :links="navDrawerLinks"
+      ></nav-drawer-content>
     </v-navigation-drawer>
     <v-app-bar :density="mobile ? 'compact' : ''" :elevation="2" app>
       <v-app-bar-nav-icon
@@ -76,11 +28,11 @@ const switchTheme = computed(() => {
       </v-avatar>
 
       <v-btn
-        @click="setTheme(switchTheme)"
+        @click="changeTheme(themeStore.nextTheme)"
         color="dark"
         variant="tonal"
         prepend-icon="mdi-theme-light-dark"
-        >{{ switchTheme }} mode</v-btn
+        >{{ themeStore.theme }} mode</v-btn
       >
     </v-app-bar>
 
@@ -96,7 +48,60 @@ const switchTheme = computed(() => {
   </v-app>
 </template>
 
-<style>
+<script lang="ts">
+import { ref, reactive, defineComponent, onMounted } from "vue";
+import vuetify from "./plugins/vuetify";
+import { useThemeStore, type ColorThemes } from "./store/theme";
+import NavDrawerContent from "./components/NavDrawerContent.vue";
+
+export default defineComponent({
+  components: {
+    NavDrawerContent,
+  },
+  setup() {
+    const navDrawerLinks = [
+      { name: "Home", icon: "mdi-home" },
+      { name: "Weather stations", icon: "mdi-access-point-network" },
+      { name: "My account", icon: "mdi-account" },
+      { name: "Settings", icon: "mdi-cog-outline" },
+      { name: "About us", icon: "mdi-book-open-blank-variant" },
+    ];
+    const themeStore = useThemeStore();
+    const drawer = ref(false);
+    const mobile = reactive(vuetify.display.mobile);
+    const contacts: Contacts = [{ icon: "mdi-github", name: "Github" }];
+
+    function changeTheme(theme: ColorThemes) {
+      themeStore.change(theme);
+      vuetify.theme.global.name.value = themeStore.theme;
+    }
+
+    onMounted(() => {
+      themeStore.$subscribe((_, state) => {
+        localStorage.setItem("theme", JSON.stringify(state));
+      });
+      let preferedTheme = themeStore.$state;
+      let savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        preferedTheme = JSON.parse(savedTheme);
+      }
+      themeStore.$patch(preferedTheme);
+      changeTheme(themeStore.$state.theme);
+    });
+    return {
+      contacts,
+      mobile,
+      drawer,
+      themeStore,
+      changeTheme,
+      navDrawerLinks,
+    };
+  },
+});
+export type Contacts = Array<{ icon: string; name: string }>;
+</script>
+
+<style scoped>
 .nav-justify {
   justify-content: space-between;
 }
