@@ -8,13 +8,14 @@
     "test:e2e": "start-server-and-test preview http://localhost:4173/ 'cypress open --e2e'",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "build-only": "vite build",
-    "dev": "vite",
+    "dev": "vite --host localhost --port 8080",
     "preview": "vite preview --port 4173",
     "test:e2e:ci": "start-server-and-test preview http://localhost:4173/ 'cypress run --e2e'",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false"
   },
   "dependencies": {
     "@mdi/font": "5.9.55",
+    "pinia": "^2.0.21",
     "roboto-fontface": "*",
     "vue": "^3.2.38",
     "vue-router": "^4.1.5",
@@ -45,6 +46,7 @@
     "vite": "^3.0.9",
     "vite-plugin-vuetify": "^1.0.0-alpha.12",
     "vitest": "^0.23.0",
+    "vue-cli-plugin-pinia": "~0.1.5",
     "vue-cli-plugin-vuetify": "~2.5.8",
     "vue-tsc": "^0.40.7"
   }
