@@ -10,4 +10,6 @@ Az eszköz aktiválása és konfigurációja után képes a megadott WIFI hozzá
 ## User story-k:
 TODO
 
+## Todo:
+- Fájl darabolás
 </p>
