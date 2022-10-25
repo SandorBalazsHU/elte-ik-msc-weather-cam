@@ -19,6 +19,20 @@ node
         echo "----START COMPILE-----"
         sh "arduino-cli compile --fqbn esp8266:esp8266:nodemcu elte-ik-msc-weather-cam/Hardware/ESP8266WeatherStation/ESP8266WeatherStation.ino"
     }
+
+    stage("WEB API TEST")
+    {
+        sh "cd elte-ik-msc-weather-cam/WebAPI"
+        sh "php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\""
+        sh "php -r \"if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;\""
+        sh "php composer-setup.php"
+        sh "php -r \"unlink('composer-setup.php');\""
+
+        sh "composer require --dev phpunit/phpunit ^9"
+        
+        sh "./vendor/bin/phpunit tests"
+    }
+
     stage("CLEAN WS")
     {
         sh "rm -r elte-ik-msc-weather-cam"
