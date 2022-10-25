@@ -41,8 +41,11 @@ node
     {
         try
         {
+        dir("./elte-ik-msc-weather-cam/WebAPI")
+        {
             sh "git checkout master"
             sh "git merge dev"
+        }
         }catch(Exception e)
         {
             echo "Error occured while merging"
