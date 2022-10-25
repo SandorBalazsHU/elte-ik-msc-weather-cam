@@ -43,17 +43,20 @@ node
         {
         dir("./elte-ik-msc-weather-cam")
         {
-            sh "git diff --name-only main..dev | wc -l"
+            var ret=sh(script: './CICD/checkPush',returnStdout: true)
+            if(ret == "FAIL")
+            {
+                throw new Exception("NO CHANGES")
+            }
             sh "git checkout dev"
             sh "git merge -s ours main"
             sh "git checkout main"
             sh "git merge dev"
-            sh "git diff --name-only main..dev | wc -l"
-            sh "bash ./CICD/push.sh"
+            sh "git push https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
         }
         }catch(Exception e)
         {
-            echo "Error occured while merging"
+            echo "No changes"
         }
     }
 
