@@ -43,6 +43,7 @@ node
         {
         dir("./elte-ik-msc-weather-cam")
         {
+            sh "git diff --name-only main..dev | wc -l"
             sh "git checkout dev"
             sh "git merge -s ours main"
             sh "git checkout main"
