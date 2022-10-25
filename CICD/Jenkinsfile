@@ -47,7 +47,7 @@ node
             sh "git merge -s ours main"
             sh "git checkout main"
             sh "git merge dev"
-            sh "git push main"
+            sh "git push"
         }
         }catch(Exception e)
         {
