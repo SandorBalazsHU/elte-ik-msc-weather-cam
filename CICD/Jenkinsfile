@@ -12,8 +12,10 @@ node
             echo "Ws already deleted"
         }
         sh "git clone https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
-        sh "cd elte-ik-msc-weather-cam/WebAPI"
-        sh "git checkout dev"
+        dir("./elte-ik-msc-weather-cam/WebAPI")
+        {
+            sh "git checkout dev"
+        }
     }
 
     stage("HARDWARE COMPILE")
