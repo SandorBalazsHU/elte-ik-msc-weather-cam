@@ -30,7 +30,7 @@ node
 
         sh "composer require --dev phpunit/phpunit ^9"
 
-        sh "./vendor/bin/phpunit tests"
+        sh "./vendor/bin/phpunit ./tests/DemoTest.php"
     }
 
     stage("CLEAN WS")
