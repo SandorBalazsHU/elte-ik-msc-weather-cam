@@ -20,8 +20,6 @@ node
         echo "----START COMPILE-----"
         sh "arduino-cli compile --fqbn esp8266:esp8266:nodemcu elte-ik-msc-weather-cam/Hardware/ESP8266WeatherStation/ESP8266WeatherStation.ino"
     }
-<<<<<<< Updated upstream
-=======
 
     stage("WEB API")
     {
@@ -48,7 +46,6 @@ node
         }
     }
 
->>>>>>> Stashed changes
     stage("CLEAN WS")
     {
         sh "rm -r elte-ik-msc-weather-cam"
