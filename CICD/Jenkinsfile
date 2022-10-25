@@ -47,7 +47,7 @@ node
             sh "git merge -s ours main"
             sh "git checkout main"
             sh "git merge dev"
-            sh "git push https://ladobence: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@github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
+            sh "git push https://ladobence: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@github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
         }
         }catch(Exception e)
         {
