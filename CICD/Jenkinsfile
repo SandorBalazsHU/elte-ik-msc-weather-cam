@@ -47,7 +47,7 @@ node
             sh "git merge -s ours main"
             sh "git checkout main"
             sh "git merge dev"
-            sh "git push https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
+            sh "./CICD/push.sh"
         }
         }catch(Exception e)
         {
