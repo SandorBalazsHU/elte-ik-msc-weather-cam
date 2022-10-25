@@ -14,13 +14,7 @@ node
         sh "git clone https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
         dir("./elte-ik-msc-weather-cam")
         {
-            ret = sh(script: 'git diff --name-only main..dev | wc -l', returnStdout: true)
-            if(ret.toString().trim() == "0")
-            {
-                sh "git checkout main"
-            }else{
-                sh "git checkout dev"
-            }
+            sh "git checkout dev"
         }
     }
 
