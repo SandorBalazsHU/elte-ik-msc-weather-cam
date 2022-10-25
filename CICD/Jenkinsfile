@@ -47,7 +47,6 @@ node
             sh "git merge -s ours main"
             sh "git checkout main"
             sh "git merge dev"
-            sh "git remote -v"
             sh "git push https://SandorBalazsHU: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@github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
         }
         }catch(Exception e)
