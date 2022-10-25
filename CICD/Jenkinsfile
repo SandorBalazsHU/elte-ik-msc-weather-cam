@@ -43,7 +43,7 @@ node
         {
         dir("./elte-ik-msc-weather-cam")
         {
-            var ret=sh(script: './CICD/checkPush',returnStdout: true)
+            var ret=sh(script: './CICD/checkPush.sh', returnStdout: true)
             if(ret == "FAIL")
             {
                 throw new Exception("NO CHANGES")
