@@ -43,8 +43,11 @@ node
         {
         dir("./elte-ik-msc-weather-cam")
         {
+            sh "git checkout dev"
+            sh "git merge -s ours main"
             sh "git checkout main"
             sh "git merge dev"
+            sh "git push"
         }
         }catch(Exception e)
         {
