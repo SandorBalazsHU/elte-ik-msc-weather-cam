@@ -47,7 +47,6 @@ node
             echo ret
             if(ret.toString().trim() == "0")
             {
-                echo "im here"
                 throw new Exception("NO CHANGES")
             }
             sh "git checkout dev"
