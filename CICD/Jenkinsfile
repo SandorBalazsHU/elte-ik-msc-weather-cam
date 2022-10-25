@@ -43,8 +43,9 @@ node
         {
         dir("./elte-ik-msc-weather-cam")
         {
-            var ret=sh(script: './CICD/checkPush.sh', returnStdout: true)
-            if(ret == "FAIL")
+            var ret=sh(script: 'git diff --name-only main..dev | wc -l', returnStdout: true)
+            echo ret
+            if(ret == 0)
             {
                 throw new Exception("NO CHANGES")
             }
