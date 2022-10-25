@@ -45,8 +45,9 @@ node
         {
             ret = sh(script: 'git diff --name-only main..dev | wc -l', returnStdout: true)
             echo ret
-            if(ret == "0")
+            if(ret.trim() == "0")
             {
+                echo "im here"
                 throw new Exception("NO CHANGES")
             }
             sh "git checkout dev"
