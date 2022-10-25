@@ -20,7 +20,7 @@ node
         sh "arduino-cli compile --fqbn esp8266:esp8266:nodemcu elte-ik-msc-weather-cam/Hardware/ESP8266WeatherStation/ESP8266WeatherStation.ino"
     }
 
-    stage("WEB API TEST")
+    stage("WEB API")
     {
         sh "cd elte-ik-msc-weather-cam/WebAPI"
         sh "php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\""
@@ -29,7 +29,7 @@ node
         sh "php -r \"unlink('composer-setup.php');\""
 
         sh "composer require --dev phpunit/phpunit ^9"
-        
+
         sh "./vendor/bin/phpunit tests"
     }
 
