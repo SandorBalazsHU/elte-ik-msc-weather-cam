@@ -12,7 +12,7 @@ node
             echo "Ws already deleted"
         }
         sh "git clone https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
-        sh "git branch"
+        //sh "git branch"
         sh "git checkout dev"
     }
 
