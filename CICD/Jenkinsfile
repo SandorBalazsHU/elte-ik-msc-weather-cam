@@ -28,7 +28,7 @@ node
         sh "php composer-setup.php"
         sh "php -r \"unlink('composer-setup.php');\""
 
-        //sh "composer require --dev phpunit/phpunit ^9"
+        sh "composer require --dev phpunit/phpunit ^9"
 
         sh "./vendor/bin/phpunit tests"
     }
