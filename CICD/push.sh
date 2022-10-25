@@ -1,6 +1,4 @@
-#!/bin/bash 
-cd projectdir
-git add .
+#!/bin/bash
 set +e  # Grep succeeds with nonzero exit codes to show results.
 git status | grep modified
 if [ $? -eq 0 ]
