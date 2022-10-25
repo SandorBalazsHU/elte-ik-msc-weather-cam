@@ -12,7 +12,7 @@ node
             echo "Ws already deleted"
         }
         sh "git clone https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
-        dir("./elte-ik-msc-weather-cam/WebAPI")
+        dir("./elte-ik-msc-weather-cam")
         {
             sh "git checkout dev"
         }
@@ -41,9 +41,9 @@ node
     {
         try
         {
-        dir("./elte-ik-msc-weather-cam/WebAPI")
+        dir("./elte-ik-msc-weather-cam")
         {
-            sh "git checkout master"
+            sh "git checkout main"
             sh "git merge dev"
         }
         }catch(Exception e)
