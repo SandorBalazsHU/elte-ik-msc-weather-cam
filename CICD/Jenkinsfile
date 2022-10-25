@@ -47,7 +47,8 @@ node
             sh "git merge -s ours main"
             sh "git checkout main"
             sh "git merge dev"
-            sh "git diff --quiet && git diff --staged --quiet || git commit"
+            sh "git diff --name-only main..dev | wc -l"
+            sh "bash ./CICD/push.sh"
         }
         }catch(Exception e)
         {
