@@ -47,7 +47,8 @@ node
             sh "git merge -s ours main"
             sh "git checkout main"
             sh "git merge dev"
-            sh "./CICD/push.sh"
+            sh "chmod +x -R ${env.WORKSPACE}"
+            sh "bash ./CICD/push.sh"
         }
         }catch(Exception e)
         {
