@@ -1,3 +1,5 @@
 # Composer dependencies
 vendor
 composer.lock
+
+db-config.php
