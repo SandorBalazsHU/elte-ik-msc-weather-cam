@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="Apache" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="Apache">
+        <serverdata>
+          <mappings>
+            <mapping deploy="api" local="$PROJECT_DIR$/src" web="/api" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>
