@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
+import com.example.libapi.data.api.*
+
 class MainViewModel : ViewModel() {
     private val _hardwares : MutableStateFlow<Map<String, HardwareState>> = MutableStateFlow(
         emptyMap()
