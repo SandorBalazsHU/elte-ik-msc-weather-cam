@@ -1,4 +1,3 @@
-import vuetify from "@/plugins/vuetify.js";
 import { defineStore } from "pinia";
 
 export type ColorThemes = "dark" | "light";

@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { useThemeStore } from "@/store/theme.js";
-import type { NavDrawerLinks, NavDrawerContacts } from "@/App.vue.js";
+import type { NavDrawerContacts, NavDrawerLinks } from "@/types/types.js";
 import { useRouter } from "vue-router";
 export interface Props {
   links: NavDrawerLinks;

@@ -17,10 +17,12 @@
     "@mdi/font": "5.9.55",
     "pinia": "^2.0.21",
     "roboto-fontface": "*",
+    "vee-validate": "^4.7.1",
     "vue": "^3.2.38",
     "vue-router": "^4.1.5",
     "vuetify": "^3.0.0-beta.0",
-    "webfontloader": "^1.0.0"
+    "webfontloader": "^1.0.0",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",

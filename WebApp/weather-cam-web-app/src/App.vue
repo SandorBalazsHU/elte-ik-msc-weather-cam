@@ -1,23 +1,16 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-if="!mobile" app>
-      <nav-drawer-content
-        :contacts="contacts"
-        :links="navDrawerLinks"
-      ></nav-drawer-content>
-    </v-navigation-drawer>
-    <v-navigation-drawer v-else v-model="drawer">
-      <nav-drawer-content
-        :contacts="contacts"
-        :links="navDrawerLinks"
-      ></nav-drawer-content>
-    </v-navigation-drawer>
+    <ws-responsive-drawer :mobile="mobile"></ws-responsive-drawer>
     <v-app-bar :density="mobile ? 'compact' : 'default'" :elevation="2" app>
       <v-app-bar-nav-icon
-        @click="!mobile ? (drawer = true) : (drawer = !drawer)"
+        @click="
+          !mobile
+            ? linkStore.changeDrawerState(true)
+            : linkStore.changeDrawerState(!linkStore.drawer)
+        "
         class="d-lg-none"
       ></v-app-bar-nav-icon>
-      <v-app-bar-title>Weather camera</v-app-bar-title>
+      <v-app-bar-title>Weather camera </v-app-bar-title>
 
       <v-avatar
         :class="{
@@ -27,25 +20,16 @@
         <v-icon size=" 32" icon="mdi-account-circle"> </v-icon>
       </v-avatar>
 
-      <v-btn
-        v-if="!mobile"
-        @click="themeStore.change(themeStore.nextTheme)"
-        color="dark"
-        variant="tonal"
-        prepend-icon="mdi-theme-light-dark"
-        >{{ themeStore.theme }} mode</v-btn
-      >
-      <v-btn
-        v-else
-        @click="themeStore.change(themeStore.nextTheme)"
-        icon="mdi-theme-light-dark"
-        color="dark"
-      ></v-btn>
+      <ws-theme-switcher :mobile="mobile"></ws-theme-switcher>
     </v-app-bar>
 
     <v-main>
       <v-container fluid>
-        <router-view></router-view>
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component"></component>
+          </transition>
+        </router-view>
       </v-container>
     </v-main>
 
@@ -62,73 +46,47 @@
   </v-app>
 </template>
 
-<script lang="ts">
-import { ref, reactive, defineComponent, onMounted } from "vue";
+<script setup lang="ts">
+import { ref, reactive, onMounted } from "vue";
 import vuetify from "./plugins/vuetify";
 import { useThemeStore } from "./store/theme";
-import NavDrawerContent from "./components/NavDrawerContent.vue";
+import { useLinkStore } from "./store/links.js";
+import WsThemeSwitcher from "./components/WsThemeSwitcher.vue";
+import WsResponsiveDrawer from "./components/WsResponsiveDrawer.vue";
 
-export default defineComponent({
-  components: {
-    NavDrawerContent,
-  },
-  setup() {
-    const navDrawerLinks: NavDrawerLinks = [
-      { name: "Home", icon: "mdi-home", routerLink: "/" },
-      {
-        name: "Weather stations",
-        icon: "mdi-access-point-network",
-        routerLink: "/stations",
-      },
-      { name: "My account", icon: "mdi-account", routerLink: "/account" },
-      { name: "Settings", icon: "mdi-cog-outline", routerLink: "/settings" },
-      {
-        name: "About us",
-        icon: "mdi-book-open-blank-variant",
-        routerLink: "/about",
-      },
-    ];
-    const themeStore = useThemeStore();
-    const drawer = ref(false);
-    const mobile = reactive(vuetify.display.mobile);
-    const contacts: NavDrawerContacts = [
-      { icon: "mdi-github", name: "Github" },
-      { icon: "mdi-api", name: "API" },
-    ];
+const themeStore = useThemeStore();
+const linkStore = useLinkStore();
+const mobile = reactive(vuetify.display.mobile);
 
-    onMounted(() => {
-      themeStore.$subscribe((_, state) => {
-        localStorage.setItem("theme", JSON.stringify(state));
-        vuetify.theme.global.name.value = themeStore.theme;
-      });
-      let preferedTheme = themeStore.$state;
-      let savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
-        preferedTheme = JSON.parse(savedTheme);
-      }
-      themeStore.$patch(preferedTheme);
-    });
-
-    return {
-      contacts,
-      mobile,
-      drawer,
-      themeStore,
-      navDrawerLinks,
-    };
-  },
+onMounted(() => {
+  loadPreferedTheme();
 });
-type NavDrawerContacts = Array<{ icon: string; name: string }>;
-type NavDrawerLinks = Array<{
-  icon: string;
-  name: string;
-  routerLink: string;
-}>;
-export type { NavDrawerContacts, NavDrawerLinks };
+
+function loadPreferedTheme() {
+  themeStore.$subscribe((_, state) => {
+    localStorage.setItem("theme", JSON.stringify(state));
+    vuetify.theme.global.name.value = themeStore.theme;
+  });
+  let preferedTheme = themeStore.$state;
+  let savedTheme = localStorage.getItem("theme");
+  if (savedTheme) {
+    preferedTheme = JSON.parse(savedTheme);
+  }
+  themeStore.$patch(preferedTheme);
+}
 </script>
 
 <style scoped>
 footer {
   justify-content: right;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.35s ease;
+}
+
+.fade-enter-from,
+.fade-leave-active {
+  opacity: 0;
 }
 </style>
