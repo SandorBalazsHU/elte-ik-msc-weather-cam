@@ -12,6 +12,10 @@ node
             echo "Ws already deleted"
         }
         sh "git clone https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
+        dir("./elte-ik-msc-weather-cam")
+        {
+            sh "git checkout dev"
+        }
     }
 
     stage("HARDWARE COMPILE")
@@ -19,6 +23,44 @@ node
         echo "----START COMPILE-----"
         sh "arduino-cli compile --fqbn esp8266:esp8266:nodemcu elte-ik-msc-weather-cam/Hardware/ESP8266WeatherStation/ESP8266WeatherStation.ino"
     }
+
+    stage("WEB API")
+    {
+        sh "cd elte-ik-msc-weather-cam/WebAPI"
+        sh "php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\""
+        sh "php -r \"if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;\""
+        sh "php composer-setup.php"
+        sh "php -r \"unlink('composer-setup.php');\""
+
+        sh "composer require --dev phpunit/phpunit ^9"
+
+        sh "./vendor/bin/phpunit  elte-ik-msc-weather-cam/WebAPI/tests"
+    }
+
+    stage("SYNC BRANCHES")
+    {
+        try
+        {
+        dir("./elte-ik-msc-weather-cam")
+        {
+            ret = sh(script: 'git diff --name-only main..dev | wc -l', returnStdout: true)
+            echo ret
+            if(ret.toString().trim() == "0")
+            {
+                throw new Exception("NO CHANGES")
+            }
+            sh "git checkout dev"
+            sh "git merge -s ours main"
+            sh "git checkout main"
+            sh "git merge dev"
+            sh "git push https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam"
+        }
+        }catch(Exception e)
+        {
+            echo "No changes"
+        }
+    }
+
     stage("CLEAN WS")
     {
         sh "rm -r elte-ik-msc-weather-cam"
