@@ -1,12 +1,12 @@
 package com.example.weatherapp
 
 import androidx.lifecycle.ViewModel
+import com.example.weatherapp.data.hardware.MeasurementsRepository
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-import com.example.libapi.data.api.*
 
 class MainViewModel : ViewModel() {
     private val _hardwares : MutableStateFlow<Map<String, HardwareState>> = MutableStateFlow(
@@ -15,6 +15,10 @@ class MainViewModel : ViewModel() {
     private val _apiKey : MutableStateFlow<String?> = MutableStateFlow(null)
     private val _pollingEnabled : MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _errMsg : MutableStateFlow<String?> = MutableStateFlow(null)
+
+    private val measurementsRepository by lazy {
+        MeasurementsRepository()
+    }
 
     val hardwares : StateFlow<Map<String,HardwareState>>
         get() = _hardwares
