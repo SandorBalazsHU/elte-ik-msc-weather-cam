@@ -1,12 +1,12 @@
 <template>
   <v-app>
-    <ws-responsive-drawer :mobile="mobile"></ws-responsive-drawer>
-    <v-app-bar :density="mobile ? 'compact' : 'default'" :elevation="2" app>
+    <ws-responsive-drawer></ws-responsive-drawer>
+    <v-app-bar :density="isMobile ? 'compact' : 'default'" :elevation="2" app>
       <v-app-bar-nav-icon
         @click="
-          !mobile
-            ? linkStore.changeDrawerState(true)
-            : linkStore.changeDrawerState(!linkStore.drawer)
+          !isMobile
+            ? drawerStore.changeDrawerState(true)
+            : drawerStore.changeDrawerState(!drawerStore.drawerOpen)
         "
         class="d-lg-none"
       ></v-app-bar-nav-icon>
@@ -14,13 +14,13 @@
 
       <v-avatar
         :class="{
-          'd-none': mobile,
+          'd-none': isMobile,
         }"
       >
         <v-icon size=" 32" icon="mdi-account-circle"> </v-icon>
       </v-avatar>
 
-      <ws-theme-switcher :mobile="mobile"></ws-theme-switcher>
+      <ws-theme-switcher></ws-theme-switcher>
     </v-app-bar>
 
     <v-main>
@@ -47,16 +47,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { onMounted } from "vue";
 import vuetify from "./plugins/vuetify";
 import { useThemeStore } from "./store/theme";
-import { useLinkStore } from "./store/links.js";
 import WsThemeSwitcher from "./components/WsThemeSwitcher.vue";
 import WsResponsiveDrawer from "./components/WsResponsiveDrawer.vue";
+import { useMobile } from "./components/Composables.js";
+import { useDrawerStore } from "./store/drawer.js";
 
 const themeStore = useThemeStore();
-const linkStore = useLinkStore();
-const mobile = reactive(vuetify.display.mobile);
+const isMobile = useMobile();
+const drawerStore = useDrawerStore();
 
 onMounted(() => {
   loadPreferedTheme();

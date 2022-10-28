@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    v-if="!mobile"
+    v-if="!isMobile"
     @click="themeStore.change(themeStore.nextTheme)"
     color="dark"
     variant="tonal"
@@ -17,7 +17,8 @@
 
 <script lang="ts" setup>
 import { useThemeStore } from "@/store/theme.js";
+import { useMobile } from "./Composables.js";
 
 const themeStore = useThemeStore();
-const props = defineProps<{ mobile: boolean }>();
+const isMobile = useMobile();
 </script>

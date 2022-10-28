@@ -26,15 +26,5 @@ export const useLinkStore = defineStore("links", {
   state: () => ({
     navDrawerLinks,
     contacts,
-    drawer: false,
   }),
-  getters: {
-    current: ({ contacts }) => contacts,
-    nextTheme: ({ navDrawerLinks }) => navDrawerLinks,
-  },
-  actions: {
-    changeDrawerState(newState: boolean) {
-      this.drawer = newState;
-    },
-  },
 });

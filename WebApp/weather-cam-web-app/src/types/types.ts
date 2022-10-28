@@ -5,3 +5,4 @@ export type NavDrawerLinks = Array<{
 }>;
 
 export type NavDrawerContacts = Array<{ icon: string; name: string }>;
+export type ColorThemes = "dark" | "light";

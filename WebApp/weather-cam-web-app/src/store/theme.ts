@@ -1,6 +1,6 @@
+import type { ColorThemes } from "@/types/types.js";
 import { defineStore } from "pinia";
 
-export type ColorThemes = "dark" | "light";
 const themes: ColorThemes[] = ["dark", "light"];
 
 export const useThemeStore = defineStore("theme", {
