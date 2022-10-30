@@ -2,18 +2,26 @@ import type { NavDrawerContacts, NavDrawerLinks } from "@/types/types.js";
 import { defineStore } from "pinia";
 
 const navDrawerLinks: NavDrawerLinks = [
-  { name: "Home", icon: "mdi-home", routerLink: "/" },
+  { name: "Home", icon: "mdi-home", routerLink: "/user/noratan/home" },
   {
     name: "Weather stations",
     icon: "mdi-access-point-network",
-    routerLink: "/stations",
+    routerLink: "/user/noratan/stations",
   },
-  { name: "My account", icon: "mdi-account", routerLink: "/account" },
-  { name: "Settings", icon: "mdi-cog-outline", routerLink: "/settings" },
+  {
+    name: "My account",
+    icon: "mdi-account",
+    routerLink: "/user/noratan/account",
+  },
+  {
+    name: "Settings",
+    icon: "mdi-cog-outline",
+    routerLink: "/user/noratan/settings",
+  },
   {
     name: "About us",
     icon: "mdi-book-open-blank-variant",
-    routerLink: "/about",
+    routerLink: "/user/noratan/about",
   },
 ];
 

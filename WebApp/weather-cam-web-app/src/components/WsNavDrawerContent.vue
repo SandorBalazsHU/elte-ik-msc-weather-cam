@@ -5,13 +5,13 @@
         <div v-if="themeStore.theme === 'dark'" class="w-100">
           <v-img
             class="nav-logo-img"
-            src="src/assets/nav-cloud-dark.svg"
+            src="/src/assets/nav-cloud-dark.svg"
           ></v-img>
         </div>
         <div v-else class="w-100">
           <v-img
             class="nav-logo-img"
-            src="src/assets/nav-cloud-light.svg"
+            src="/src/assets/nav-cloud-light.svg"
           ></v-img>
         </div>
       </div>
