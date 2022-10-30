@@ -1,6 +1,4 @@
 openapi: 3.0.3
-x-stoplight:
-  id: akv27bas7tbkr
 info:
   title: Weather-Cam-API (OpenAPI 3.0)
   description: |
@@ -193,7 +191,7 @@ paths:
             date_begin is the timestamp of which the returned measurements must be chronologically bigger or equal to.
             date_begin follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.
           schema:
-            type: number
+            type: integer
             format: int64
         - in: query
           name: date_end
@@ -201,7 +199,7 @@ paths:
             date_end is the timestamp of which the returned measurements must be chronologically smaller or equal to.
             date_end follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.
           schema:
-            type: number
+            type: integer
             format: int64
         - in: query
           name: measurement_id
@@ -223,7 +221,7 @@ paths:
             | offset > 0 | If a measurement with measurement_id for station with sation_id exist than an array containing the measurement identified by measurement_id and an additional abs(offset) amount of measurements chronologically __after__ measurement_id is returned.   |
             | offset = 0 | If a measurement with measurement_id for station with sation_id exist than an array containing the measurement identified by measurement_id is returned.   |
           schema:
-            type: number
+            type: integer
             format: int64
       tags:
         - measurements
@@ -470,7 +468,7 @@ paths:
         - in: path
           name: status_code
           schema:
-            type: number
+            type: integer
           required: true
       summary: Update the status of the weather station.
       tags:
@@ -637,7 +635,7 @@ paths:
             | offset = 0 | If a record with picture_id exist than the picture identified by picture_id is returned.   |
           required: true
           schema:
-            type: number
+            type: integer
             format: int64
       tags:
         - pictures
@@ -882,7 +880,7 @@ paths:
         - user
   /user/register:
     post:
-      operationId: register
+      operationId: registerUser
       summary: Add new user.
       description: |
         ## Functionality: 
@@ -1092,6 +1090,7 @@ components:
           maximum: 100
         timestamp:
           type: integer
+          format: int64
           example: 1667076196
           minimum: 0
           description: |
@@ -1201,6 +1200,8 @@ components:
           type: integer
           format: int32
           example: 420
+          minimum: 100
+          maximum: 599
         type:
           description: 'type is used to categorize responses. The different types of responses can be found [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status).'
           type: string
