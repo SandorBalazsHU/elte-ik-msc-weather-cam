@@ -8,7 +8,57 @@ Read the [API documentation here](https://editor.swagger.io/?url=https://raw.git
 | - | - |
 | src | Source code |
 | tests | Unit tests |
+| mock | Mock API endpoints |
 | vendor | Dependencies (in `.gitignore` to avoid bloating the repo) |
+
+## Mock API
+List of endpoints:
+```
+├── check-data.php
+├── failure
+│   ├── 400.php
+│   ├── 401.php
+│   ├── 403.php
+│   ├── 404.php
+│   └── 409.php
+├── get-picture-decoded.php
+├── get-picture.php
+├── get-stations-id-api.php
+├── get-stations-measurement-one.php
+├── get-stations-measurements.php
+├── get-stations-storage.php
+├── get-user-stations.php
+├── index.php
+├── post-put-user-stations.php
+└── success
+    ├── 200.php
+    ├── 201 .php
+    └── 206.php
+```
+
+Access path: `mock.weather.s-b-x.com/{mock_endpoint}`
+
+Examples:
+- [http://mock.weather.s-b-x.com/get-stations-measurements.php]()
+- [http://mock.weather.s-b-x.com/success/200.php]()
+- [http://mock.weather.s-b-x.com/check-data.php?id=123&version=beta]()
+
+Endpoints usually start with the HTTP access method
+
+Endpoints:
+- under `success` - success messages
+- under `failure` - failure messages
+- `get-picture` - image base64 encoded as a string
+- `get-picture-decoded` - decoded jpeg image
+- `get-stations-id-api` - API key of the station
+- `get-stations-measurement-one` - one measurement
+- `get-stations-measurements` - array of measurements
+- `get-stations-storage` - storage query
+- `get-user-stations`
+- `index.php` - Belongs to hardware and sensor data mocking (could be reached just by [http://mock.weather.s-b-x.com]())
+- `post-put-user-stations` - mocks both:
+  - POST `/user/stations`
+  - PUT `/user/stations/{station_id}`
 
 ## PHPUnit setup
 
