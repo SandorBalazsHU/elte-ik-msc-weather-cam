@@ -4,7 +4,7 @@ info:
   description: |
     Weather-Cam-API is a REST API created as a part a software project at Eötvös Loránd university. The goal of the project is to turn old/unused mobile phones and an [esp8266](https://www.espressif.com/en/products/socs/esp8266) into a diy weather stations capable of recording photos, temperature, pressure and humidity data.
   license:
-    name: MIT License
+    name: MIT  
     url: 'https://opensource.org/licenses/MIT'
   version: 1.0.0
 externalDocs:
@@ -706,6 +706,36 @@ paths:
           $ref: '#/components/responses/UnauthorizedAPI'
       security:
         - apiKeyAuth: []
+        
+  /user:
+    get:
+      tags:
+        - user
+      summary: Gets data about the logged in user.
+      description: |
+        ## Functionality: 
+          Returns data about the currently logged in user. This is useful when the JWT token is saved in the cookies.
+          
+        ---
+        
+        ### Prerequisites:
+          - This endpoint can only be used with a valid JWT token.
+          
+        ---
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: __Successfully__ logged in user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+      security:
+        - bearerAuth: []
+                  
+
   /user/login:
     get:
       tags:
@@ -755,6 +785,8 @@ paths:
               examples:
                 ApiResponse401:
                   $ref: '#/components/examples/ApiResponse401'
+                  
+                  
   /user/logout:
     get:
       tags:
