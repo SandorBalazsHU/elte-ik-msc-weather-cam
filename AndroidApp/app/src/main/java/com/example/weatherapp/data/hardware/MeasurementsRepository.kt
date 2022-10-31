@@ -1,9 +1,9 @@
 package com.example.weatherapp.data.hardware
 
-import com.example.libapi.data.entities.MeasurementEntity
+import com.example.weatherapp.data.hardware.HwMeasurementEntity
 
 class MeasurementsRepository (
     private val measurementsSource : MeasurementsSource = MeasurementsSource()
 ) {
- suspend fun measurements() : MeasurementEntity = measurementsSource.getMeasurements()
+ suspend fun measurements() : HwMeasurementEntity = measurementsSource.getMeasurements()
 }
