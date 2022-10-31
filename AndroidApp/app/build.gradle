@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -37,7 +38,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'
+        kotlinCompilerExtensionVersion "$compose_compiler_version"
     }
     packagingOptions {
         resources {
@@ -62,6 +63,8 @@ dependencies {
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
     implementation project(path: ':libapi')
 
     testImplementation 'junit:junit:4.13.2'
@@ -70,12 +73,4 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
-    // Koin Core features
-    //implementation "io.insert-koin:koin-core:3.2.2"
-    // Koin Test features
-    //testImplementation "io.insert-koin:koin-test:3.2.2"
 }
-
-//build.configure {
-//    dependsOn(tasks.openApiGenerate)
-//}
