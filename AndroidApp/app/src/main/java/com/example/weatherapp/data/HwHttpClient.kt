@@ -10,10 +10,18 @@ import kotlinx.serialization.json.Json
 val HwHttpClient: HttpClient by lazy {
     HttpClient(Android) {
         install(ContentNegotiation) {
+
             json(Json {
-                prettyPrint = true
+                ignoreUnknownKeys = true
                 isLenient = true
-            })
+
+            }
+            )
         }
+//        engine {
+//            sslManager = { httpsURLConnection ->
+//                httpsURLConnection.sslSocketFactory = SslSettings.getSslContext()?.socketFactory
+//            }
+//        }
     }
 }

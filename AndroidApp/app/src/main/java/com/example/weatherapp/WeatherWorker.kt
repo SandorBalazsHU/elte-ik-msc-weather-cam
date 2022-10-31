@@ -42,13 +42,14 @@ class MeasurementWorker(
         //val hwAddress = inputData.getString(ADDRESS) ?: return Result.failure()
 
         return try {
-            val hwEnt = measurementsRepository.measurements()
+            val hwEnt = measurementsRepository.measurements()!!
             val ent = translateMeasurement(hwEnt)
-            webApi.setApiKey(apiKey)
-            webApi.addMeasurements(listOf(ent))
+          //  webApi.setApiKey(apiKey)
+          //  webApi.addMeasurements(listOf(ent))
             notificationProvider.updateNotification(ent)
             Result.success()
         } catch (ex : Exception){
+            notificationProvider.errorNotification(ex.stackTraceToString())
             Result.failure()
         }
     }
@@ -67,7 +68,7 @@ class TerminatingWorker(
 
 fun translateMeasurement(hwEnt : HwMeasurementEntity) : MeasurementEntity =
     MeasurementEntity(
-        temperature = hwEnt.temperature,
+        temperature = hwEnt.temp,
         pressure = hwEnt.pressure,
         humidity = hwEnt.humidity
     )
