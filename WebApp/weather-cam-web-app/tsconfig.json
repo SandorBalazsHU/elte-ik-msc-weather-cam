@@ -1,11 +1,10 @@
 {
   "files": [],
   "compilerOptions": {
+    "types": ["vuetify"],
     "paths": {
-      "@/*": [
-       "./*"
-      ]
-     },
+      "@/*": ["./*"]
+    }
   },
   "references": [
     {

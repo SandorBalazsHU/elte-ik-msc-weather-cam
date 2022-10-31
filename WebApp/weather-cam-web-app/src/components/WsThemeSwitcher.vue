@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    v-if="!isMobile"
+    v-if="!vuetify.display.mobile"
     @click="themeStore.change(themeStore.nextTheme)"
     color="dark"
     variant="tonal"
@@ -16,9 +16,8 @@
 </template>
 
 <script lang="ts" setup>
+import vuetify from "@/plugins/vuetify.js";
 import { useThemeStore } from "@/store/theme.js";
-import { useMobile } from "./Composables.js";
 
 const themeStore = useThemeStore();
-const isMobile = useMobile();
 </script>

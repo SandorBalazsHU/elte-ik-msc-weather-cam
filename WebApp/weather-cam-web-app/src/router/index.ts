@@ -1,4 +1,5 @@
-import LoggedInViewVue from "@/views/LoggedInView.vue";
+import LoggedInView from "@/views/LoggedInView.vue";
+import LogInView from "@/views/LogInView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 const router = createRouter({
@@ -6,7 +7,7 @@ const router = createRouter({
   routes: [
     {
       path: "/user/:username/",
-      component: LoggedInViewVue,
+      component: LoggedInView,
       children: [
         {
           path: "home",
@@ -37,6 +38,14 @@ const router = createRouter({
           component: () => import("@/views/NotFoundView.vue"),
         },
       ],
+    },
+    {
+      path: "/login",
+      component: () => import("@/views/LogInView.vue"),
+    },
+    {
+      path: "/register",
+      component: () => import("@/views/LogInView.vue"),
     },
   ],
 });
