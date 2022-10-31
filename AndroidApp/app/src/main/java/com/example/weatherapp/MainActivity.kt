@@ -18,7 +18,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import androidx.compose.ui.layout.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.work.WorkManager
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -140,8 +142,9 @@ fun MainPage(
     }
     val isPollingEnabled by viewModel.pollingEnabled.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    val workManager: WorkManager = WorkManager.getInstance(LocalContext.current)
     val onHardwareDelete = viewModel::onHardwareDelete
-    val onPollToggle = viewModel::onPollingToggle
+    val onPollToggle = { (viewModel::onPollingToggle)(workManager) }
     val onHardwareAdd = viewModel::onHardwareAdd
     val onSetApiKey = viewModel::onSetApiKey
 

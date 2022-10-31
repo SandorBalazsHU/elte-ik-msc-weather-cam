@@ -1,11 +1,12 @@
 package com.example.weatherapp
 
 import androidx.lifecycle.ViewModel
-import com.example.weatherapp.data.hardware.MeasurementsRepository
+import androidx.work.*
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import java.util.concurrent.TimeUnit
 
 
 class MainViewModel : ViewModel() {
@@ -15,10 +16,6 @@ class MainViewModel : ViewModel() {
     private val _apiKey : MutableStateFlow<String?> = MutableStateFlow(null)
     private val _pollingEnabled : MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _errMsg : MutableStateFlow<String?> = MutableStateFlow(null)
-
-    private val measurementsRepository by lazy {
-        MeasurementsRepository()
-    }
 
     val hardwares : StateFlow<Map<String,HardwareState>>
         get() = _hardwares
@@ -38,13 +35,42 @@ class MainViewModel : ViewModel() {
         _hardwares.update { it - nickname }
     }
 
-    fun onPollingToggle(){
-        // set true if it was false and we have a key
-        // set false otherwise
-        // we should eventually do an error message if no api key was provided
+    // maybe do some proper dependency injection
+    fun onPollingToggle(wm: WorkManager){
         _pollingEnabled.update {
-            !it && apiKey.value != null
+            if(it) {
+                cancelRequest(wm)
+                false
+            } else if(apiKey.value != null) {
+                //ok
+                startRequest(wm)
+                true
+            } else {
+                false
+            }
         }
+    }
+
+    private fun startRequest(wm: WorkManager){
+        val req: PeriodicWorkRequest =
+            PeriodicWorkRequestBuilder<MeasurementWorker>(15, TimeUnit.MINUTES)
+                .setInputData(workDataOf(MeasurementWorker.API_KEY to apiKey.value))
+                .build()
+
+        wm.enqueueUniquePeriodicWork(
+            MeasurementWorker::class.java.name,
+            ExistingPeriodicWorkPolicy.KEEP,
+            req
+        )
+    }
+
+    private fun cancelRequest(wm: WorkManager){
+        wm.cancelUniqueWork(MeasurementWorker::class.java.name)
+        val req: WorkRequest =
+            OneTimeWorkRequestBuilder<TerminatingWorker>().build()
+        wm.enqueue(
+            req
+        )
     }
 
     fun onSetApiKey(key: String){
@@ -57,7 +83,3 @@ data class HardwareState(
     val ipAddress : String,
     val active : Boolean = false
 )
-
-// 60 secs is the default poll interval
-const val pollInterval = 60
-
