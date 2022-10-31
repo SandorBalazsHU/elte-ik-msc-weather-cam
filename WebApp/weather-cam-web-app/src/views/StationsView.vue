@@ -1,7 +1,5 @@
-<script setup lang="ts">
-import FormField from "../components/FormField.vue";
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <main><FormField></FormField></main>
+  <main>Stations</main>
 </template>

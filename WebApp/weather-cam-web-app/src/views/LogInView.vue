@@ -41,8 +41,10 @@
         <v-card-actions class="justify-end">
           <v-btn
             class="w-50"
-            :to="'user/' + username + '/stations'"
-            @click="validate"
+            @click="
+              validate,
+                valid && router.replace({ path: `user/${username}/stations` })
+            "
             color="green"
             :disabled="!valid"
             variant="tonal"
@@ -96,7 +98,10 @@ function resetInputs() {
 }
 async function validate() {
   console.log("asd");
-  (form as Ref<VForm>).value!.validate();
+  valid.value = await (form as Ref<VForm>)
+    .value!.validate()
+    .catch(() => false)
+    .then(() => true);
 }
 
 onMounted(() => {
