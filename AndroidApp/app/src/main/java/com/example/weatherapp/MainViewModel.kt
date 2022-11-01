@@ -59,7 +59,7 @@ class MainViewModel : ViewModel() {
 
         wm.enqueueUniquePeriodicWork(
             MeasurementWorker::class.java.name,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.REPLACE,
             req
         )
     }

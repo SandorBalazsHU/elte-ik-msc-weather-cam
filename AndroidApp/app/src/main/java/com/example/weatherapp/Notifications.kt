@@ -39,6 +39,18 @@ class WeatherNotification(private val context: Context) {
         showNotification()
     }
 
+    fun errorNotification(err: String){
+        val currentDate = Calendar.getInstance().time
+        val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault())
+        val dateText = sdf.format(currentDate)
+        val text = "Got error at: $dateText\n"
+        val notificationManager = from(context)
+        notificationManager.notify(NOTIFICATION_ID,
+            builder.setContentText(text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(err))
+                .build())
+    }
+
     fun updateNotification(measurementEntity: MeasurementEntity){
         val currentDate = Calendar.getInstance().time
         val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault())

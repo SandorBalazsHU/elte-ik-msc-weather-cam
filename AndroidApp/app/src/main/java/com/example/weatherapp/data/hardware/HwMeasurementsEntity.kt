@@ -15,8 +15,8 @@ import kotlinx.serialization.Serializable
 data class HwMeasurementEntity (
 
     /* temperature in celsius. */
-    @SerialName(value = "temperature")
-    val temperature: kotlin.Float? = null,
+    @SerialName(value = "temp")
+    val temp: kotlin.Float? = null,
 
     /* pressure in millibars. */
     @SerialName(value = "pressure")

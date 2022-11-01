@@ -11,7 +11,7 @@ val HwHttpClient: HttpClient by lazy {
     HttpClient(Android) {
         install(ContentNegotiation) {
             json(Json {
-                prettyPrint = true
+                ignoreUnknownKeys = true
                 isLenient = true
             })
         }
