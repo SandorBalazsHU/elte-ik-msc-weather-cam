@@ -1,11 +1,6 @@
 <template>
   <div class="center">
-    <v-card
-      elevation="24"
-      :min-width="calcFormSize"
-      variant="tonal"
-      lazy-validation
-    >
+    <v-card elevation="24" :min-width="calcFormSize" variant="tonal">
       <v-card-title
         ><v-icon class="mr-2" icon="mdi-cloud"></v-icon
         >{{ login ? "Login" : "Register" }}</v-card-title
@@ -25,6 +20,7 @@
           :rules="login ? passwordLoginRules : passwordRegisterRules"
           v-model="password"
           label="Password"
+          @input="validate"
           required
         ></v-text-field>
 
@@ -97,16 +93,14 @@ function resetInputs() {
   (form as Ref<VForm>).value!.reset();
 }
 async function validate() {
-  console.log("asd");
   valid.value = await (form as Ref<VForm>)
     .value!.validate()
-    .catch(() => false)
-    .then(() => true);
+    .then((res) => res.valid)
+    .catch((err) => err);
 }
 
 onMounted(() => {
   login.value = router.currentRoute.value.path === "/login";
-  console.log(login.value);
 });
 
 const calcFormSize = computed(() => {
@@ -138,9 +132,8 @@ const usernameRegisterRules: Array<(a: string) => boolean | string> = [
 ];
 
 const passwordRegisterRules: Array<(a: string) => boolean | string> = [
-  (v) =>
-    (v === passwordAgain.value && v === password.value) ||
-    "Passwords do not match",
+  (v) => v === password.value || "Passwords do not match",
+  (v) => !!v || "Password is required!",
 ];
 </script>
 
@@ -153,6 +146,6 @@ const passwordRegisterRules: Array<(a: string) => boolean | string> = [
 }
 
 .tab-widen {
-  max-width: 400px !important;
+  max-width: 50% !important;
 }
 </style>

@@ -5,16 +5,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import vuetify from "./plugins/vuetify.js";
 import { useThemeStore } from "./store/theme.js";
-import {
-  Configuration,
-  StationsApi,
-  type Station,
-} from "./generated-sources/openapi";
+import { Configuration, MeasurementsApi } from "./generated-sources/openapi";
 const themeStore = useThemeStore();
-
+const pageLoading = ref(true);
 onMounted(() => {
   loadPreferedTheme();
 
@@ -22,15 +18,21 @@ onMounted(() => {
     basePath: "http://127.0.0.1:4010",
     accessToken: "asd",
   });
-  const api = new StationsApi(configuration);
+  const api = new MeasurementsApi(configuration);
   api
-    .getPartialApiKey({ stationId: "3bb20f1e-f676-ee2b-6996-f77a990dc3e4" })
+    .getStationMeasurementById({
+      stationId: "3bb20f1e-f676-ee2b-6996-f77a990dc3e4",
+      measurementId: "3bb20f1e-f676-ee2b-6996-f77a990dc3e4",
+    })
     .catch((x) => console.log(x))
     .then((x) => console.log(x));
 });
 
+nextTick(() => {
+  pageLoading.value = false;
+});
+
 function loadPreferedTheme() {
-  console.log("loaded");
   themeStore.$subscribe((_, state) => {
     localStorage.setItem("theme", JSON.stringify(state));
     vuetify.theme.global.name.value = themeStore.theme;

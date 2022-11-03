@@ -24,11 +24,7 @@
 
   <v-main>
     <v-container fluid>
-      <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component :is="Component"></component>
-        </transition>
-      </router-view>
+      <router-view> </router-view>
     </v-container>
   </v-main>
 

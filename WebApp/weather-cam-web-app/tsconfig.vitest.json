@@ -4,6 +4,7 @@
   "compilerOptions": {
     "composite": true,
     "lib": [],
-    "types": ["node", "jsdom", "vuetify"]
+    "types": ["node", "jsdom", "vuetify"],
+    "experimentalDecorators": true
   }
 }

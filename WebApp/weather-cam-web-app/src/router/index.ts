@@ -1,9 +1,9 @@
 import LoggedInView from "@/views/LoggedInView.vue";
-import LogInView from "@/views/LogInView.vue";
+import NotFoundView from "@/views/NotFoundView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: "/user/:username/",
@@ -35,7 +35,7 @@ const router = createRouter({
         {
           path: ":pathMatch(.*)*",
 
-          component: () => import("@/views/NotFoundView.vue"),
+          component: NotFoundView,
         },
       ],
     },
@@ -46,6 +46,11 @@ const router = createRouter({
     {
       path: "/register",
       component: () => import("@/views/LogInView.vue"),
+    },
+    {
+      path: "/:pathMatch(.*)*",
+
+      component: NotFoundView,
     },
   ],
 });

@@ -2,16 +2,12 @@
   <div class="nav-justify d-flex flex-column h-100">
     <div class="flex-grow-0">
       <div class="my-2">
-        <div v-if="themeStore.theme === 'dark'" class="w-100">
+        <div class="w-100">
           <v-img
             class="nav-logo-img"
-            src="/src/assets/nav-cloud-dark.svg"
-          ></v-img>
-        </div>
-        <div v-else class="w-100">
-          <v-img
-            class="nav-logo-img"
-            src="/src/assets/nav-cloud-light.svg"
+            :src="
+              themeStore.current === 'light' ? darkCloudLogo : lightCloudLogo
+            "
           ></v-img>
         </div>
       </div>
@@ -47,6 +43,8 @@
 import { useThemeStore } from "@/store/theme.js";
 import type { NavDrawerContacts, NavDrawerLinks } from "@/types/types.js";
 import { useRouter } from "vue-router";
+import darkCloudLogo from "@/assets/nav-cloud-light.svg";
+import lightCloudLogo from "@/assets/nav-cloud-dark.svg";
 export interface Props {
   links: NavDrawerLinks;
   contacts: NavDrawerContacts;
