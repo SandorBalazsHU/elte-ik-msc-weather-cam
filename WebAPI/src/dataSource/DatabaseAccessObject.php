@@ -21,7 +21,7 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
-	public function select($query = "", $params = []) {
+	public function select($query = "", $params = []): array {
 		try {
 			$stmt = $this->executeStatement($query, $params);
 			$result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -33,7 +33,10 @@ class DatabaseAccessObject {
 		}
 	}
 	
-	private function executeStatement($query = "", $params = []) {
+	/**
+	 * @throws Exception
+	 */
+	private function executeStatement($query = "", $params = []): mysqli_stmt {
 		try {
 			$stmt = $this->connection->prepare($query);
 			

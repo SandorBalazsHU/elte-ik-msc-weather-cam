@@ -26,13 +26,24 @@ class BaseController {
 	}
 	
 	/**
-	 * Get querystring params.
+	 * Get query string params.
 	 *
 	 * @return array
 	 */
 	protected function getQueryStringParams(): array {
 		parse_str($_SERVER['QUERY_STRING'], $query);
 		return $query;
+	}
+	
+	/**
+	 * Get query string params.
+	 *
+	 * @return array
+	 */
+	protected function getJsonBody(): array {
+		$raw_body = file_get_contents('php://input');
+		$decoded_body = json_decode($raw_body, true);
+		return $decoded_body ?: [];
 	}
 	
 	/**

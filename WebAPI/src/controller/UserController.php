@@ -13,10 +13,84 @@ class UserController extends BaseController {
 		$method = $this->getRequestMethod();
 		$uri = $this->getUriSegments();
 		$params = $this->getQueryStringParams();
+		$body = $this->getJsonBody();
 		
-		if (count($uri) == 3 && $method == 'GET') {
-			$result = $this->dao->getUsers();
-			$this->sendJson($result);
+		switch ($method) {
+			case 'GET':
+				$this->get($uri, $params, $body);
+				break;
+			case 'POST':
+				$this->post($uri, $params);
+				break;
+			case 'PUT':
+				$this->put($uri, $params);
+				break;
+			case 'DELETE':
+				$this->delete($uri, $params);
+				break;
 		}
 	}
+	
+	#region get
+	
+	private function get($uri, $params, $body) {
+		// TODO jwt validation
+		if (!isset($uri[3])) {
+			$this->getUser();
+			return;
+		}
+		
+		switch ($uri[3]) {
+			case 'login':
+				$this->login($body);
+				break;
+			case 'logout':
+				// TODO implement endpoint
+				break;
+			case 'stations':
+				// TODO implement endpoint
+				break;
+		}
+	}
+	
+	private function getUser() {
+		// TODO implement method
+	}
+	
+	private function login($body) {
+		$user = $this->dao->getUser($body['username'], $body['password']);
+		
+		// TODO debug this !!!
+		if (empty($user)) {
+			$this->sendJson($body);
+			return;
+		}
+		
+		// TODO generate and return jwt token
+		$this->sendJson($user);
+	}
+	
+	#endregion
+	#region post
+	
+	private function post($uri, $params) {
+		// TODO implement method
+	}
+	
+	# endregion
+	#region put
+	
+	private function put($uri, $params) {
+		// TODO implement method
+	}
+	
+	# endregion
+	#region delete
+	
+	private function delete($uri, $params) {
+		// TODO implement method
+	}
+	
+	# endregion
+	
 }

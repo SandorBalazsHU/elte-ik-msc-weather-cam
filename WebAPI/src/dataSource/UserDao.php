@@ -11,4 +11,16 @@ class UserDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function getUser($username, $password): array {
+		try {
+			return $this->select(
+				"SELECT * FROM users WHERE username = $1 AND password = $2",
+				[$username, $password]
+			);
+		} catch (Exception $e) {
+			return array();
+		}
+		
+	}
+	
 }
