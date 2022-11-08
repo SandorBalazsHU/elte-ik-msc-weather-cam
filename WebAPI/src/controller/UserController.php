@@ -54,7 +54,9 @@ class UserController extends BaseController {
 	}
 	
 	private function getUser() {
-		// TODO implement method
+		// TODO decode jwt token
+		//  check if it's valid and which user does it belong to
+		//  query and send user data
 	}
 	
 	private function login($body) {
