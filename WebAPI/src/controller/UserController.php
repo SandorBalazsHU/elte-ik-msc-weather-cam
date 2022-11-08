@@ -6,7 +6,7 @@ class UserController extends BaseController {
 	
 	public function __construct() {
 		require_once PROJECT_ROOT_PATH . "/dataSource/UserDao.php";
-		$dao = new UserDao();
+		$this->dao = new UserDao();
 	}
 	
 	public function processRequest() {
@@ -14,7 +14,7 @@ class UserController extends BaseController {
 		$uri = $this->getUriSegments();
 		$params = $this->getQueryStringParams();
 		
-		if (count($uri) == 2 && $method == 'GET') {
+		if (count($uri) == 3 && $method == 'GET') {
 			$result = $this->dao->getUsers();
 			$this->sendJson($result);
 		}

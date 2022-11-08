@@ -31,7 +31,8 @@ class BaseController {
 	 * @return array
 	 */
 	protected function getQueryStringParams(): array {
-		return parse_str($_SERVER['QUERY_STRING'], $query);
+		parse_str($_SERVER['QUERY_STRING'], $query);
+		return $query;
 	}
 	
 	/**
@@ -42,12 +43,7 @@ class BaseController {
 	 */
 	protected function sendOutput($data, $httpHeaders = array()) {
 		header_remove('Set-Cookie');
-		
-		if (is_array($httpHeaders) && count($httpHeaders)) {
-			foreach ($httpHeaders as $httpHeader) {
-				header($httpHeader);
-			}
-		}
+		$this->addHeaders($httpHeaders);
 		
 		echo $data;
 		exit;
@@ -56,7 +52,17 @@ class BaseController {
 	protected function sendJson($data, $httpHeaders = array()) {
 		header('Content-Type: application/json');
 		header('HTTP/1.1 200 OK');
+		$this->addHeaders($httpHeaders);
 		
-		$this->sendOutput($data, $httpHeaders);
+		echo json_encode($data);
 	}
+	
+	private function addHeaders($httpHeaders = array()) {
+		if (is_array($httpHeaders) && count($httpHeaders)) {
+			foreach ($httpHeaders as $httpHeader) {
+				header($httpHeader);
+			}
+		}
+	}
+	
 }

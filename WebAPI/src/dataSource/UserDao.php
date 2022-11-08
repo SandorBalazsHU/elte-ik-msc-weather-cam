@@ -3,9 +3,9 @@
 class UserDao extends DatabaseAccessObject {
 	const DEFAULT_LIMIT = 20;
 	
-	public function getUsers(int $limit = self::DEFAULT_LIMIT) {
+	public function getUsers(int $limit = self::DEFAULT_LIMIT): array {
 		try {
-			return $this->select("SELECT * FROM users LIMIT ?", ["i", $limit]);
+			return $this->select("SELECT * FROM users");
 		} catch (Exception $e) {
 			return array();
 		}

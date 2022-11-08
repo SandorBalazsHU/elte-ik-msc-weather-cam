@@ -42,7 +42,8 @@ class DatabaseAccessObject {
 			}
 			
 			if ($params) {
-				$stmt->bind_param($params[0], $params[1]);
+				// all the params are bind as string - this should not cause problems, bc MySQL handles it (except order by)
+				$stmt->bind_param(str_repeat("s", count($params)), $params);
 			}
 			
 			$stmt->execute();

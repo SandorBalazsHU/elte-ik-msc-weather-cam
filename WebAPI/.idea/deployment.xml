@@ -5,7 +5,7 @@
       <paths name="Local Apache">
         <serverdata>
           <mappings>
-            <mapping deploy="api" local="$PROJECT_DIR$/src" web="/" />
+            <mapping deploy="src" local="$PROJECT_DIR$/src" web="/" />
           </mappings>
         </serverdata>
       </paths>
