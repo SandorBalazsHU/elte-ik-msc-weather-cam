@@ -2,6 +2,7 @@
   "name": "weather-cam-web-app",
   "version": "0.0.0",
   "scripts": {
+    "deploy": "node ftp-deploy.config",
     "serve": "vite preview",
     "build": "vite build",
     "test:unit": "vitest --environment jsdom",
@@ -13,22 +14,25 @@
     "test:e2e:ci": "start-server-and-test preview http://localhost:4173/ 'cypress run --e2e'",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "mock-api": "prism mock https://raw.githubusercontent.com/SandorBalazsHU/elte-ik-msc-weather-cam/main/Documentation/WebApi/weather-cam-web-api.yaml",
-    "swagger-gen": "openapi-generator-cli generate -i https://raw.githubusercontent.com/SandorBalazsHU/elte-ik-msc-weather-cam/main/Documentation/WebApi/weather-cam-web-api.yaml -o src/generated-sources/openapi -g typescript-fetch --additional-properties=supportsES6=true"
+    "swagger-gen": "openapi-generator-cli generate -i https://raw.githubusercontent.com/SandorBalazsHU/elte-ik-msc-weather-cam/main/Documentation/WebApi/weather-cam-web-api.yaml -o src/api/openapi -g typescript-fetch --additional-properties=supportsES6=true"
   },
   "dependencies": {
     "@mdi/font": "5.9.55",
     "@openapitools/openapi-generator-cli": "^2.5.2",
     "chart.js": "^3.9.1",
+    "ftp-deploy": "^2.4.3",
     "pinia": "^2.0.21",
     "roboto-fontface": "*",
     "vue": "^3.2.38",
     "vue-router": "^4.1.5",
-    "vuetify": "^3.0.0-beta.0",
+    "vuetify": "^3.0.0-beta.15",
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/jsdom": "^20.0.0",
+    "@types/lodash": "^4.14.187",
+    "@types/lodash.debounce": "^4.0.7",
     "@types/node": "^16.18.3",
     "@types/webfontloader": "^1.0.0",
     "@vitejs/plugin-vue": "^3.0.3",

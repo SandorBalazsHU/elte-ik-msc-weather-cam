@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="gp-full-height">
     <router-view></router-view>
   </v-app>
 </template>
@@ -8,29 +8,27 @@
 import { nextTick, onMounted, ref } from "vue";
 import vuetify from "./plugins/vuetify.js";
 import { useThemeStore } from "./store/theme.js";
-import { Configuration, MeasurementsApi } from "./generated-sources/openapi";
+import { debounce } from "@/utils";
+import { useUserStore } from "./store/user.js";
 const themeStore = useThemeStore();
 const pageLoading = ref(true);
 onMounted(() => {
+  setMobileViewportHeight();
   loadPreferedTheme();
-
-  const configuration = new Configuration({
-    basePath: "http://127.0.0.1:4010",
-    accessToken: "asd",
-  });
-  const api = new MeasurementsApi(configuration);
-  api
-    .getStationMeasurementById({
-      stationId: "3bb20f1e-f676-ee2b-6996-f77a990dc3e4",
-      measurementId: "3bb20f1e-f676-ee2b-6996-f77a990dc3e4",
-    })
-    .catch((x) => console.log(x))
-    .then((x) => console.log(x));
 });
 
 nextTick(() => {
   pageLoading.value = false;
 });
+
+function setViewHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
+}
+function setMobileViewportHeight() {
+  setViewHeight();
+  window.addEventListener("resize", setViewHeight);
+}
 
 function loadPreferedTheme() {
   themeStore.$subscribe((_, state) => {
@@ -45,3 +43,9 @@ function loadPreferedTheme() {
   themeStore.$patch(preferedTheme);
 }
 </script>
+
+<style>
+.gp-full-height .v-application__wrap {
+  min-height: calc(100 * var(--vh)) !important;
+}
+</style>

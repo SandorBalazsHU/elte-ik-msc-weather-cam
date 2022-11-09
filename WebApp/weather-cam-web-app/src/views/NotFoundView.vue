@@ -13,7 +13,7 @@ import notFoundCatPic from "@/misc/CatLoader.js";
         id="cat"
         class="justify-center"
         alt="Your cat is being loaded!"
-        :src="notFoundCatPic"
+        :src="notFoundCatPic.src"
         rel="preload"
       ></v-img>
       <p class="text-center justify-center text-h4">

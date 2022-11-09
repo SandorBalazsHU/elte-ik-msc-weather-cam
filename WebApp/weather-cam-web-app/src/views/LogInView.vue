@@ -1,6 +1,6 @@
 <template>
   <div class="center">
-    <v-card elevation="24" :min-width="calcFormSize" variant="tonal">
+    <v-card :loading="loading" elevation="24" :width="calcFormSize" variant="tonal">
       <v-card-title
         ><v-icon class="mr-2" icon="mdi-cloud"></v-icon
         >{{ login ? "Login" : "Register" }}</v-card-title
@@ -17,7 +17,7 @@
 
         <v-text-field
           type="password"
-          :rules="login ? passwordLoginRules : passwordRegisterRules"
+          :rules="login ? passwordLoginRules : passwordAgainRegisterRules(password)"
           v-model="password"
           label="Password"
           @input="validate"
@@ -27,7 +27,7 @@
         <v-text-field
           v-if="!login"
           type="password"
-          :rules="passwordRegisterRules"
+          :rules="passwordAgainRegisterRules(password)"
           v-model="passwordAgain"
           label="Password again"
           required
@@ -37,10 +37,7 @@
         <v-card-actions class="justify-end">
           <v-btn
             class="w-50"
-            @click="
-              validate,
-                valid && router.replace({ path: `user/${username}/stations` })
-            "
+            @click="validate, valid && loginUser()"
             color="green"
             :disabled="!valid"
             variant="tonal"
@@ -48,25 +45,21 @@
             >{{ login ? "Login" : "Register" }}</v-btn
           >
         </v-card-actions>
+        <ws-alert-container v-show="login" :max="1" :filters="[UserError.LOGIN]">
+        </ws-alert-container>
       </v-form>
       <v-divider></v-divider>
       <v-tabs class="w-100" fixed-tabs bg-color="black-darken-2">
         <v-tab
           class="tab-widen"
-          @click="
-            router.replace({ path: '/login' }), (login = !login), resetInputs()
-          "
+          @click="router.replace({ path: '/login' }), (login = !login), resetInputs()"
           :disabled="login"
         >
           Login
         </v-tab>
         <v-tab
           class="tab-widen"
-          @click="
-            router.replace({ path: '/register' }),
-              (login = !login),
-              resetInputs()
-          "
+          @click="router.replace({ path: '/register' }), (login = !login), resetInputs()"
           :disabled="!login"
         >
           Register
@@ -78,17 +71,32 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, type Ref } from "vue";
-import vuetify from "@/plugins/vuetify.js";
 import { VForm } from "vuetify/components/VForm";
-import { computed } from "vue";
 import router from "@/router/index.js";
+import { useUserStore } from "@/store/user.js";
+import { storeToRefs } from "pinia";
+import { useErrorStore, UserError } from "@/store/errors.js";
+import WsAlertContainer from "@/components/WsAlertContainer.vue";
+import calcFormSize from "@/utils/FormSizing.js";
+import {
+  passwordAgainRegisterRules,
+  passwordLoginRules,
+  usernameLoginRules,
+  usernameRegisterRules,
+} from "@/utils/FormValidators.js";
+
 const valid = ref(false);
 const login = ref(false);
-
+const loading = ref(false);
 const username = ref("");
 const password = ref("");
 const passwordAgain = ref("");
 const form: unknown = ref(null);
+
+const userStore = useUserStore();
+const errorStore = useErrorStore();
+const { userData } = storeToRefs(userStore);
+
 function resetInputs() {
   (form as Ref<VForm>).value!.reset();
 }
@@ -99,50 +107,35 @@ async function validate() {
     .catch((err) => err);
 }
 
+async function loginUser() {
+  loading.value = true;
+  errorStore.removeErrorsByType(UserError.LOGIN);
+  try {
+    await userStore
+      .login({
+        username: username.value,
+        password: password.value,
+      })
+      .then(() => {
+        router.replace({ path: `user/${userData.value?.username}/stations` });
+      });
+  } catch (error) {
+    console.log("asd");
+  }
+  loading.value = false;
+}
+
 onMounted(() => {
   login.value = router.currentRoute.value.path === "/login";
 });
-
-const calcFormSize = computed(() => {
-  switch (vuetify.display.name.value) {
-    case "xs":
-      return 320;
-    case "sm":
-      return 450;
-    case "md":
-      return 580;
-    case "lg":
-      return 650;
-    case "xl":
-      return 720;
-  }
-  return 800;
-});
-
-const usernameLoginRules: Array<(a: string) => boolean | string> = [
-  (v) => !!v || "Name is required!",
-];
-
-const passwordLoginRules: Array<(a: string) => boolean | string> = [
-  (v) => !!v || "Password is required!",
-];
-
-const usernameRegisterRules: Array<(a: string) => boolean | string> = [
-  (v) => !!v || "Name is required!",
-];
-
-const passwordRegisterRules: Array<(a: string) => boolean | string> = [
-  (v) => v === password.value || "Passwords do not match",
-  (v) => !!v || "Password is required!",
-];
 </script>
 
 <style scoped>
 .center {
   display: flex;
-  height: 100%;
   align-items: center;
   justify-content: center;
+  height: 100%;
 }
 
 .tab-widen {
