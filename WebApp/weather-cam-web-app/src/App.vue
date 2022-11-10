@@ -9,7 +9,6 @@ import { nextTick, onMounted, ref } from "vue";
 import vuetify from "./plugins/vuetify.js";
 import { useThemeStore } from "./store/theme.js";
 import { debounce } from "@/utils";
-import { useUserStore } from "./store/user.js";
 const themeStore = useThemeStore();
 const pageLoading = ref(true);
 onMounted(() => {
@@ -27,7 +26,10 @@ function setViewHeight() {
 }
 function setMobileViewportHeight() {
   setViewHeight();
-  window.addEventListener("resize", setViewHeight);
+  window.addEventListener(
+    "resize",
+    debounce(() => setViewHeight, 50)
+  );
 }
 
 function loadPreferedTheme() {

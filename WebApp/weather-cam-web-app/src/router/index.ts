@@ -1,51 +1,22 @@
-import LoggedInView from "@/views/LoggedInView.vue";
-import NotFoundView from "@/views/NotFoundView.vue";
+import LoggedInView from "@/views/user/LoggedInView.vue";
+import NotFoundView from "@/views/errors/NotFoundView.vue";
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import navigation from "@/router/user/username/navigation.js";
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: "/user/:username/",
       component: LoggedInView,
-      children: [
-        {
-          path: "home",
-          component: HomeView,
-        },
-        {
-          path: "about",
-
-          component: () => import("@/views/AboutView.vue"),
-        },
-        {
-          path: "stations",
-
-          component: () => import("@/views/StationsView.vue"),
-        },
-        {
-          path: "account",
-
-          component: () => import("@/views/AccountView.vue"),
-        },
-        {
-          path: "settings",
-          component: () => import("@/views/SettingsView.vue"),
-        },
-        {
-          path: ":pathMatch(.*)*",
-
-          component: NotFoundView,
-        },
-      ],
+      children: [...navigation],
     },
     {
       path: "/login",
-      component: () => import("@/views/LogInView.vue"),
+      component: () => import("@/views/authentication/LogInView.vue"),
     },
     {
       path: "/register",
-      component: () => import("@/views/LogInView.vue"),
+      component: () => import("@/views/authentication/LogInView.vue"),
     },
     {
       path: "/:pathMatch(.*)*",
