@@ -45,7 +45,7 @@
             >{{ login ? "Login" : "Register" }}</v-btn
           >
         </v-card-actions>
-        <ws-alert-container v-show="login" :max="1" :filters="[UserError.LOGIN]">
+        <ws-alert-container id="login-errors" v-show="login" :max-displayed="1" :max-stored="1">
         </ws-alert-container>
       </v-form>
       <v-divider></v-divider>
@@ -75,7 +75,7 @@ import { VForm } from "vuetify/components/VForm";
 import router from "@/router/index.js";
 import { useUserStore } from "@/store/user.js";
 import { storeToRefs } from "pinia";
-import { useErrorStore, UserError } from "@/store/errors.js";
+import { useAlertStore } from "@/store/alert.js";
 import WsAlertContainer from "@/components/WsAlertContainer.vue";
 import calcFormSize from "@/utils/FormSizing.js";
 import {
@@ -94,7 +94,7 @@ const passwordAgain = ref("");
 const form: unknown = ref(null);
 
 const userStore = useUserStore();
-const errorStore = useErrorStore();
+const alertStore = useAlertStore();
 const { userData } = storeToRefs(userStore);
 
 function resetInputs() {
@@ -109,7 +109,7 @@ async function validate() {
 
 async function loginUser() {
   loading.value = true;
-  errorStore.removeErrorsByType(UserError.LOGIN);
+  alertStore.clearAlerts("login-errors");
   try {
     await userStore
       .login({
@@ -120,7 +120,7 @@ async function loginUser() {
         router.replace({ path: `user/${userData.value?.username}/stations` });
       });
   } catch (error) {
-    console.log("asd");
+    console.error("An error occured during the login process!");
   }
   loading.value = false;
 }

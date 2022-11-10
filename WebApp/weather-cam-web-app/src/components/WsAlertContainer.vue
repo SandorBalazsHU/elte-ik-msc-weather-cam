@@ -4,30 +4,49 @@
       class="mb-2"
       :title="payload.type"
       type="error"
-      :key="errorId"
+      :key="alertId"
       :closable="true"
-      v-for="{ payload, errorId } in applyFilters()"
+      @click="() => alertStore.removeAlertById(id, alertId)"
+      v-for="{ payload, alertId } in alerts?.slice(calcDisplayed)"
       >{{ payload.message }}</v-alert
     >
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { ErrorRecord, ErrorType } from "@/store/errors.js";
-import { useErrorStore } from "@/store/errors.js";
+import { useAlertStore } from "@/store/alert.js";
+import { computed, onMounted, onUnmounted } from "vue";
+import { VAlert } from "vuetify/components";
 export interface Props {
-  filters: ErrorType[];
-  max: number;
+  maxDisplayed?: number;
+  maxStored?: number;
+  id: string;
 }
-
-function applyFilters(): ErrorRecord[] {
-  let tmp = errorStore.errors;
-  props.filters.forEach((filter) => {
-    tmp = tmp.filter((error) => error.type == filter);
-  });
-  return tmp.slice(-(props.max < 0 ? 0 : props.max));
-}
-
+const calcDisplayed = computed(() => {
+  const max = props.maxDisplayed;
+  return max ? (max < 0 ? 0 : -max) : 0;
+});
 const props = defineProps<Props>();
-const errorStore = useErrorStore();
+
+const alertStore = useAlertStore();
+const alerts = computed(() => alertStore.alertContainers.get(props.id));
+onMounted(() => {
+  alertStore.registerAlertContainer(props.id);
+});
+onUnmounted(() => {
+  alertStore.unRegisterAlertContainer(props.id);
+});
+
+function deleteErrors(name: string) {
+  if (name !== "addError") return false;
+  const max = props.maxDisplayed || 0;
+  const alertLength = alerts.value?.length || 0;
+  max < alertLength && alertStore.forgetLastAlerts(props.id, alertLength - max);
+}
+
+alertStore.$onAction(({ name, after }) => {
+  after(() => {
+    deleteErrors(name);
+  });
+});
 </script>

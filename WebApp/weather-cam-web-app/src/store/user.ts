@@ -7,14 +7,13 @@ import {
   type ConfigurationParameters,
 } from "@/api/openapi/index.js";
 import { throwErrorByResponse } from "@/api/errors/CustomErrors.js";
-import { useErrorStore, StationError, UserError } from "./errors.js";
+import { useAlertStore } from "./alert.js";
 
 const configOptions: ConfigurationParameters = {
   basePath: "http://127.0.0.1:4010",
 };
 const userApi = new UserApi(new Configuration(configOptions));
-
-const errorStore = useErrorStore();
+const alertStore = useAlertStore();
 
 interface UserState {
   userData: User | null;
@@ -43,7 +42,7 @@ export const useUserStore = defineStore("user", {
         });
         if (!loginResult.raw.ok) {
           const result = await loginResult.value();
-          errorStore.addError(UserError.LOGIN, result);
+          alertStore.addAlert("login-errors", result);
           throwErrorByResponse(loginResult.raw.status, result);
         }
         this.bearerToken = loginResult.raw.headers.get("Authorization");
@@ -55,7 +54,7 @@ export const useUserStore = defineStore("user", {
         this.userData = await getUserResult.value();
       } catch (error) {
         if (error instanceof Error) {
-          errorStore.addError(UserError.LOGIN, {
+          alertStore.addAlert("login-errors", {
             code: 500,
             message: "Connection refused by server!",
           });
