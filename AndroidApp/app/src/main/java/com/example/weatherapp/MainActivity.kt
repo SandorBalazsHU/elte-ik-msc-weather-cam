@@ -14,19 +14,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import androidx.compose.ui.layout.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
 import androidx.work.WorkManager
+import com.example.weatherapp.data.hardware.HardwareEntity
+import com.example.weatherapp.data.hardware.SavedHardwareRepository
+import com.example.weatherapp.data.hardware.hardwareDataStore
+import com.example.weatherapp.data.preferences.UserPreferencesRepository
+import com.example.weatherapp.data.preferences.dataStore
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        //todo: save some state in Bundle, some in SharedPreferences?
         super.onCreate(savedInstanceState)
+        //really not sure about this, are we leaking things?
+        val wm = WorkManager.getInstance(this@MainActivity)
+        val repo = UserPreferencesRepository(this@MainActivity.dataStore)
+        val hwRepo = SavedHardwareRepository(this@MainActivity.hardwareDataStore)
+        val viewModel: MainViewModel = ViewModelProvider(
+            this,
+            MainViewModel.Companion.MainViewModelFactory(
+                repo, hwRepo, wm
+            )
+        ).get(MainViewModel::class.java)
         setContent {
             WeatherAppTheme {
                 // A surface container using the 'background' color from the theme
@@ -34,7 +46,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainPage()
+                    MainPage(viewModel)
                 }
             }
         }
@@ -75,7 +87,7 @@ fun HardwareButton(onClick: () -> Unit,
 
 @Composable
 fun HardwareRow(
-    desc : HardwareState,
+    desc : HardwareEntity,
     onHardwareDelete : (String) -> Unit
 ){
     Row(
@@ -130,8 +142,9 @@ fun HardwareRow(
 @Composable
 //@Preview(showBackground = true)
 fun MainPage(
-    viewModel: MainViewModel = viewModel(),
+    viewModel: MainViewModel
 ){
+
     val hardwareList by viewModel.hardwares.collectAsState()
     val apiKey by viewModel.apiKey.collectAsState()
     val scaffoldState = rememberScaffoldState(
@@ -142,9 +155,8 @@ fun MainPage(
     }
     val isPollingEnabled by viewModel.pollingEnabled.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    val workManager: WorkManager = WorkManager.getInstance(LocalContext.current)
     val onHardwareDelete = viewModel::onHardwareDelete
-    val onPollToggle = { (viewModel::onPollingToggle)(workManager) }
+    val onPollToggle = viewModel::onPollingToggle
     val onHardwareAdd = viewModel::onHardwareAdd
     val onSetApiKey = viewModel::onSetApiKey
 

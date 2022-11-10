@@ -63,6 +63,7 @@ class WeatherNotification(private val context: Context) {
     private fun showNotification(){
         createNotificationChannel()
         val notificationManager = from(context)
+
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 

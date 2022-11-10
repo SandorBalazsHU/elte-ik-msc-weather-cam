@@ -11,15 +11,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.*
 
-class MeasurementsSource(private val client: HttpClient = HwHttpClient) {
-    suspend fun getMeasurements() : HwMeasurementEntity? = withContext(Dispatchers.IO){
-        client.getMeasurements()
+class MeasurementsSource(
+    private val client: HttpClient = HwHttpClient
+) {
+    suspend fun getMeasurements(endpoint: String) : HwMeasurementEntity? = withContext(Dispatchers.IO){
+        client.getMeasurements(endpoint)
     }
 
-    private suspend fun HttpClient.getMeasurements(): HwMeasurementEntity? {
+    private suspend fun HttpClient.getMeasurements(endpoint: String): HwMeasurementEntity? {
         //workaround for wrong content-type
         //it should be json, but it is text
-        val endpoint = "http://mock.weather.s-b-x.com"
+        //val endpoint = "http://mock.weather.s-b-x.com"
         return try {
             val res : HwMeasurementEntity =
                 client.get(endpoint){

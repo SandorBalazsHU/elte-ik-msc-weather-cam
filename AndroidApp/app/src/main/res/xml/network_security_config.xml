@@ -2,5 +2,12 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">weather.s-b-x.com</domain>
+        <!-- Allow cleartext traffic to LAN -->
+        <!-- https://www.iana.org/assignments/special-use-domain-names/special-use-domain-names.xhtml -->
+        <domain includeSubdomains="true">home.arpa</domain>
+        <domain includeSubdomains="true">local</domain>
+        <domain includeSubdomains="true">test</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
     </domain-config>
 </network-security-config>

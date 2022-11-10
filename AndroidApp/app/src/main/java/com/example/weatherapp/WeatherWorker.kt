@@ -10,6 +10,7 @@ import com.example.weatherapp.WeatherNotification.Companion.closeNotification
 import com.example.weatherapp.data.hardware.HwMeasurementEntity
 import com.example.weatherapp.data.hardware.MeasurementsRepository
 import io.ktor.client.engine.android.*
+import kotlinx.coroutines.delay
 
 
 class MeasurementWorker(
@@ -21,6 +22,7 @@ class MeasurementWorker(
     private val measurementsRepository by lazy {
         MeasurementsRepository()
     }
+    //TODO actual auth
     private val webApi by lazy {
         MeasurementsApi(
             baseUrl = "http://mock.weather.s-b-x.com",
@@ -35,23 +37,29 @@ class MeasurementWorker(
     companion object {
         const val API_KEY = "api_key"
         //const val ADDRESS = "hw_address"
+        const val ADDRESSES = "hw_addresses"
     }
 
     override suspend fun doWork(): Result {
         val apiKey = inputData.getString(API_KEY) ?: return Result.failure()
-        //val hwAddress = inputData.getString(ADDRESS) ?: return Result.failure()
-
+        val addresses = inputData.getStringArray(ADDRESSES) ?: return Result.failure()
         return try {
-            val hwEnt = measurementsRepository.measurements()!!
-            val ent = translateMeasurement(hwEnt)
-          //  webApi.setApiKey(apiKey)
-          //  webApi.addMeasurements(listOf(ent))
-            notificationProvider.updateNotification(ent)
+            addresses.filterNotNull().forEach {
+                delay(1000L)
+                pollAddress(it)
+            }
             Result.success()
-        } catch (ex : Exception){
+        } catch (ex : Exception) {
             notificationProvider.errorNotification(ex.stackTraceToString())
             Result.failure()
         }
+    }
+
+    private suspend fun pollAddress(address : String){
+        val hwEnt = measurementsRepository.measurements(address)!!
+        val ent = translateMeasurement(hwEnt)
+        webApi.addMeasurements(listOf(ent))
+        notificationProvider.updateNotification(ent)
     }
 
 }
