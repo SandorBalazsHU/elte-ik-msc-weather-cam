@@ -9,6 +9,9 @@ import vuetify from "vite-plugin-vuetify";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    sourcemap: true,
+  },
   plugins: [vue(), vueJsx(), vuetify({ autoImport: true, styles: true })],
   resolve: {
     alias: {

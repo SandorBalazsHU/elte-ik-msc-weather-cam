@@ -13,7 +13,6 @@ const configOptions: ConfigurationParameters = {
   basePath: "http://127.0.0.1:4010",
 };
 const userApi = new UserApi(new Configuration(configOptions));
-const alertStore = useAlertStore();
 
 interface UserState {
   userData: User | null;
@@ -42,7 +41,7 @@ export const useUserStore = defineStore("user", {
         });
         if (!loginResult.raw.ok) {
           const result = await loginResult.value();
-          alertStore.addAlert("login-errors", result);
+          useAlertStore().addAlert("login-errors", result);
           throwErrorByResponse(loginResult.raw.status, result);
         }
         this.bearerToken = loginResult.raw.headers.get("Authorization");
@@ -54,7 +53,7 @@ export const useUserStore = defineStore("user", {
         this.userData = await getUserResult.value();
       } catch (error) {
         if (error instanceof Error) {
-          alertStore.addAlert("login-errors", {
+          useAlertStore().addAlert("login-errors", {
             code: 500,
             message: "Connection refused by server!",
           });
