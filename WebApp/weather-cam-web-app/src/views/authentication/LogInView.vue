@@ -37,7 +37,7 @@
         <v-card-actions class="justify-end">
           <v-btn
             class="w-50"
-            @click="validate, valid && loginUser()"
+            @click="validate, valid && (login ? loginUser() : registerUser())"
             color="green"
             :disabled="!valid"
             variant="tonal"
@@ -110,6 +110,12 @@ async function loginUser() {
     username: formData.username,
     password: formData.password,
   });
+  loading.value = false;
+}
+
+async function registerUser() {
+  loading.value = true;
+
   loading.value = false;
 }
 
