@@ -17,4 +17,20 @@ export const calcFormSize = computed(() => {
   return 800;
 });
 
+export const calcDrawerSize = computed(() => {
+  switch (vuetify.display.name.value) {
+    case "xs":
+      return 256;
+    case "sm":
+      return 256;
+    case "md":
+      return 270;
+    case "lg":
+      return 280;
+    case "xl":
+      return 340;
+  }
+  return 370;
+});
+
 export default calcFormSize;

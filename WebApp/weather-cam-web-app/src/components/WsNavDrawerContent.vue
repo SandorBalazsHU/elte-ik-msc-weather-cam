@@ -16,7 +16,6 @@
           v-for="link in links"
           :prepend-icon="link.icon"
           :title="link.name"
-          :value="link.name"
           :active="router.currentRoute.value.fullPath === link.link"
           @click="
             () => {

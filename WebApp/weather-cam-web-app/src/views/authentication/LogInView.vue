@@ -76,7 +76,7 @@ import router from "@/router/index.js";
 import { useUserStore } from "@/store/user.js";
 import { useAlertStore } from "@/store/alert.js";
 import WsAlertContainer from "@/components/WsAlertContainer.vue";
-import calcFormSize from "@/utils/FormSizing.js";
+import calcFormSize from "@/utils/Sizing.js";
 import {
   passwordAgainRegisterRules,
   passwordLoginRules,
