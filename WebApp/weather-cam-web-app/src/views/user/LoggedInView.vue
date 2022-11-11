@@ -41,13 +41,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, onBeforeMount } from "vue";
 import vuetify from "@/plugins/vuetify.js";
 import { useThemeStore } from "@/store/theme.js";
 import WsThemeSwitcher from "@/components/WsThemeSwitcher.vue";
 import WsResponsiveDrawer from "@/components/WsResponsiveDrawer.vue";
 import { useDrawerStore } from "@/store/drawer.js";
 import { computed } from "vue";
+import router from "@/router/index.js";
 
 const themeStore = useThemeStore();
 const isMobile = computed(() => {
@@ -56,9 +57,7 @@ const isMobile = computed(() => {
 const drawerStore = useDrawerStore();
 
 onMounted(() => {
-  isMobile.value
-    ? drawerStore.changeDrawerState(false)
-    : drawerStore.changeDrawerState(true);
+  isMobile.value ? drawerStore.changeDrawerState(false) : drawerStore.changeDrawerState(true);
 });
 </script>
 

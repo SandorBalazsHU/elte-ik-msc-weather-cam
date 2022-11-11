@@ -10,15 +10,15 @@
         <v-text-field
           :rules="login ? usernameLoginRules : usernameRegisterRules"
           label="Username"
-          v-model="username"
+          v-model="formData.username"
           type="text"
           required
         ></v-text-field>
 
         <v-text-field
           type="password"
-          :rules="login ? passwordLoginRules : passwordAgainRegisterRules(password)"
-          v-model="password"
+          :rules="login ? passwordLoginRules : passwordAgainRegisterRules(formData.password)"
+          v-model="formData.password"
           label="Password"
           @input="validate"
           required
@@ -27,8 +27,8 @@
         <v-text-field
           v-if="!login"
           type="password"
-          :rules="passwordAgainRegisterRules(password)"
-          v-model="passwordAgain"
+          :rules="passwordAgainRegisterRules(formData.password)"
+          v-model="formData.passwordAgain"
           label="Password again"
           required
           @input="validate"
@@ -70,11 +70,10 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, type Ref } from "vue";
+import { onMounted, reactive, ref, type Ref } from "vue";
 import { VForm } from "vuetify/components/VForm";
 import router from "@/router/index.js";
 import { useUserStore } from "@/store/user.js";
-import { storeToRefs } from "pinia";
 import { useAlertStore } from "@/store/alert.js";
 import WsAlertContainer from "@/components/WsAlertContainer.vue";
 import calcFormSize from "@/utils/FormSizing.js";
@@ -86,16 +85,13 @@ import {
 } from "@/utils/FormValidators.js";
 
 const valid = ref(false);
-const login = ref(false);
+const login = ref(true);
 const loading = ref(false);
-const username = ref("");
-const password = ref("");
-const passwordAgain = ref("");
 const form: unknown = ref(null);
+const formData = reactive({ valid: false, username: "", password: "", passwordAgain: "" });
 
 const userStore = useUserStore();
 const alertStore = useAlertStore();
-const { userData } = storeToRefs(userStore);
 
 function resetInputs() {
   (form as Ref<VForm>).value!.reset();
@@ -110,18 +106,10 @@ async function validate() {
 async function loginUser() {
   loading.value = true;
   alertStore.clearAlerts("login-errors");
-  try {
-    await userStore
-      .login({
-        username: username.value,
-        password: password.value,
-      })
-      .then(() => {
-        router.replace({ path: `user/${userData.value?.username}/stations` });
-      });
-  } catch (error) {
-    console.error("An error occured during the login process!");
-  }
+  await userStore.login({
+    username: formData.username,
+    password: formData.password,
+  });
   loading.value = false;
 }
 

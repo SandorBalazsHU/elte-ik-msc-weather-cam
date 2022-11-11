@@ -1,9 +1,11 @@
 import type { ModelApiResponse } from "@/api/openapi/index.js";
 import { defineStore } from "pinia";
 
+export type AlertTypes = "success" | "info" | "error" | "warning";
 type AlertData = ModelApiResponse;
 export interface AlertRecord {
   alertId: number;
+  alertType: AlertTypes;
   payload: AlertData;
 }
 
@@ -21,10 +23,10 @@ export const useAlertStore = defineStore("alert", {
       inactiveAlertContainers: new Map(),
     } as AlertState),
   actions: {
-    addAlert(containerId: string, payload: ModelApiResponse) {
+    addAlert(containerId: string, payload: ModelApiResponse, alertType: AlertTypes = "error") {
       const exists = this.alertContainers.get(containerId);
       if (!exists) return false;
-      exists?.push({ alertId: this.alertId++, payload });
+      exists?.push({ alertType, alertId: this.alertId++, payload });
       this.alertContainers.set(containerId, exists);
       return exists;
     },

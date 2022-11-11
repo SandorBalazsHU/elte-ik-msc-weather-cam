@@ -1,14 +1,14 @@
 <template>
   <v-navigation-drawer v-if="!vuetify.display.mobile" app>
     <ws-nav-drawer-content
-      :contacts="links.contacts"
-      :links="links.navDrawerLinks"
+      :contacts="links.contactLinks"
+      :links="links.drawerLinks"
     ></ws-nav-drawer-content>
   </v-navigation-drawer>
   <v-navigation-drawer v-else v-model="drawerStore.drawerOpen">
     <ws-nav-drawer-content
-      :contacts="links.contacts"
-      :links="links.navDrawerLinks"
+      :contacts="links.contactLinks"
+      :links="links.drawerLinks"
     ></ws-nav-drawer-content>
   </v-navigation-drawer>
 </template>

@@ -3,11 +3,11 @@
     <v-alert
       class="mb-2"
       :title="payload.type"
-      type="error"
       :key="alertId"
       :closable="true"
+      :type="alertType"
       @click="() => alertStore.removeAlertById(id, alertId)"
-      v-for="{ payload, alertId } in alerts?.slice(calcDisplayed)"
+      v-for="{ payload, alertId, alertType } in alerts?.slice(calcDisplayed)"
       >{{ payload.message }}</v-alert
     >
   </div>

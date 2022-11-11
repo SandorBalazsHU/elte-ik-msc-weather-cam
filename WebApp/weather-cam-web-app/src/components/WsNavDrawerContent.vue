@@ -5,9 +5,7 @@
         <div class="w-100">
           <v-img
             class="nav-logo-img"
-            :src="
-              themeStore.current === 'light' ? darkCloudLogo : lightCloudLogo
-            "
+            :src="themeStore.current === 'light' ? darkCloudLogo : lightCloudLogo"
           ></v-img>
         </div>
       </div>
@@ -19,7 +17,12 @@
           :prepend-icon="link.icon"
           :title="link.name"
           :value="link.name"
-          @click="router.push(link.routerLink)"
+          :active="router.currentRoute.value.fullPath === link.link"
+          @click="
+            () => {
+              router.push(link.link);
+            }
+          "
         ></v-list-item>
       </v-list>
     </div>
@@ -41,16 +44,16 @@
 
 <script setup lang="ts">
 import { useThemeStore } from "@/store/theme.js";
-import type { NavDrawerContacts, NavDrawerLinks } from "@/types/types.js";
 import { useRouter } from "vue-router";
 import darkCloudLogo from "@/assets/nav-cloud-light.svg";
 import lightCloudLogo from "@/assets/nav-cloud-dark.svg";
+import type { NavigationLink } from "@/store/links.js";
 export interface Props {
-  links: NavDrawerLinks;
-  contacts: NavDrawerContacts;
+  links: NavigationLink[];
+  contacts: NavigationLink[];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const themeStore = useThemeStore();
 const router = useRouter();
 </script>
