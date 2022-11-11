@@ -14,7 +14,7 @@ class UserDao extends DatabaseAccessObject {
 	public function getUser($username, $password): array {
 		try {
 			return $this->select(
-				"SELECT * FROM users WHERE username = $1 AND password = $2",
+				"SELECT * FROM users WHERE username = ? AND password = ?",
 				[$username, $password]
 			);
 		} catch (Exception $e) {
