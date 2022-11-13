@@ -36,6 +36,21 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
+	public function selectOne($query = "", $params = []): array {
+		try {
+			$stmt = $this->executeStatement($query, $params);
+			$result = $stmt->get_result()->fetch_object();
+			$stmt->close();
+			
+			return get_object_vars($result);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+	}
+	
+	/**
+	 * @throws Exception
+	 */
 	private function executeStatement($query = "", $params = []): mysqli_stmt {
 		try {
 			$stmt = $this->connection->prepare($query);

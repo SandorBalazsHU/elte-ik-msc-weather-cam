@@ -1,5 +1,13 @@
 <?php
 
+use Lcobucci\JWT\Token\Builder;
+use Lcobucci\JWT\JwtFacade;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Token\RegisteredClaims;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+
 
 class UserController extends BaseController {
 	private UserDao $dao;
@@ -62,14 +70,20 @@ class UserController extends BaseController {
 	private function login($body) {
 		$user = $this->dao->getUser($body['username'], $body['password']);
 		
-		// TODO debug this !!!
 		if (empty($user)) {
+			// TODO send failure response according to API docs
 			$this->sendJson($body);
 			return;
 		}
 		
-		// TODO generate and return jwt token
-		$this->sendJson($user);
+		try {
+			$token = JwtHandler::getToken(['uid' => $user['user_id']]);
+		} catch (Exception $e) {
+			// TODO return internal server error
+			return;
+		}
+		
+		echo $token->toString();
 	}
 	
 	#endregion

@@ -9,6 +9,7 @@
     },
   "require": {
     "ext-mysqli": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "lcobucci/jwt": "^4.2"
   }
 }
