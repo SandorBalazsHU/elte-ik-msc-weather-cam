@@ -1,10 +1,11 @@
 <template>
   <v-card class="d-flex flex-column">
-    <v-card-title class="data-title d-flex justify-space-between">
-      <span>Monitoring </span>
+    <v-card-title class="d-flex pl-0 justify-space-between">
+      <span class="data-title">Monitoring </span>
       <v-btn
-        size="large"
+        :size="xs ? 'default' : 'large'"
         color="info"
+        class="change-station-btn"
         variant="tonal"
         append-icon="mdi-access-point-network"
         elevation="2"
@@ -28,6 +29,7 @@
 import type { Station } from "@/api/openapi/index.js";
 import type HttpStatusCode from "@/utils/HttpStatusCode.js";
 import { getRelativeTime } from "@/utils/Date.js";
+import { xs } from "@/utils/Sizing.js";
 defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCode }>();
 </script>
 
@@ -39,6 +41,10 @@ defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCod
 
 .station-data {
   font-size: 1.35rem;
+}
+.change-station-btn {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 </style>
 

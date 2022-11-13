@@ -34,11 +34,15 @@ export const calcDrawerSize = computed(() => {
 });
 
 export const isMobile = computed(() => {
-  return vuetify.display.mobile;
+  return vuetify.display.mobile.value;
 });
 
 export const xlAndDown = computed(() => {
   return vuetify.display.mdAndDown.value;
+});
+
+export const xs = computed(() => {
+  return vuetify.display.xs.value;
 });
 
 export function checkOverflow(el: HTMLElement) {
