@@ -18,7 +18,7 @@
         ><span v-show="status === 200">Online</span>
         <span v-show="status !== 200">Offline</span></span
       >
-      <span>Last active: {{ getRelativeTime(1668336494) }}</span>
+      <span>Last active: {{ getRelativeTime(lastTimestamp) }}</span>
       <span>Time zone: GMT+1</span>
     </v-card-text>
   </v-card>

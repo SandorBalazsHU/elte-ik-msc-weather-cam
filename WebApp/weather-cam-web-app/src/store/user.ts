@@ -23,7 +23,7 @@ interface UserState {
 export const useUserStore = defineStore("user", {
   state: () =>
     ({
-      userData: {username:"asd"},
+      userData: { username: "Noratan" },
       bearerToken: "dev",
     } as UserState),
 

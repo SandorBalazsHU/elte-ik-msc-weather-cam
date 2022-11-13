@@ -13,11 +13,11 @@
 
     <v-avatar
       :class="{
-        'd-none': isMobile,
+        'd-none': false,
       }"
     >
-      <v-icon size=" 32" icon="mdi-account-circle"> </v-icon>
-    </v-avatar>
+      <v-icon size=" 32" icon="mdi-account-circle"> </v-icon> </v-avatar
+    ><span style="font-size: 1.25rem">{{ !isMobile ? userStore.username : "" }}</span>
 
     <ws-theme-switcher></ws-theme-switcher>
   </v-app-bar>
@@ -41,21 +41,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeMount } from "vue";
+import { onMounted } from "vue";
 import vuetify from "@/plugins/vuetify.js";
 import { useThemeStore } from "@/store/theme.js";
+import { useUserStore } from "@/store/user.js";
 import WsThemeSwitcher from "@/components/WsThemeSwitcher.vue";
 import WsResponsiveDrawer from "@/components/WsResponsiveDrawer.vue";
 import { useDrawerStore } from "@/store/drawer.js";
 import { computed } from "vue";
-import router from "@/router/index.js";
 
 const themeStore = useThemeStore();
 const isMobile = computed(() => {
   return vuetify.display.mobile.value;
 });
 const drawerStore = useDrawerStore();
-
+const userStore = useUserStore();
 onMounted(() => {
   isMobile.value ? drawerStore.changeDrawerState(false) : drawerStore.changeDrawerState(true);
 });
