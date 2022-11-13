@@ -11,7 +11,7 @@ class UserDao extends DatabaseAccessObject {
 		}
 	}
 	
-	public function getUser($username, $password): array {
+	public function getUserByUnameAndPassword($username, $password): array {
 		try {
 			return $this->selectOne(
 				"SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1",
@@ -20,7 +20,17 @@ class UserDao extends DatabaseAccessObject {
 		} catch (Exception $e) {
 			return array();
 		}
-		
+	}
+	
+	public function getUserById($user_id): array {
+		try {
+			return $this->selectOne(
+				"SELECT * FROM users WHERE user_id = ? LIMIT 1",
+				[$user_id]
+			);
+		} catch (Exception $e) {
+			return array();
+		}
 	}
 	
 }

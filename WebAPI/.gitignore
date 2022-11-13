@@ -2,4 +2,5 @@
 vendor
 composer.lock
 
-db-config.php
+config-db.php
+config-jwt.php

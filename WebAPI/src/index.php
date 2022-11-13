@@ -1,6 +1,5 @@
 <?php
 
-require __DIR__ . "/include/log-config.php";
 require __DIR__ . "/include/bootstrap.php";
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -1,20 +1,13 @@
 <?php
 
-use Lcobucci\JWT\Token\Builder;
-use Lcobucci\JWT\JwtFacade;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Token\RegisteredClaims;
-use Lcobucci\JWT\Encoding\ChainedFormatter;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-
-
 class UserController extends BaseController {
 	private UserDao $dao;
+	private JwtHandler $jwt;
 	
 	public function __construct() {
 		require_once PROJECT_ROOT_PATH . "/dataSource/UserDao.php";
 		$this->dao = new UserDao();
+		$this->jwt = new JwtHandler();
 	}
 	
 	public function processRequest() {
@@ -23,9 +16,21 @@ class UserController extends BaseController {
 		$params = $this->getQueryStringParams();
 		$body = $this->getJsonBody();
 		
+		// the only endpoint usable without a JWT token
+		if ($method == 'GET' && isset($uri[3]) && $uri[3] == 'login') {
+			$this->login($body);
+		}
+		
+		// jwt validation
+		$request_headers = getallheaders();
+		if (!isset($request_headers['Authorization'])) {
+			$this->error(403);
+		}
+		$user_id = $this->jwt->validate($request_headers['Authorization']);
+		
 		switch ($method) {
 			case 'GET':
-				$this->get($uri, $params, $body);
+				$this->get($uri, $params, $body, $user_id);
 				break;
 			case 'POST':
 				$this->post($uri, $params);
@@ -41,17 +46,13 @@ class UserController extends BaseController {
 	
 	#region get
 	
-	private function get($uri, $params, $body) {
-		// TODO jwt validation
+	private function get(array $uri, array $params, array $body, int $user_id) {
 		if (!isset($uri[3])) {
-			$this->getUser();
+			$this->getUser($user_id);
 			return;
 		}
 		
 		switch ($uri[3]) {
-			case 'login':
-				$this->login($body);
-				break;
 			case 'logout':
 				// TODO implement endpoint
 				break;
@@ -61,29 +62,31 @@ class UserController extends BaseController {
 		}
 	}
 	
-	private function getUser() {
-		// TODO decode jwt token
-		//  check if it's valid and which user does it belong to
-		//  query and send user data
-	}
-	
 	private function login($body) {
-		$user = $this->dao->getUser($body['username'], $body['password']);
+		$user = $this->dao->getUserByUnameAndPassword($body['username'], $body['password']);
 		
 		if (empty($user)) {
-			// TODO send failure response according to API docs
-			$this->sendJson($body);
+			$this->error(401);
 			return;
 		}
 		
 		try {
-			$token = JwtHandler::getToken(['uid' => $user['user_id']]);
+			$token = $this->jwt->getToken($user['user_id']);
 		} catch (Exception $e) {
-			// TODO return internal server error
+			$this->error(500);
 			return;
 		}
 		
 		echo $token->toString();
+	}
+	
+	private function getUser(int $user_id) {
+		$user = $this->dao->getUserById($user_id);
+		if (empty($user)) {
+			$this->error(500);
+		}
+		
+		$this->sendJson($user);
 	}
 	
 	#endregion
