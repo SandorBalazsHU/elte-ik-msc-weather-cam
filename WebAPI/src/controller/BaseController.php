@@ -7,7 +7,7 @@ class BaseController {
 	 * __call magic method - Called whenever we try to call an unimplemented method of this class
 	 */
 	public function __call($name, $arguments) {
-		$this->sendOutput('', array('HTTP/1.1 404 Not Found'));
+		$this->error(404);
 	}
 	
 	/**
@@ -26,37 +26,92 @@ class BaseController {
 	}
 	
 	/**
-	 * Get querystring params.
+	 * Get query string params.
 	 *
 	 * @return array
 	 */
 	protected function getQueryStringParams(): array {
-		return parse_str($_SERVER['QUERY_STRING'], $query);
+		parse_str($_SERVER['QUERY_STRING'], $query);
+		return $query;
 	}
 	
 	/**
-	 * Send API output.
+	 * Get query string params.
 	 *
-	 * @param mixed $data
-	 * @param string $httpHeaders
+	 * @return array
 	 */
-	protected function sendOutput($data, $httpHeaders = array()) {
-		header_remove('Set-Cookie');
-		
+	protected function getJsonBody(): array {
+		$raw_body = file_get_contents('php://input');
+		$decoded_body = json_decode($raw_body, true);
+		return $decoded_body ?: [];
+	}
+	
+	/**
+	 * Add HTTP headers to response.
+	 * @param array $httpHeaders
+	 * @return void
+	 */
+	private function addHeaders(array $httpHeaders = array()) {
 		if (is_array($httpHeaders) && count($httpHeaders)) {
 			foreach ($httpHeaders as $httpHeader) {
 				header($httpHeader);
 			}
 		}
-		
-		echo $data;
-		exit;
 	}
 	
-	protected function sendJson($data, $httpHeaders = array()) {
-		header('Content-Type: application/json');
-		header('HTTP/1.1 200 OK');
+	/**
+	 * Send output as HTTP response.
+	 *
+	 * @param string $output
+	 * @param string $httpHeaders
+	 */
+	protected function sendOutput(string $output, $httpHeaders = array()) {
+		header_remove('Set-Cookie');
+		$this->addHeaders($httpHeaders);
 		
-		$this->sendOutput($data, $httpHeaders);
+		exit($output);
 	}
+	
+	/**
+	 * Send HTTP response with JSON encoded data
+	 * @param array $data Data to JSON encode
+	 * @param array $httpHeaders
+	 * @return void
+	 */
+	protected function sendJson(array $data, array $httpHeaders = array()) {
+		header('Content-Type: application/json');
+		http_response_code(200);
+		$this->addHeaders($httpHeaders);
+		
+		exit(json_encode($data));
+	}
+	
+	protected function sendJsonError(array $data) {
+		header('Content-Type: application/json');
+		exit(json_encode($data));
+	}
+	
+	protected function error(int $code) {
+		http_response_code($code);
+		$error_msg = array("code" => $code, "type" => "failure");
+		
+		switch ($code) {
+			case 401:
+				$error_msg['message'] = 'Failed to authenticate request.';
+				break;
+			case 403:
+				$error_msg['message'] = 'Failed to authorize request';
+				break;
+			case 404:
+				$error_msg['message'] = 'Failed to find requested resource';
+				break;
+			
+			case 500:
+				$error_msg['message'] = 'Internal Server Error';
+				break;
+		}
+		
+		$this->sendJsonError($error_msg);
+	}
+	
 }

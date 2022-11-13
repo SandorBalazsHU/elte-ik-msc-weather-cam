@@ -21,7 +21,7 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
-	public function select($query = "", $params = []) {
+	public function select($query = "", $params = []): array {
 		try {
 			$stmt = $this->executeStatement($query, $params);
 			$result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -33,7 +33,25 @@ class DatabaseAccessObject {
 		}
 	}
 	
-	private function executeStatement($query = "", $params = []) {
+	/**
+	 * @throws Exception
+	 */
+	public function selectOne($query = "", $params = []): array {
+		try {
+			$stmt = $this->executeStatement($query, $params);
+			$result = $stmt->get_result()->fetch_object();
+			$stmt->close();
+			
+			return get_object_vars($result);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+	}
+	
+	/**
+	 * @throws Exception
+	 */
+	private function executeStatement($query = "", $params = []): mysqli_stmt {
 		try {
 			$stmt = $this->connection->prepare($query);
 			
@@ -42,7 +60,8 @@ class DatabaseAccessObject {
 			}
 			
 			if ($params) {
-				$stmt->bind_param($params[0], $params[1]);
+				// all the params are bind as string - this should not cause problems, bc MySQL handles it (except order by)
+				$stmt->bind_param(str_repeat("s", count($params)), ...$params);
 			}
 			
 			$stmt->execute();

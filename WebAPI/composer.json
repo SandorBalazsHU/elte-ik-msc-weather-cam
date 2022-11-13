@@ -8,6 +8,8 @@
         "phpunit/phpunit": "^9"
     },
   "require": {
-    "ext-mysqli": "*"
+    "ext-mysqli": "*",
+    "ext-json": "*",
+    "lcobucci/jwt": "^4.2"
   }
 }
