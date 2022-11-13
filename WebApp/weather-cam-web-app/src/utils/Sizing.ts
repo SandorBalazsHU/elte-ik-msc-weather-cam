@@ -33,4 +33,24 @@ export const calcDrawerSize = computed(() => {
   return 370;
 });
 
+export const isMobile = computed(() => {
+  return vuetify.display.mobile;
+});
+
+export const xlAndDown = computed(() => {
+  return vuetify.display.mdAndDown.value;
+});
+
+export function checkOverflow(el: HTMLElement) {
+  const curOverflow = el.style.overflow;
+
+  if (!curOverflow || curOverflow === "visible") el.style.overflow = "hidden";
+
+  const isOverflowing = el.clientWidth < el.scrollWidth || el.clientHeight < el.scrollHeight;
+
+  el.style.overflow = curOverflow;
+
+  return isOverflowing;
+}
+
 export default calcFormSize;
