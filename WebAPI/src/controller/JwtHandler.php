@@ -41,7 +41,7 @@ class JwtHandler extends BaseController {
 			->issuedBy(JWT_ISSUED_BY)
 			->permittedFor(JWT_PERMITTED_FOR)
 			->issuedAt($now)
-			->expiresAt($now->modify('+30 minute'))
+			->expiresAt($now->modify(JWT_VALID_FOR))
 			->withClaim(JwtHandler::$CLAIM_UID, $user_id)
 			->getToken($algorithm, $this->signingKey);
 	}

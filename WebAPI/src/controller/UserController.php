@@ -42,6 +42,8 @@ class UserController extends BaseController {
 				$this->delete($uri, $params);
 				break;
 		}
+
+		$this->error(404);
 	}
 	
 	#region get
@@ -77,7 +79,7 @@ class UserController extends BaseController {
 			return;
 		}
 		
-		echo $token->toString();
+		exit($token->toString());
 	}
 	
 	private function getUser(int $user_id) {
