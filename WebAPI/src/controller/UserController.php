@@ -16,9 +16,12 @@ class UserController extends BaseController {
 		$params = $this->getQueryStringParams();
 		$body = $this->getJsonBody();
 		
-		// the only endpoint usable without a JWT token
+		// endpoints that are used without a JWT token
 		if ($method == 'GET' && isset($uri[3]) && $uri[3] == 'login') {
 			$this->login($body);
+		}
+		if ($method == 'POST' && isset($uri[3]) && $uri[3] == 'register') {
+			$this->register($body);
 		}
 		
 		// jwt validation
@@ -42,7 +45,7 @@ class UserController extends BaseController {
 				$this->delete($uri, $params);
 				break;
 		}
-
+		
 		$this->error(404);
 	}
 	
@@ -65,6 +68,10 @@ class UserController extends BaseController {
 	}
 	
 	private function login($body) {
+		if (empty($body['username']) || empty($body['password'])) {
+			$this->error(403);
+		}
+		
 		$user = $this->dao->getUserByUnameAndPassword($body['username'], $body['password']);
 		
 		if (empty($user)) {
@@ -95,7 +102,34 @@ class UserController extends BaseController {
 	#region post
 	
 	private function post($uri, $params) {
-		// TODO implement method
+		switch ($uri[3]) {
+			case 'stations':
+				// TODO implement endpoint
+				break;
+		}
+	}
+	
+	private function register(array $body) {
+		if (empty($body['username']) || empty($body['password'])) {
+			$this->error(400);
+		}
+		
+		$username = $body['username'];
+		$password = $body['password'];
+		
+		$existing_user = $this->dao->getUserByUname($username);
+		if (!empty($existing_user)) {
+			$this->error(409);
+		}
+		
+		$result = $this->dao->insertUser($username, $password);
+		
+		if ($result) {
+			$this->response(200);
+		} else {
+			$this->error(500);
+		}
+		
 	}
 	
 	# endregion

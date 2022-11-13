@@ -42,7 +42,19 @@ class DatabaseAccessObject {
 			$result = $stmt->get_result()->fetch_object();
 			$stmt->close();
 			
-			return get_object_vars($result);
+			return $result == null ? [] : get_object_vars($result);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+	}
+	
+	public function runQuery($query = "", $params = []): bool {
+		try {
+			$stmt = $this->executeStatement($query, $params);
+			$error = $stmt->error;
+			$stmt->close();
+			
+			return empty($error);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
 		}
@@ -51,7 +63,7 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
-	private function executeStatement($query = "", $params = []): mysqli_stmt {
+	private function executeStatement(string $query = "", array $params = []): mysqli_stmt {
 		try {
 			$stmt = $this->connection->prepare($query);
 			

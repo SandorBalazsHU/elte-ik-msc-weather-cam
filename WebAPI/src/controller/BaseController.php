@@ -91,27 +91,46 @@ class BaseController {
 		exit(json_encode($data));
 	}
 	
-	protected function error(int $code) {
+	protected function response(int $code) {
 		http_response_code($code);
-		$error_msg = array("code" => $code, "type" => "failure");
+		$response = array("code" => $code, "type" => "success");
 		
 		switch ($code) {
-			case 401:
-				$error_msg['message'] = 'Failed to authenticate request.';
-				break;
-			case 403:
-				$error_msg['message'] = 'Failed to authorize request';
-				break;
-			case 404:
-				$error_msg['message'] = 'Failed to find requested resource';
-				break;
-			
-			case 500:
-				$error_msg['message'] = 'Internal Server Error';
+			case 200:
+				$success['message'] = 'Successfully processed request.';
 				break;
 		}
 		
-		$this->sendJsonError($error_msg);
+		$this->sendJsonError($response);
+	}
+	
+	protected function error(int $code) {
+		http_response_code($code);
+		$response = array("code" => $code, "type" => "failure");
+		
+		switch ($code) {
+			case 400:
+				$response['message'] = 'Failed to process request.';
+				break;
+			case 401:
+				$response['message'] = 'Failed to authenticate request.';
+				break;
+			case 403:
+				$response['message'] = 'Failed to authorize request';
+				break;
+			case 404:
+				$response['message'] = 'Failed to find requested resource';
+				break;
+			case 409:
+				$response['message'] = 'Failed to register user. Username is already taken.';
+				break;
+			
+			case 500:
+				$response['message'] = 'Internal Server Error';
+				break;
+		}
+		
+		$this->sendJsonError($response);
 	}
 	
 }

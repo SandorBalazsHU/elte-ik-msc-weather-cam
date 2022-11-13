@@ -24,12 +24,28 @@ class UserDao extends DatabaseAccessObject {
 	
 	public function getUserById($user_id): array {
 		try {
-			return $this->selectOne(
-				"SELECT * FROM users WHERE user_id = ? LIMIT 1",
-				[$user_id]
-			);
+			return $this->selectOne("SELECT * FROM users WHERE user_id = ? LIMIT 1", [$user_id]);
 		} catch (Exception $e) {
 			return array();
+		}
+	}
+	
+	public function getUserByUname($username): array {
+		try {
+			return $this->selectOne("SELECT * FROM users WHERE username = ? LIMIT 1", [$username]);
+		} catch (Exception $e) {
+			return array();
+		}
+	}
+	
+	public function insertUser($username, $password): bool {
+		try {
+			return $this->runQuery(
+				"INSERT INTO users (username, password) VALUES (?, ?)",
+				[$username, $password]
+			);
+		} catch (Exception $e) {
+			return false;
 		}
 	}
 	
