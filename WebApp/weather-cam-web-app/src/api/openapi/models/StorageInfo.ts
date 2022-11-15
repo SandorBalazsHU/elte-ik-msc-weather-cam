@@ -24,13 +24,13 @@ export interface StorageInfo {
      * @type {number}
      * @memberof StorageInfo
      */
-    totalStorage?: number;
+    totalStorage: number;
     /**
      * used_storage is the amount of used storage in bytes.
      * @type {number}
      * @memberof StorageInfo
      */
-    usedStorage?: number;
+    usedStorage: number;
 }
 
 /**
@@ -38,6 +38,8 @@ export interface StorageInfo {
  */
 export function instanceOfStorageInfo(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "totalStorage" in value;
+    isInstance = isInstance && "usedStorage" in value;
 
     return isInstance;
 }
@@ -52,8 +54,8 @@ export function StorageInfoFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'totalStorage': !exists(json, 'total_storage') ? undefined : json['total_storage'],
-        'usedStorage': !exists(json, 'used_storage') ? undefined : json['used_storage'],
+        'totalStorage': json['total_storage'],
+        'usedStorage': json['used_storage'],
     };
 }
 

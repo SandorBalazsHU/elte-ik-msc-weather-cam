@@ -34,6 +34,10 @@ import {
     UserUpdateableToJSON,
 } from '../models';
 
+export interface AddStationsRequest {
+    stationName: string;
+}
+
 export interface DeleteUserRequest {
     username: string;
 }
@@ -66,8 +70,16 @@ export class UserApi extends runtime.BaseAPI {
      * ## Functionality:  Adds a new station to the list of stations associated with the user.  __Important__: This response contains information about the newly added station and it\'s API key.  The API key is only recieved once after creating a new station make sure to __write it down__ somewhere! After this only parts of the API key can be accessed by the user.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
      * Add new stations to the user.
      */
-    async addStationsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StationApiKey>> {
+    async addStationsRaw(requestParameters: AddStationsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StationApiKey>> {
+        if (requestParameters.stationName === null || requestParameters.stationName === undefined) {
+            throw new runtime.RequiredError('stationName','Required parameter requestParameters.stationName was null or undefined when calling addStations.');
+        }
+
         const queryParameters: any = {};
+
+        if (requestParameters.stationName !== undefined) {
+            queryParameters['station_name'] = requestParameters.stationName;
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -93,8 +105,8 @@ export class UserApi extends runtime.BaseAPI {
      * ## Functionality:  Adds a new station to the list of stations associated with the user.  __Important__: This response contains information about the newly added station and it\'s API key.  The API key is only recieved once after creating a new station make sure to __write it down__ somewhere! After this only parts of the API key can be accessed by the user.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
      * Add new stations to the user.
      */
-    async addStations(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StationApiKey> {
-        const response = await this.addStationsRaw(initOverrides);
+    async addStations(requestParameters: AddStationsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StationApiKey> {
+        const response = await this.addStationsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

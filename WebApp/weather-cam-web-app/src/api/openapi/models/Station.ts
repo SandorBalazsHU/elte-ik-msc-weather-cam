@@ -26,13 +26,21 @@ station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_i
      * @type {string}
      * @memberof Station
      */
-    stationId?: string;
+    stationId: string;
     /**
      * station_name is the unique name of the station.
      * @type {string}
      * @memberof Station
      */
-    stationName?: string;
+    stationName: string;
+    /**
+     * station_timezone is the timezone where the station is located at.
+station_timezone follows the [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) standard.
+
+     * @type {number}
+     * @memberof Station
+     */
+    stationTimezone: number;
 }
 
 /**
@@ -40,6 +48,9 @@ station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_i
  */
 export function instanceOfStation(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "stationId" in value;
+    isInstance = isInstance && "stationName" in value;
+    isInstance = isInstance && "stationTimezone" in value;
 
     return isInstance;
 }
@@ -54,8 +65,9 @@ export function StationFromJSONTyped(json: any, ignoreDiscriminator: boolean): S
     }
     return {
         
-        'stationId': !exists(json, 'station_id') ? undefined : json['station_id'],
-        'stationName': !exists(json, 'station_name') ? undefined : json['station_name'],
+        'stationId': json['station_id'],
+        'stationName': json['station_name'],
+        'stationTimezone': json['station_timezone'],
     };
 }
 
@@ -70,6 +82,7 @@ export function StationToJSON(value?: Station | null): any {
         
         'station_id': value.stationId,
         'station_name': value.stationName,
+        'station_timezone': value.stationTimezone,
     };
 }
 

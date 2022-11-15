@@ -28,14 +28,14 @@ station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_i
      * @type {string}
      * @memberof StationApiKey
      */
-    stationId?: string;
+    stationId: string;
     /**
      * api_key gives access to upload measurements to the server.  
 
      * @type {string}
      * @memberof StationApiKey
      */
-    apiKey?: string;
+    apiKey: string;
 }
 
 /**
@@ -43,6 +43,8 @@ station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_i
  */
 export function instanceOfStationApiKey(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "stationId" in value;
+    isInstance = isInstance && "apiKey" in value;
 
     return isInstance;
 }
@@ -57,8 +59,8 @@ export function StationApiKeyFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        'stationId': !exists(json, 'station_id') ? undefined : json['station_id'],
-        'apiKey': !exists(json, 'api_key') ? undefined : json['api_key'],
+        'stationId': json['station_id'],
+        'apiKey': json['api_key'],
     };
 }
 

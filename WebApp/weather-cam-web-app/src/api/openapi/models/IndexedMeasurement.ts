@@ -26,25 +26,25 @@ export interface IndexedMeasurement {
      * @type {number}
      * @memberof IndexedMeasurement
      */
-    temperature?: number;
+    temperature: number;
     /**
      * pressure in millibars.
      * @type {number}
      * @memberof IndexedMeasurement
      */
-    pressure?: number;
+    pressure: number;
     /**
      * humidity in percentage.
      * @type {number}
      * @memberof IndexedMeasurement
      */
-    humidity?: number;
+    humidity: number;
     /**
      * remaining battery in percentage
      * @type {number}
      * @memberof IndexedMeasurement
      */
-    battery?: number;
+    battery: number;
     /**
      * the time of recording the measurement
 timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.
@@ -52,7 +52,7 @@ timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) stand
      * @type {number}
      * @memberof IndexedMeasurement
      */
-    timestamp?: number;
+    timestamp: number;
     /**
      * measurement_id is a __unique__ identifier for measurements.  
 measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
@@ -60,7 +60,7 @@ measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_uniq
      * @type {string}
      * @memberof IndexedMeasurement
      */
-    measurementId?: string;
+    measurementId: string;
     /**
      * station_id is a __unique__ identifier for weather stations.  
 station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
@@ -68,7 +68,7 @@ station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_i
      * @type {string}
      * @memberof IndexedMeasurement
      */
-    stationId?: string;
+    stationId: string;
 }
 
 /**
@@ -76,6 +76,13 @@ station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_i
  */
 export function instanceOfIndexedMeasurement(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "temperature" in value;
+    isInstance = isInstance && "pressure" in value;
+    isInstance = isInstance && "humidity" in value;
+    isInstance = isInstance && "battery" in value;
+    isInstance = isInstance && "timestamp" in value;
+    isInstance = isInstance && "measurementId" in value;
+    isInstance = isInstance && "stationId" in value;
 
     return isInstance;
 }
@@ -90,13 +97,13 @@ export function IndexedMeasurementFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-        'temperature': !exists(json, 'temperature') ? undefined : json['temperature'],
-        'pressure': !exists(json, 'pressure') ? undefined : json['pressure'],
-        'humidity': !exists(json, 'humidity') ? undefined : json['humidity'],
-        'battery': !exists(json, 'battery') ? undefined : json['battery'],
-        'timestamp': !exists(json, 'timestamp') ? undefined : json['timestamp'],
-        'measurementId': !exists(json, 'measurement_id') ? undefined : json['measurement_id'],
-        'stationId': !exists(json, 'station_id') ? undefined : json['station_id'],
+        'temperature': json['temperature'],
+        'pressure': json['pressure'],
+        'humidity': json['humidity'],
+        'battery': json['battery'],
+        'timestamp': json['timestamp'],
+        'measurementId': json['measurement_id'],
+        'stationId': json['station_id'],
     };
 }
 

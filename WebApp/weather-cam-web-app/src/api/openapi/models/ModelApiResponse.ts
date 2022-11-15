@@ -24,19 +24,19 @@ export interface ModelApiResponse {
      * @type {number}
      * @memberof ModelApiResponse
      */
-    code?: number;
+    code: number;
     /**
      * type is used to categorize responses. The different types of responses can be found [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status).
      * @type {string}
      * @memberof ModelApiResponse
      */
-    type?: string;
+    type: string;
     /**
      * message is a more detailed information about the response.
      * @type {string}
      * @memberof ModelApiResponse
      */
-    message?: string;
+    message: string;
 }
 
 /**
@@ -44,6 +44,9 @@ export interface ModelApiResponse {
  */
 export function instanceOfModelApiResponse(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "code" in value;
+    isInstance = isInstance && "type" in value;
+    isInstance = isInstance && "message" in value;
 
     return isInstance;
 }
@@ -58,9 +61,9 @@ export function ModelApiResponseFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-        'code': !exists(json, 'code') ? undefined : json['code'],
-        'type': !exists(json, 'type') ? undefined : json['type'],
-        'message': !exists(json, 'message') ? undefined : json['message'],
+        'code': json['code'],
+        'type': json['type'],
+        'message': json['message'],
     };
 }
 

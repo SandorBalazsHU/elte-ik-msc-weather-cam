@@ -1,7 +1,7 @@
 <template>
   <v-card class="d-flex flex-column">
     <v-card-title class="d-flex pl-0 justify-space-between">
-      <span class="data-title">Monitoring </span>
+      <span class="data-title">Information </span>
       <v-btn
         :size="xs ? 'default' : 'large'"
         color="info"
@@ -35,16 +35,19 @@ defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCod
 
 <style scoped>
 .v-badge {
-  line-height: 0;
-  vertical-align: bottom;
+  vertical-align: text-bottom;
 }
 
 .station-data {
-  font-size: 1.35rem;
+  font-size: 1.3rem;
+  line-height: 1.4 !important;
 }
 .change-station-btn {
   margin-top: auto;
   margin-bottom: auto;
+}
+.break-station-selector {
+  width: 36%;
 }
 </style>
 

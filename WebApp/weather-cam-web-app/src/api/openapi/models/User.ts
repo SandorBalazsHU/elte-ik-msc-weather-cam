@@ -26,19 +26,19 @@ station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_i
      * @type {string}
      * @memberof User
      */
-    userId?: string;
+    userId: string;
     /**
      * username is a unique name used to identify the user.
      * @type {string}
      * @memberof User
      */
-    username?: string;
+    username: string;
     /**
      * 
      * @type {string}
      * @memberof User
      */
-    password?: string;
+    password: string;
 }
 
 /**
@@ -46,6 +46,9 @@ station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_i
  */
 export function instanceOfUser(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "userId" in value;
+    isInstance = isInstance && "username" in value;
+    isInstance = isInstance && "password" in value;
 
     return isInstance;
 }
@@ -60,9 +63,9 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
     }
     return {
         
-        'userId': !exists(json, 'user_id') ? undefined : json['user_id'],
-        'username': !exists(json, 'username') ? undefined : json['username'],
-        'password': !exists(json, 'password') ? undefined : json['password'],
+        'userId': json['user_id'],
+        'username': json['username'],
+        'password': json['password'],
     };
 }
 

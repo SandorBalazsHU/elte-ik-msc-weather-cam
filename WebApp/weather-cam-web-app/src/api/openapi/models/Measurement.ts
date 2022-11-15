@@ -24,25 +24,25 @@ export interface Measurement {
      * @type {number}
      * @memberof Measurement
      */
-    temperature?: number;
+    temperature: number;
     /**
      * pressure in millibars.
      * @type {number}
      * @memberof Measurement
      */
-    pressure?: number;
+    pressure: number;
     /**
      * humidity in percentage.
      * @type {number}
      * @memberof Measurement
      */
-    humidity?: number;
+    humidity: number;
     /**
      * remaining battery in percentage
      * @type {number}
      * @memberof Measurement
      */
-    battery?: number;
+    battery: number;
     /**
      * the time of recording the measurement
 timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.
@@ -50,7 +50,7 @@ timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) stand
      * @type {number}
      * @memberof Measurement
      */
-    timestamp?: number;
+    timestamp: number;
 }
 
 /**
@@ -58,6 +58,11 @@ timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) stand
  */
 export function instanceOfMeasurement(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "temperature" in value;
+    isInstance = isInstance && "pressure" in value;
+    isInstance = isInstance && "humidity" in value;
+    isInstance = isInstance && "battery" in value;
+    isInstance = isInstance && "timestamp" in value;
 
     return isInstance;
 }
@@ -72,11 +77,11 @@ export function MeasurementFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'temperature': !exists(json, 'temperature') ? undefined : json['temperature'],
-        'pressure': !exists(json, 'pressure') ? undefined : json['pressure'],
-        'humidity': !exists(json, 'humidity') ? undefined : json['humidity'],
-        'battery': !exists(json, 'battery') ? undefined : json['battery'],
-        'timestamp': !exists(json, 'timestamp') ? undefined : json['timestamp'],
+        'temperature': json['temperature'],
+        'pressure': json['pressure'],
+        'humidity': json['humidity'],
+        'battery': json['battery'],
+        'timestamp': json['timestamp'],
     };
 }
 

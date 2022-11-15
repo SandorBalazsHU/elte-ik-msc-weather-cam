@@ -1,6 +1,6 @@
 <template>
   <v-sheet :elevation="3" rounded="rounded" :width="0" class="square flex-grow-1">
-    <div class="d-flex h-100 flex-column">
+    <div class="measurement d-flex h-100 flex-column">
       <div class="d-flex justify-space-between data-title flex-grow-0">
         <span>{{ title }}</span>
         <v-icon v-if="icon">{{ icon }}</v-icon>
@@ -58,15 +58,15 @@ onBeforeUnmount(() => window.removeEventListener("resize", resizeHandler));
 <style scoped>
 .square {
   aspect-ratio: 1;
+  max-height: 200px;
+  min-width: fit-content;
 }
 .no-border-top {
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
 }
 .measurement-data {
-  margin: auto;
   width: 100%;
-  height: 100%;
 }
 
 .data {

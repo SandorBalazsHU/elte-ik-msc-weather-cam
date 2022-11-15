@@ -12,6 +12,7 @@
       <v-divider></v-divider>
       <v-list nav>
         <v-list-item
+          class="pointer"
           :key="link.name"
           v-for="link in links"
           :prepend-icon="link.icon"
@@ -64,5 +65,9 @@ const router = useRouter();
 .nav-logo-img {
   width: 80%;
   margin: auto;
+}
+
+.pointer {
+  cursor: pointer;
 }
 </style>

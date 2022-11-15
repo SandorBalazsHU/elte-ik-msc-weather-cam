@@ -16,7 +16,7 @@ const configOptions: ConfigurationParameters = {
 const userApi = new UserApi(new Configuration(configOptions));
 
 interface UserState {
-  userData: User | null;
+  userData: User;
   bearerToken: string | null;
 }
 
@@ -58,6 +58,7 @@ export const useUserStore = defineStore("user", {
           useAlertStore().addAlert("login-errors", {
             code: 500,
             message: "Connection refused by server!",
+            type: "error",
           });
         }
         if (propagateError) throw error;
