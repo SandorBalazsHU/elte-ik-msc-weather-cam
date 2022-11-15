@@ -843,7 +843,16 @@ paths:
       security:
         - bearerAuth: []
     post:
+      parameters:
+          - name: station_name
+            in: query
+            description: The unique name for the new station.
+            required: true
+            schema:
+              type: string
+              nullable: false
       summary: Add new stations to the user.
+      
       description: |
         ## Functionality: 
         Adds a new station to the list of stations associated with the user.
@@ -1079,12 +1088,14 @@ components:
             measurement_id:
               type: string
               format: uuid
+              nullable: false
               description: |
                 measurement_id is a __unique__ identifier for measurements.  
                 measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
             station_id:
               type: string
               format: uuid
+              nullable: false
               description: |
                 station_id is a __unique__ identifier for weather stations.  
                 station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
@@ -1099,6 +1110,7 @@ components:
           example: 22.3
           minimum: -273.15
           maximum: 200
+          nullable: false
         pressure:
           description: pressure in millibars.
           type: number
@@ -1106,6 +1118,7 @@ components:
           example: 1013.25
           minimum: 0
           maximum: 10000
+          nullable: false
         humidity:
           description: humidity in percentage.
           type: number
@@ -1113,6 +1126,7 @@ components:
           example: 66.6
           minimum: 0
           maximum: 100
+          nullable: false
         battery:
           description: remaining battery in percentage
           type: number
@@ -1120,11 +1134,13 @@ components:
           example: 52.3
           minimum: 0
           maximum: 100
+          nullable: false
         timestamp:
           type: integer
           format: int64
           example: 1667076196
           minimum: 0
+          nullable: false
           description: |
             the time of recording the measurement
             timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.
@@ -1146,12 +1162,14 @@ components:
           format: int64
           example: 564234234235
           minimum: 0
+          nullable: false
         used_storage:
           description: used_storage is the amount of used storage in bytes.
           type: integer
           format: int64
           example: 324534534533
           minimum: 0
+          nullable: false
     User:
       description: User contains all the user information.
       type: object
@@ -1163,13 +1181,16 @@ components:
           type: string
           format: uuid
           example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+          nullable: false
         username:
           description: username is a unique name used to identify the user.
           type: string
           example: theUser
+          nullable: false
         password:
           type: string
           example: '12345'
+          nullable: false
     UserUpdateable:
       description: User contains all the user information.
       type: object
@@ -1178,9 +1199,11 @@ components:
           description: username is a unique name used to identify the user.
           type: string
           example: theUser
+          nullable: false
         password:
           type: string
           example: '12345'
+          nullable: false
     Station:
       description: Station contains information about a weather station.
       type: object
@@ -1191,11 +1214,23 @@ components:
             station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
           type: string
           format: uuid
+          nullable: false
           example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
         station_name:
           type: string
           description: station_name is the unique name of the station.
+          nullable: false
           example: home_station_01
+          
+        station_timezone:
+          type: number
+          description: | 
+            station_timezone is the timezone where the station is located at.
+            station_timezone follows the [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) standard.
+          nullable: false
+          example: -3
+          minimum: -12
+          maximum: 14
     StationApiKey:
       type: object
       description: |
@@ -1209,13 +1244,16 @@ components:
             station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
           format: uuid
           example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+          nullable: false
         api_key:
           type: string
           format: uuid
+          nullable: false
           description: |
             api_key gives access to upload measurements to the server.  
     StationArray:
       type: array
+      nullable: false
       example:
         - station_id: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
           station_name: home_station_01
@@ -1226,6 +1264,7 @@ components:
     ApiResponse:
       description: ApiResponse contains information about the result of a request.
       type: object
+      nullable: false
       properties:
         code:
           description: 'code is the status of the returned request. code follows the [HTTP response codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)'
@@ -1234,14 +1273,17 @@ components:
           example: 420
           minimum: 100
           maximum: 599
+          nullable: false
         type:
           description: 'type is used to categorize responses. The different types of responses can be found [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status).'
           type: string
           example: example
+          nullable: false
         message:
           description: message is a more detailed information about the response.
           type: string
           example: An example message of type example generated by an example API response
+          nullable: false
   securitySchemes:
     apiKeyAuth:
       type: apiKey
@@ -1299,6 +1341,7 @@ components:
       in: path
       name: measurement_id
       required: true
+      
       description: |
         measurement_id is a __unique__ identifier for measurements. 
         measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
