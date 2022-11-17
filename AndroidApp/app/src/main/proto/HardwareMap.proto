@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "com.example.weatherapp.data.hardware";
+option java_multiple_files = true;
+
+message SavedHardware {
+  string name = 1;
+  string address = 2;
+}
+
+message HardwareMap {
+  map<string, SavedHardware> hws = 1;
+}
