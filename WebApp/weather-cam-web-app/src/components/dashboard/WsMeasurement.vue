@@ -59,7 +59,6 @@ onBeforeUnmount(() => window.removeEventListener("resize", resizeHandler));
 .square {
   aspect-ratio: 1;
   max-height: 200px;
-  min-width: fit-content;
 }
 .no-border-top {
   border-top-left-radius: 0px;
@@ -85,6 +84,27 @@ onBeforeUnmount(() => window.removeEventListener("resize", resizeHandler));
   text-transform: none;
   white-space: nowrap;
   word-spacing: -0.38rem;
+  white-space: nowrap;
+  word-break: normal;
+  word-wrap: break-word;
+}
+
+.data-title {
+  display: block;
+  flex: none;
+  font-size: 1.4rem;
+  font-weight: 500;
+  hyphens: auto;
+  letter-spacing: 0.0125em;
+  min-width: 0;
+  overflow-wrap: normal;
+  overflow: hidden;
+  overflow: hidden;
+  padding: 0.5rem 0.75rem;
+  text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
   white-space: nowrap;
   word-break: normal;
   word-wrap: break-word;

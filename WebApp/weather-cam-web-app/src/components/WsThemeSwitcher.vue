@@ -1,11 +1,12 @@
 <template>
   <v-btn
-    v-if="!vuetify.display.mobile"
+    v-if="!isMobile"
     @click="themeStore.change(themeStore.nextTheme)"
     color="dark"
     variant="tonal"
+    class="ml-2"
     prepend-icon="mdi-theme-light-dark"
-    >{{ themeStore.theme }} mode</v-btn
+    >{{ themeStore.theme }}</v-btn
   >
   <v-btn
     v-else
@@ -18,6 +19,7 @@
 <script lang="ts" setup>
 import vuetify from "@/plugins/vuetify.js";
 import { useThemeStore } from "@/store/theme.js";
+import { isMobile } from "@/utils/Sizing.js";
 
 const themeStore = useThemeStore();
 </script>

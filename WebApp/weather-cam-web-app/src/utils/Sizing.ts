@@ -45,6 +45,10 @@ export const xs = computed(() => {
   return vuetify.display.xs.value;
 });
 
+export const sm = computed(() => {
+  return vuetify.display.sm.value;
+});
+
 export function checkOverflow(el: HTMLElement) {
   const curOverflow = el.style.overflow;
 

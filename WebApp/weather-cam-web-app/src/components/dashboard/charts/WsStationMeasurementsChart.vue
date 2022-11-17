@@ -1,6 +1,6 @@
 <template>
-  <v-sheet :elevation="3" rounded="rounded" class="h-100 d-flex">
-    <div class="w-100 h-100 pa-1">
+  <v-sheet :elevation="3" rounded="rounded" class="d-flex">
+    <div class="flex-grow-1">
       <div class="d-flex justify-space-between pa-2 pb-0 pt-1">
         <span style="" class="text-h5">Analytics</span
         ><v-select
@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { LineChart, useLineChart } from "vue-chart-3";
 import { Chart, type ChartData, type ChartOptions, registerables } from "chart.js";
 import { useThemeStore } from "@/store/theme.js";
@@ -73,9 +73,16 @@ const gridColor = computed(() => {
   return useThemeStore().theme === "light" ? Chart.defaults.borderColor.toString() : "grey";
 });
 
+onMounted(() => {
+  console.log("Wat");
+});
+
 const options = computed<ChartOptions<"line">>(() => ({
   responsive: true,
   maintainAspectRatio: false,
+  animation: {
+    duration: 0,
+  },
   scales: {
     x: {
       grid: {

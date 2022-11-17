@@ -30,7 +30,14 @@ import type { Station } from "@/api/openapi/index.js";
 import type HttpStatusCode from "@/utils/HttpStatusCode.js";
 import { getRelativeTime } from "@/utils/Date.js";
 import { xs } from "@/utils/Sizing.js";
+
 defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCode }>();
+
+const batteryBarColor = (percent: number) => {
+  if (percent >= 50) return "green";
+  if (percent < 50 && percent >= 20) return "yellow";
+  return "red";
+};
 </script>
 
 <style scoped>
@@ -42,12 +49,30 @@ defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCod
   font-size: 1.3rem;
   line-height: 1.4 !important;
 }
+
+.data-title {
+  display: block;
+  flex: none;
+  font-size: 1.4rem;
+  font-weight: 500;
+  hyphens: auto;
+  letter-spacing: 0.0125em;
+  min-width: 0;
+  overflow-wrap: normal;
+  overflow: hidden;
+  overflow: hidden;
+  padding: 0.5rem 0.75rem;
+  text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+  white-space: nowrap;
+  word-break: normal;
+  word-wrap: break-word;
+}
 .change-station-btn {
   margin-top: auto;
   margin-bottom: auto;
-}
-.break-station-selector {
-  width: 36%;
 }
 </style>
 
