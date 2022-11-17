@@ -5,5 +5,5 @@ import com.google.protobuf.Timestamp
 data class HardwareEntity(
     val nickname : String,
     val ipAddress : String,
-    val lastSuccess : Timestamp? = null
+   // val lastSuccess : Timestamp? = null
 )

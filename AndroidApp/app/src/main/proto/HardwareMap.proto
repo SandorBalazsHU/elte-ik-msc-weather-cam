@@ -8,7 +8,6 @@ option java_multiple_files = true;
 message SavedHardware {
   string name = 1;
   string address = 2;
-  google.protobuf.Timestamp last_success = 3;
 }
 
 message HardwareMap {

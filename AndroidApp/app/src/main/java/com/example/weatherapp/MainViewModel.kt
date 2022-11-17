@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -7,7 +8,6 @@ import androidx.work.*
 import com.example.weatherapp.data.hardware.HardwareEntity
 import com.example.weatherapp.data.hardware.SavedHardwareRepository
 import com.example.weatherapp.data.preferences.UserPreferencesRepository
-import com.google.protobuf.Timestamp
 import kotlinx.coroutines.flow.*
 
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ class MainViewModel(
         viewModelScope.launch {
             val initialPref = userPreferencesRepository.userPreferencesFlow.firstOrNull()
             if(initialPref?.pollingEnabled == false){
-                workManager.cancelUniqueWork(MeasurementWorker::class.java.name)
+                workManager.cancelUniqueWork(StationWorker::class.java.name)
             }
         }
         viewModelScope.launch {
@@ -59,6 +59,7 @@ class MainViewModel(
 
     fun onHardwareAdd(nickname: String, ipAddress: String){
         val newHw = HardwareEntity(nickname = nickname, ipAddress = ipAddress)
+        Log.d("MINE", "ADDING HARDWARE")
         viewModelScope.launch {
             savedHardwareRepository.updateHardware(newHw)
         }
@@ -93,23 +94,23 @@ class MainViewModel(
         val addresses : Array<String> =
             hardwares.value.values.map { it.ipAddress }.toTypedArray()
         val req: PeriodicWorkRequest =
-            PeriodicWorkRequestBuilder<MeasurementWorker>(15, TimeUnit.MINUTES)
+            PeriodicWorkRequestBuilder<StationWorker>(15, TimeUnit.MINUTES)
                 .setInputData(workDataOf(
-                    MeasurementWorker.API_KEY to apiKey.value,
-                    MeasurementWorker.ADDRESSES to addresses
+                    StationWorker.API_KEY to apiKey.value,
+                    StationWorker.ADDRESSES to addresses
                 ))
-                .addTag(MeasurementWorker::class.java.name)
+                .addTag(StationWorker::class.java.name)
                 .build()
 
         workManager.enqueueUniquePeriodicWork(
-            MeasurementWorker::class.java.name,
+            StationWorker::class.java.name,
             ExistingPeriodicWorkPolicy.REPLACE,
             req
         )
     }
 
     private fun cancelRequest(){
-        workManager.cancelUniqueWork(MeasurementWorker::class.java.name)
+        workManager.cancelUniqueWork(StationWorker::class.java.name)
         val req: WorkRequest =
             OneTimeWorkRequestBuilder<TerminatingWorker>().build()
         workManager.enqueue(
