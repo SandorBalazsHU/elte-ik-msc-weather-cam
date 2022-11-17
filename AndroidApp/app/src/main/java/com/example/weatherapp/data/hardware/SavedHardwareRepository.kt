@@ -8,15 +8,15 @@ import kotlinx.coroutines.flow.map
 
 private const val STORE_NAME = "weatherapp_hardware.pb"
 
-val Context.hardwareDataStore: DataStore<HardwareMap> by dataStore(
+private val Context.hardwareDataStore: DataStore<HardwareMap> by dataStore(
     fileName = STORE_NAME,
     serializer = HardwareSerializer
 )
 
 
 
-class SavedHardwareRepository(private val hardwareDataStore: DataStore<HardwareMap>){
-
+class SavedHardwareRepository(context: Context){
+    private val hardwareDataStore: DataStore<HardwareMap> = context.hardwareDataStore
     val savedHardwareFlow : Flow<Map<String, HardwareEntity>> =
         hardwareDataStore.data.map {
             fromSavedMap(it)

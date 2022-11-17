@@ -7,6 +7,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -18,8 +23,10 @@ import com.example.weatherapp.data.hardware.HwMeasurementEntity
 import com.example.weatherapp.data.hardware.MeasurementsRepository
 import io.ktor.client.engine.android.*
 import kotlinx.coroutines.*
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.Executors
 
 /*
 A oneshot service used to get the measurements from the hardware units, take a picture, and
@@ -51,6 +58,9 @@ class StationService : LifecycleService() {
         const val CHAN_DESC = "Notifications for the Weather Station mobile application"
         const val TITLE = "Weather Station Service"
         const val BODY = "Collecting and sending data..."
+
+        private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
+        private const val PHOTO_EXTENSION = ".jpg"
 
         fun startService(
             context: Context,
@@ -86,16 +96,10 @@ class StationService : LifecycleService() {
         Log.d("StationService", addresses.toString())
         val apiKey = intent.getStringExtra(API_KEY)!!
        // webApi.setApiKey(apiKey)
-//        val notificationIntent = Intent(this, MainActivity::class.java)
-//        val pendingIntent = PendingIntent.getActivity(
-//            this,
-//            0, notificationIntent, 0
-//        )
 
         val notification = notificationBuilder.build()
         startForeground(NOTIFICATION_ID, notification)
 
-        //does this finish in time?
         lifecycleScope.launch(Dispatchers.IO) {
             val measurements = addresses.map { getMeasurement(it) }
             try {
@@ -155,12 +159,11 @@ class StationService : LifecycleService() {
         return MeasurementEntity(20f,20f,20f)
     }
 
-    //TODO: getPicture
-
     private fun translateMeasurement(hwEnt : HwMeasurementEntity) : MeasurementEntity =
         MeasurementEntity(
             temperature = hwEnt.temp,
             pressure = hwEnt.pressure,
             humidity = hwEnt.humidity
         )
+
 }
