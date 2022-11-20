@@ -8,7 +8,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: () => import("@/views/errors/NotFoundView.vue"),
+      component: () => import("@/views/LandingView.vue"),
     },
     {
       path: "/login",

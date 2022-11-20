@@ -44,12 +44,13 @@
       ></ws-measurement>
     </div>
     <v-divider></v-divider>
-    <div class="data-visualization">
+    <div class="data-visualization mb-3">
       <ws-station-measurement-chart
         class="data-visualization-element pa-1 mt-3"
       ></ws-station-measurement-chart>
       <ws-photo-viewer class="data-visualization-element pa-1 mt-3"> </ws-photo-viewer>
     </div>
+    <v-divider></v-divider>
   </main>
 </template>
 

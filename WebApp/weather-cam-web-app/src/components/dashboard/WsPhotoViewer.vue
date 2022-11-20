@@ -1,5 +1,5 @@
 <template>
-  <v-sheet rounded="rounded" class="pa-1 mt-3">
+  <v-sheet :elevation="3" rounded="rounded" class="pa-1 mt-3">
     <div class="d-flex flex-column h-100 justify-space-between">
       <div class="d-flex justify-space-between pa-2 pb-0 pt-1">
         <span style="" class="text-h5">Photos</span>

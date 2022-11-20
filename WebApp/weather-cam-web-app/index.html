@@ -7,6 +7,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather Station</title>
   </head>
@@ -21,46 +22,5 @@
 <style>
   * {
     box-sizing: border-box;
-  }
-  @keyframes loading {
-    0% {
-      height: 50px;
-      top: 0px;
-    }
-
-    50% {
-      height: 70px;
-      top: -10px;
-    }
-
-    100% {
-      height: 50px;
-      top: 0px;
-    }
-  }
-
-  #loading {
-    position: fixed;
-    background-color: #555555;
-    height: 50px;
-    width: 15px;
-    animation-name: loading;
-    animation-duration: 1s;
-    animation-iteration-count: infinite;
-  }
-
-  #loading.loading1 {
-    left: -25px;
-    animation-delay: 0.2s;
-  }
-
-  #loading.loading2 {
-    left: 0px;
-    animation-delay: 0.4s;
-  }
-
-  #loading.loading3 {
-    left: 25px;
-    animation-delay: 0.6s;
   }
 </style>
