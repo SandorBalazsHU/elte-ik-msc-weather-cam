@@ -1,7 +1,8 @@
 <?php
 
 class DatabaseAccessObject {
-	protected $connection = null;
+	public const EMPTY_RESULT = 'EMPTY_RESULT';
+	protected mysqli $connection;
 	
 	/**
 	 * @throws Exception
@@ -43,6 +44,21 @@ class DatabaseAccessObject {
 			$stmt->close();
 			
 			return $result == null ? [] : get_object_vars($result);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+	}
+	
+	/**
+	 * @throws Exception
+	 */
+	public function selectValue($query = "", $params = []) {
+		try {
+			$stmt = $this->executeStatement($query, $params);
+			$result = $stmt->get_result()->fetch_array();
+			$stmt->close();
+			
+			return $result[0] ?? DatabaseAccessObject::EMPTY_RESULT;
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
 		}

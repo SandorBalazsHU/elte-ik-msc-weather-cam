@@ -1,12 +1,17 @@
 <?php
 
 class UserController extends BaseController {
-	private UserDao $dao;
+	private UserDao $userDao;
+	private StationDao $stationDao;
 	private JwtHandler $jwt;
 	
 	public function __construct() {
 		require_once PROJECT_ROOT_PATH . "/dataSource/UserDao.php";
-		$this->dao = new UserDao();
+		$this->userDao = new UserDao();
+		
+		require_once PROJECT_ROOT_PATH . "/dataSource/StationDao.php";
+		$this->stationDao = new StationDao();
+		
 		$this->jwt = new JwtHandler();
 	}
 	
@@ -72,7 +77,7 @@ class UserController extends BaseController {
 			$this->error(403);
 		}
 		
-		$user = $this->dao->getUserByUnameAndPassword($body['username'], $body['password']);
+		$user = $this->userDao->getUserByUnameAndPassword($body['username'], $body['password']);
 		
 		if (empty($user)) {
 			$this->error(401);
@@ -90,7 +95,7 @@ class UserController extends BaseController {
 	}
 	
 	private function getUser(int $user_id) {
-		$user = $this->dao->getUserById($user_id);
+		$user = $this->userDao->getUserById($user_id);
 		if (empty($user)) {
 			$this->error(500);
 		}
@@ -117,12 +122,12 @@ class UserController extends BaseController {
 		$username = $body['username'];
 		$password = $body['password'];
 		
-		$existing_user = $this->dao->getUserByUname($username);
+		$existing_user = $this->userDao->getUserByUname($username);
 		if (!empty($existing_user)) {
 			$this->error(409);
 		}
 		
-		$result = $this->dao->insertUser($username, $password);
+		$result = $this->userDao->insertUser($username, $password);
 		
 		if ($result) {
 			$this->response(200);
@@ -135,7 +140,7 @@ class UserController extends BaseController {
 	#region put
 	
 	private function put(array $uri, array $params, array $body, int $user_id) {
-		if ($uri[3] == 'stations') {
+		if ($uri[3] == 'stations' && is_numeric($uri[4])) {
 			$this->generateKeyForStation($uri, $user_id);
 		} else {
 			$this->updateUser($body, $user_id);
@@ -145,8 +150,44 @@ class UserController extends BaseController {
 	/**
 	 * PUT /user/stations/{station_id}
 	 */
-	private function generateKeyForStation(array $uri, int $user_id) {
-		// TODO implement method - station_id = $uri[4]
+	private function generateKeyForStation(array $uri, int $user_id, int $depth = 0) {
+		if ($depth >= 10) $this->error(500);
+		
+		$station_id = (int)$uri[4];
+		
+		$station = $this->stationDao->getStationById($station_id);
+		if (empty($station)) {
+			$this->error(404);
+		}
+		if ($station['owner'] != $user_id) {
+			$this->error(403);
+		}
+		
+		$api_key = $this->generateApiKey();
+		$is_unique = $this->stationDao->isApiKeyUnique($api_key);
+		
+		if (!$is_unique) {
+			$this->generateKeyForStation($uri, $user_id, $depth + 1);
+		}
+		
+		$result = $this->stationDao->updateApiKeyById($station_id, $api_key);
+		if ($result) {
+			$this->sendJson(['station_id' => $station_id, 'api_key' => $api_key]);
+		} else {
+			$this->error(500);
+		}
+	}
+	
+	private function generateApiKey(): string {
+		$api_key = "";
+		try {
+			$api_key = str_shuffle(MD5(microtime()));
+			
+			
+		} catch (Exception $e) {
+			$this->error(500);
+		}
+		return $api_key;
 	}
 	
 	/**
@@ -157,15 +198,15 @@ class UserController extends BaseController {
 			$this->error(400);
 		}
 		
-		$username  = $body['username'];
+		$username = $body['username'];
 		$password = $body['password'];
 		
-		$existing_user = $this->dao->getUserByUname($username);
+		$existing_user = $this->userDao->getUserByUname($username);
 		if (empty($existing_user)) {
 			$this->error(404);
 		}
 		
-		$result = $this->dao->updateUserById($user_id, $username, $password);
+		$result = $this->userDao->updateUserById($user_id, $username, $password);
 		
 		if ($result) {
 			$this->response(200);
