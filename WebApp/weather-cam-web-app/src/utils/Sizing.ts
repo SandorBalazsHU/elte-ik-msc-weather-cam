@@ -33,6 +33,22 @@ export const calcDrawerSize = computed(() => {
   return 370;
 });
 
+export const calcPictureSize = computed(() => {
+  switch (vuetify.display.name.value) {
+    case "xs":
+      return 280;
+    case "sm":
+      return 320;
+    case "md":
+      return 360;
+    case "lg":
+      return 400;
+    case "xl":
+      return 450;
+  }
+  return 480;
+});
+
 export const isMobile = computed(() => {
   return vuetify.display.mobile.value;
 });

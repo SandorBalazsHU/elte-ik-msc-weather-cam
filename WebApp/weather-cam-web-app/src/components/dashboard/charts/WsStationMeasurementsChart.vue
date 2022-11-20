@@ -4,7 +4,6 @@
       <div class="d-flex justify-space-between pa-2 pb-0 pt-1">
         <span style="" class="text-h5">Analytics</span
         ><v-select
-          :active="true"
           style="max-width: fit-content; min-width: 20%"
           label="Select interval"
           :items="durations"
@@ -13,7 +12,7 @@
           variant="solo"
         ></v-select>
       </div>
-      <LineChart v-bind="lineChartProps" />
+      <LineChart :height="calcPictureSize" v-bind="lineChartProps" />
     </div>
   </v-sheet>
 </template>
@@ -23,7 +22,7 @@ import { computed, onMounted, ref } from "vue";
 import { LineChart, useLineChart } from "vue-chart-3";
 import { Chart, type ChartData, type ChartOptions, registerables } from "chart.js";
 import { useThemeStore } from "@/store/theme.js";
-
+import { calcPictureSize } from "@/utils/Sizing.js";
 Chart.register(...registerables);
 const dataValues = ref([30, 40, 60, 70, 5]);
 const dataValues2 = ref([12, 33, 55, 17, 66]);

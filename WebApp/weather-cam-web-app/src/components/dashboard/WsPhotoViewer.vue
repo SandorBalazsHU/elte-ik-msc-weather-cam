@@ -14,14 +14,40 @@
         >
         </v-select>
       </div>
+      <div style="">
+        <v-carousel :height="calcPictureSize" hide-delimiters show-arrows="hover">
+          <v-carousel-item
+            contain
+            src="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
+          ></v-carousel-item>
 
-      <v-pagination :length="numberOfPhotos"></v-pagination>
+          <v-carousel-item
+            contain
+            src="https://cdn.vuetifyjs.com/images/cards/hotel.jpg"
+          ></v-carousel-item>
+
+          <v-carousel-item
+            contain
+            src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
+          ></v-carousel-item>
+        </v-carousel>
+
+        <ws-player-controller
+          class="my-1 px-2"
+          :all_pictures="500"
+          :current_picture="400"
+        ></ws-player-controller>
+      </div>
     </div>
   </v-sheet>
 </template>
 
+<style scoped></style>
+
 <script setup lang="ts">
 import { ref } from "vue";
+import { calcPictureSize } from "@/utils/Sizing.js";
+import WsPlayerController from "@/components/WsPlayerController.vue";
 const page = ref(1);
 const durations = [
   "Last hour",

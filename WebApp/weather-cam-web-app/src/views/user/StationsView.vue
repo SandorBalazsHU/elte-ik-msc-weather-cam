@@ -48,7 +48,6 @@
       <ws-station-measurement-chart
         class="data-visualization-element pa-1 mt-3"
       ></ws-station-measurement-chart>
-
       <ws-photo-viewer class="data-visualization-element pa-1 mt-3"> </ws-photo-viewer>
     </div>
   </main>
@@ -71,6 +70,7 @@ const batteryBarColor = (percent: number) => {
 <style scoped>
 .data-visualization {
   display: flex;
+  flex-wrap: wrap;
   column-gap: var(--grid-spacing);
   row-gap: var(--grid-spacing);
 }
@@ -89,6 +89,14 @@ const batteryBarColor = (percent: number) => {
   flex-basis: calc(50% - var(--grid-spacing));
   max-width: calc(50%);
   column-gap: var(--grid-spacing);
+}
+
+@media screen and (max-width: 1000px) {
+  .data-visualization-element {
+    flex-grow: 1;
+    flex-basis: 100%;
+    max-width: 100%;
+  }
 }
 
 .station-selector {
