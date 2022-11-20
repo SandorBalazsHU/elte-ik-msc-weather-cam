@@ -36,7 +36,7 @@ class BaseController {
 	}
 	
 	/**
-	 * Get query string params.
+	 * Get JSON encoded request body as array.
 	 *
 	 * @return array
 	 */
@@ -44,6 +44,16 @@ class BaseController {
 		$raw_body = file_get_contents('php://input');
 		$decoded_body = json_decode($raw_body, true);
 		return $decoded_body ?: [];
+	}
+	
+	/**
+	 * Get a subset of key->value pairs of an array
+	 * @param array $arr array to get part of
+	 * @param array $keys keys to get from original array
+	 * @return array subset of key->value pairs from the original array
+	 */
+	protected function getAssocByKeys(array $arr, array $keys): array {
+		return array_intersect_key($arr, array_flip($keys));
 	}
 	
 	/**

@@ -47,7 +47,7 @@ class JwtHandler extends BaseController {
 			->getToken($algorithm, $this->signingKey);
 	}
 	
-	public function validate($token_string): int {
+	public function validate(string $token_string): int {
 		try {
 			$token = $this->parser->parse($token_string);
 		} catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $e) {

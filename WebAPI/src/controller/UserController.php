@@ -34,14 +34,15 @@ class UserController extends BaseController {
 		if (!isset($request_headers['Authorization'])) {
 			$this->error(403);
 		}
-		$user_id = $this->jwt->validate($request_headers['Authorization']);
+		$jwt_token = $request_headers['Authorization'];
+		$user_id = $this->jwt->validate($jwt_token);
 		
 		switch ($method) {
 			case 'GET':
-				$this->get($uri, $params, $body, $user_id);
+				$this->get($uri, $params, $body, $user_id, $jwt_token);
 				break;
 			case 'POST':
-				$this->post($uri, $params);
+				$this->post($uri, $params, $user_id);
 				break;
 			case 'PUT':
 				$this->put($uri, $params, $body, $user_id);
@@ -56,7 +57,7 @@ class UserController extends BaseController {
 	
 	#region get
 	
-	private function get(array $uri, array $params, array $body, int $user_id) {
+	private function get(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		if (!isset($uri[3])) {
 			$this->getUser($user_id);
 			return;
@@ -64,10 +65,10 @@ class UserController extends BaseController {
 		
 		switch ($uri[3]) {
 			case 'logout':
-				// TODO implement endpoint
+				$this->logout($jwt_token);
 				break;
 			case 'stations':
-				// TODO implement endpoint
+				$this->getStations($user_id);
 				break;
 		}
 	}
@@ -103,13 +104,28 @@ class UserController extends BaseController {
 		$this->sendJson($user);
 	}
 	
+	private function logout(string $jwt_token) {
+		// TODO implement endpoint
+	}
+	
+	private function getStations(int $user_id) {
+		$result = $this->stationDao->getStationsOfUser($user_id);
+		
+		if ($result) {
+			$this->sendJson($result);
+		} else {
+			$this->error(500);
+		}
+	}
+	
 	#endregion
 	#region post
 	
-	private function post($uri, $params) {
+	private function post(array $uri, array $params, int $user_id) {
 		switch ($uri[3]) {
 			case 'stations':
-				// TODO implement endpoint
+				if (empty($uri[4])) $this->error(404);
+				$this->createStation($uri, $user_id, $uri[4]);
 				break;
 		}
 	}
@@ -131,6 +147,30 @@ class UserController extends BaseController {
 		
 		if ($result) {
 			$this->response(200);
+		} else {
+			$this->error(500);
+		}
+	}
+	
+	private function createStation(array $uri, int $user_id, string $station_name, int $depth = 0) {
+		if ($depth >= 10) $this->error(500);
+		
+		$api_key = $this->generateApiKey();
+		$is_unique = $this->stationDao->isApiKeyUnique($api_key);
+		
+		if (!$is_unique) {
+			$this->createStation($uri, $user_id, $station_name, $depth + 1);
+		}
+		
+		if ($this->stationDao->createStation($station_name, $api_key, $user_id)) {
+			$result = $this->stationDao->getStationByApiKey($api_key);
+			
+			if ($result) {
+				$output = $this->getAssocByKeys($result, ['station_id', 'api_key']);
+				$this->sendJson($output);
+			} else {
+				$this->error(500);
+			}
 		} else {
 			$this->error(500);
 		}
@@ -182,8 +222,6 @@ class UserController extends BaseController {
 		$api_key = "";
 		try {
 			$api_key = str_shuffle(MD5(microtime()));
-			
-			
 		} catch (Exception $e) {
 			$this->error(500);
 		}
