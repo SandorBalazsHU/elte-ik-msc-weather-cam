@@ -39,10 +39,10 @@ class UserController extends BaseController {
 				$this->post($uri, $params);
 				break;
 			case 'PUT':
-				$this->put($uri, $params);
+				$this->put($uri, $params, $body, $user_id);
 				break;
 			case 'DELETE':
-				$this->delete($uri, $params);
+				$this->delete($uri, $params, $user_id);
 				break;
 		}
 		
@@ -129,21 +129,56 @@ class UserController extends BaseController {
 		} else {
 			$this->error(500);
 		}
-		
 	}
 	
 	# endregion
 	#region put
 	
-	private function put($uri, $params) {
-		// TODO implement method
+	private function put(array $uri, array $params, array $body, int $user_id) {
+		if ($uri[3] == 'stations') {
+			$this->generateKeyForStation($uri, $user_id);
+		} else {
+			$this->updateUser($body, $user_id);
+		}
+	}
+	
+	/**
+	 * PUT /user/stations/{station_id}
+	 */
+	private function generateKeyForStation(array $uri, int $user_id) {
+		// TODO implement method - station_id = $uri[4]
+	}
+	
+	/**
+	 * PUT /user
+	 */
+	private function updateUser(array $body, int $user_id) {
+		if (empty($body['username']) || empty($body['password'])) {
+			$this->error(400);
+		}
+		
+		$username  = $body['username'];
+		$password = $body['password'];
+		
+		$existing_user = $this->dao->getUserByUname($username);
+		if (empty($existing_user)) {
+			$this->error(404);
+		}
+		
+		$result = $this->dao->updateUserById($user_id, $username, $password);
+		
+		if ($result) {
+			$this->response(200);
+		} else {
+			$this->error(500);
+		}
 	}
 	
 	# endregion
 	#region delete
 	
-	private function delete($uri, $params) {
-		// TODO implement method
+	private function delete(array $uri, array $params, int $user_id) {
+		// TODO delete user and its stations, measurements and images
 	}
 	
 	# endregion

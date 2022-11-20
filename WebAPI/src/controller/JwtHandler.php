@@ -12,6 +12,7 @@ use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\UnsupportedHeaderFound;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
@@ -56,6 +57,7 @@ class JwtHandler extends BaseController {
 		try {
 			$this->validator->assert($token, new IssuedBy(JWT_ISSUED_BY));
 			$this->validator->assert($token, new PermittedFor(JWT_PERMITTED_FOR));
+			$this->validator->assert($token, new LooseValidAt($this->clock, new DateInterval('PT5M')));
 		} catch (RequiredConstraintsViolated $exception) {
 			foreach ($exception->violations() as $violation) {
 				echo $violation->getMessage(), PHP_EOL;

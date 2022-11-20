@@ -3,9 +3,9 @@
 class UserDao extends DatabaseAccessObject {
 	const DEFAULT_LIMIT = 20;
 	
-	public function getUsers(int $limit = self::DEFAULT_LIMIT): array {
+	public function getUserById(int $user_id): array {
 		try {
-			return $this->select("SELECT * FROM users");
+			return $this->selectOne("SELECT * FROM users WHERE user_id = ? LIMIT 1", [$user_id]);
 		} catch (Exception $e) {
 			return array();
 		}
@@ -22,15 +22,7 @@ class UserDao extends DatabaseAccessObject {
 		}
 	}
 	
-	public function getUserById($user_id): array {
-		try {
-			return $this->selectOne("SELECT * FROM users WHERE user_id = ? LIMIT 1", [$user_id]);
-		} catch (Exception $e) {
-			return array();
-		}
-	}
-	
-	public function getUserByUname($username): array {
+	public function getUserByUname(string $username): array {
 		try {
 			return $this->selectOne("SELECT * FROM users WHERE username = ? LIMIT 1", [$username]);
 		} catch (Exception $e) {
@@ -38,7 +30,7 @@ class UserDao extends DatabaseAccessObject {
 		}
 	}
 	
-	public function insertUser($username, $password): bool {
+	public function insertUser(string $username, string $password): bool {
 		try {
 			return $this->runQuery(
 				"INSERT INTO users (username, password) VALUES (?, ?)",
@@ -48,5 +40,17 @@ class UserDao extends DatabaseAccessObject {
 			return false;
 		}
 	}
+	
+	public function updateUserById(int $id, string $username, string $password): bool {
+		try {
+			return $this->runQuery(
+				"UPDATE users SET username=?, password=? WHERE user_id=?",
+				[$username, $password, $id]
+			);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 	
 }
