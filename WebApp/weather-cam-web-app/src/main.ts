@@ -6,10 +6,6 @@ import { loadFonts } from "./plugins/webfontloader";
 import { createPinia } from "pinia";
 import { loadCats } from "./misc/CatLoader.js";
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js");
-}
-
 loadCats();
 loadFonts();
 createApp(App).use(createPinia()).use(router).use(vuetify).mount("#app");
