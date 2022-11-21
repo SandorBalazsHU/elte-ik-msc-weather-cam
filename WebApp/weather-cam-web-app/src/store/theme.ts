@@ -1,3 +1,4 @@
+import vuetify from "@/plugins/vuetify.js";
 import type { ColorThemes } from "@/types/types.js";
 import { defineStore } from "pinia";
 
@@ -8,11 +9,7 @@ export const useThemeStore = defineStore("theme", {
   getters: {
     current: ({ theme }) => theme,
     nextTheme: ({ theme }) => {
-      return (
-        themes[
-          themes.findIndex((currentTheme) => currentTheme === theme) + 1
-        ] || themes[0]
-      );
+      return themes[themes.findIndex((currentTheme) => currentTheme === theme) + 1] || themes[0];
     },
   },
   actions: {

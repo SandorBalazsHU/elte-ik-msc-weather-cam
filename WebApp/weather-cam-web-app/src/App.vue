@@ -36,6 +36,8 @@ function loadPreferedTheme() {
   themeStore.$subscribe((_, state) => {
     localStorage.setItem("theme", JSON.stringify(state));
     vuetify.theme.global.name.value = themeStore.theme;
+    const metaThemeColor = document.querySelector("meta[name=theme-color]");
+    metaThemeColor!.setAttribute("content", vuetify.theme.current.value.colors.background);
   });
   let preferedTheme = themeStore.$state;
   let savedTheme = localStorage.getItem("theme");
