@@ -6,6 +6,11 @@ const defaultDrawerLinks = (username?: string) =>
     ? [
         { name: "Home", icon: "mdi-home", link: "/user/noratan/home" },
         {
+          name: "Monitoring",
+          icon: "mdi-chart-line ",
+          link: `/user/${username}/monitoring`,
+        },
+        {
           name: "Weather stations",
           icon: "mdi-access-point-network",
           link: `/user/${username}/stations`,

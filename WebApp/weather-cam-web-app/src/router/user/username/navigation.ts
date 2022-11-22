@@ -11,9 +11,14 @@ export const navigation = [
     component: () => import("@/views/user/AboutView.vue"),
   },
   {
+    path: "monitoring",
+
+    component: () => import("@/views/user/MonitoringView.vue"),
+  },
+  {
     path: "stations",
 
-    component: () => import("@/views/user/StationsView.vue"),
+    component: () => import("@/views/errors/NotFoundView.vue"),
   },
   {
     path: "account",
