@@ -105,7 +105,15 @@ class UserController extends BaseController {
 	}
 	
 	private function logout(string $jwt_token) {
-		// TODO implement endpoint
+		$expiration = $this->jwt->getExpiration($jwt_token) ?:
+			(new DateTime())->modify('+1 day');
+		$result = $this->userDao->blacklistToken($jwt_token, $expiration);
+		
+		if ($result) {
+			$this->response(200);
+		} else {
+			$this->error(500);
+		}
 	}
 	
 	private function getStations(int $user_id) {

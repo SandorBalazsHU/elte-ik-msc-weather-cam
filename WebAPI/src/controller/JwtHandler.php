@@ -59,9 +59,9 @@ class JwtHandler extends BaseController {
 			$this->validator->assert($token, new PermittedFor(JWT_PERMITTED_FOR));
 			$this->validator->assert($token, new LooseValidAt($this->clock, new DateInterval('PT5M')));
 		} catch (RequiredConstraintsViolated $exception) {
-			foreach ($exception->violations() as $violation) {
-				echo $violation->getMessage(), PHP_EOL;
-			}
+//			foreach ($exception->violations() as $violation) {
+//				echo $violation->getMessage(), PHP_EOL;
+//			}
 			$this->error(403);
 		}
 		
@@ -78,6 +78,16 @@ class JwtHandler extends BaseController {
 		}
 		
 		return $user['user_id'];
+	}
+	
+	public function getExpiration(string $token_string): ?DateTimeImmutable {
+		try {
+			$token = $this->parser->parse($token_string);
+			return $token->claims()->get('exp');
+		} catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $e) {
+			$this->error(403);
+			return null;
+		}
 	}
 	
 }
