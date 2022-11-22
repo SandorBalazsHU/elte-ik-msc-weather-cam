@@ -2,7 +2,6 @@
   <div class="error-container">
     <v-alert
       class="mb-2"
-      :title="payload.type"
       :key="alertId"
       :closable="true"
       :type="alertType"

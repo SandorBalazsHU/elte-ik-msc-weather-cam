@@ -11,13 +11,27 @@
     ></v-app-bar-nav-icon>
     <v-app-bar-title>Weather camera </v-app-bar-title>
 
-    <v-avatar
-      :class="{
-        'd-none': false,
-      }"
-    >
-      <v-icon size=" 32" icon="mdi-account-circle"> </v-icon> </v-avatar
-    ><span style="font-size: 1.25rem">{{ !isMobile ? userStore.username : "" }}</span>
+    <div class="avatar-container">
+      <v-avatar
+        :class="{
+          'd-none': false,
+        }"
+      >
+        <v-icon size=" 32" icon="mdi-account-circle"> </v-icon> </v-avatar
+      ><span style="vertical-align: middle; font-size: 1.25rem">{{
+        !isMobile ? userStore.username : ""
+      }}</span>
+
+      <v-menu activator="parent">
+        <v-list>
+          <v-list-item style="cursor: pointer"
+            ><span style="cursor: pointer"
+              >Sign out <v-icon>mdi-logout-variant</v-icon></span
+            ></v-list-item
+          >
+        </v-list>
+      </v-menu>
+    </div>
 
     <ws-theme-switcher></ws-theme-switcher>
   </v-app-bar>
@@ -65,13 +79,8 @@ onMounted(() => {
 footer {
   justify-content: right;
 }
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.35s ease;
-}
 
-.fade-enter-from,
-.fade-leave-active {
-  opacity: 0;
+.avatar-container {
+  cursor: pointer;
 }
 </style>

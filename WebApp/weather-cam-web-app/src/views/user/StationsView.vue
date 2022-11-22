@@ -105,7 +105,7 @@ const batteryBarColor = (percent: number) => {
   flex-basis: 33%;
 }
 
-@media screen and (max-width: 1400px) {
+@media screen and (max-width: 1500px) {
   .measurement-display {
     flex-grow: 0.25;
     flex-basis: 0;
@@ -124,7 +124,7 @@ const batteryBarColor = (percent: number) => {
   }
 }
 
-@media screen and (max-width: 320px) {
+@media screen and (max-width: 350px) {
   .measurement-display {
     flex-grow: 1 !important;
     flex-basis: 100% !important;

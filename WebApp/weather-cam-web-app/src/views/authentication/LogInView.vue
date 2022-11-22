@@ -1,9 +1,18 @@
 <template>
   <div class="center">
     <v-card :loading="loading" elevation="24" :width="calcFormSize" variant="tonal">
-      <v-card-title
-        ><v-icon class="mr-2" icon="mdi-cloud"></v-icon
-        >{{ login ? "Login" : "Register" }}</v-card-title
+      <v-card-title>
+        <div class="d-flex justify-space-between">
+          <span
+            ><v-icon class="mr-2" icon="mdi-cloud"></v-icon>{{ login ? "Login" : "Register" }}</span
+          >
+          <v-btn
+            @click="() => router.push({ path: '/' })"
+            prepend-icon="mdi-arrow-left-circle"
+            variant="text"
+            >Back</v-btn
+          >
+        </div></v-card-title
       >
       <v-divider class="mx-2 mb-2"></v-divider>
       <v-form class="pa-2" ref="form" v-model="valid">
