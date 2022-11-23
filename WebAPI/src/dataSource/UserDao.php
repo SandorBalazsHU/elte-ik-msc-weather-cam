@@ -52,15 +52,6 @@ class UserDao extends DatabaseAccessObject {
 		}
 	}
 	
-	public function blacklistToken(string $jwt_token, DateTimeInterface $date_time): bool {
-		try {
-			return $this->runQuery(
-				"INSERT INTO jwt_blacklist (token, expiration) VALUES (?, ?)",
-				[$jwt_token, $date_time->format(DATE_FORMAT)]
-			);
-		} catch (Exception $e) {
-			return false;
-		}
-	}
+	
 	
 }

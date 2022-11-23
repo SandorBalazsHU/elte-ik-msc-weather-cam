@@ -17,6 +17,8 @@ use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
 
+require_once PROJECT_ROOT_PATH . "/dataSource/JwtDao.php";
+
 class JwtHandler extends BaseController {
 	public static string $CLAIM_UID = 'uid';
 	public static int $CLAIM_NOT_FOUND = -1;
@@ -25,12 +27,15 @@ class JwtHandler extends BaseController {
 	private SystemClock $clock;
 	private Validator $validator;
 	private InMemory $signingKey;
+	private JwtDao $jwtDao;
 	
 	public function __construct() {
 		$this->parser = new Parser(new JoseEncoder());
 		$this->clock = SystemClock::fromSystemTimezone();
 		$this->validator = new Validator();
 		$this->signingKey = InMemory::plainText(JWT_KEY);
+		
+		$this->jwtDao = new JwtDao();
 	}
 	
 	public function getToken($user_id): Token {
@@ -48,6 +53,10 @@ class JwtHandler extends BaseController {
 	}
 	
 	public function validate(string $token_string): int {
+		if ($this->jwtDao->isTokenBlacklisted($token_string)) {
+			$this->error(403);
+		}
+		
 		try {
 			$token = $this->parser->parse($token_string);
 		} catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $e) {

@@ -1,17 +1,18 @@
 <?php
+require_once PROJECT_ROOT_PATH . "/dataSource/UserDao.php";
+require_once PROJECT_ROOT_PATH . "/dataSource/StationDao.php";
+require_once PROJECT_ROOT_PATH . "/dataSource/JwtDao.php";
 
 class UserController extends BaseController {
 	private UserDao $userDao;
 	private StationDao $stationDao;
+	private JwtDao $jwtDao;
 	private JwtHandler $jwt;
 	
 	public function __construct() {
-		require_once PROJECT_ROOT_PATH . "/dataSource/UserDao.php";
 		$this->userDao = new UserDao();
-		
-		require_once PROJECT_ROOT_PATH . "/dataSource/StationDao.php";
 		$this->stationDao = new StationDao();
-		
+		$this->jwtDao = new JwtDao();
 		$this->jwt = new JwtHandler();
 	}
 	
@@ -107,7 +108,7 @@ class UserController extends BaseController {
 	private function logout(string $jwt_token) {
 		$expiration = $this->jwt->getExpiration($jwt_token) ?:
 			(new DateTime())->modify('+1 day');
-		$result = $this->userDao->blacklistToken($jwt_token, $expiration);
+		$result = $this->jwtDao->blacklistToken($jwt_token, $expiration);
 		
 		if ($result) {
 			$this->response(200);
