@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
+import com.example.weatherapp.data.alarms.AlarmRepository
 import com.example.weatherapp.data.hardware.HardwareEntity
 import com.example.weatherapp.data.hardware.SavedHardwareRepository
 import com.example.weatherapp.data.preferences.UserPreferencesRepository
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit
 class MainViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val savedHardwareRepository: SavedHardwareRepository,
+    private val alarmRepository: AlarmRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
     private val _hardwares : MutableStateFlow<Map<String, HardwareEntity>> = MutableStateFlow(
@@ -25,6 +27,7 @@ class MainViewModel(
     private val _pollingEnabled : MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _errMsg : MutableStateFlow<String?> = MutableStateFlow(null)
     private val _apiKey : MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _cameraOn : MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     val hardwares : StateFlow<Map<String,HardwareEntity>>
         get() = _hardwares
@@ -34,13 +37,13 @@ class MainViewModel(
         get() = _pollingEnabled
     val errMsg : StateFlow<String?>
         get() = _errMsg
+    val cameraOn : StateFlow<Boolean>
+        get() = _cameraOn
 
     init {
-        //clear any lingering WorkRequests from unexpected terminations
         viewModelScope.launch {
-            val initialPref = userPreferencesRepository.userPreferencesFlow.firstOrNull()
-            if(initialPref?.pollingEnabled == false){
-                workManager.cancelUniqueWork(StationWorker::class.java.name)
+            alarmRepository.alarmFlow.collect {
+                _cameraOn.value = true
             }
         }
         viewModelScope.launch {
@@ -51,7 +54,6 @@ class MainViewModel(
                 _errMsg.value = err.message
             }.collect { (prefs, saved) ->
                 _apiKey.value = prefs.apiKey
-                _pollingEnabled.value = prefs.pollingEnabled
                 _hardwares.value = saved
             }
         }
@@ -71,16 +73,17 @@ class MainViewModel(
         }
     }
 
-    // maybe do some proper dependency injection
     fun onPollingToggle(){
         viewModelScope.launch {
-            userPreferencesRepository.updatePolling {
+            _pollingEnabled.getAndUpdate {
                 if(it) {
                     cancelRequest()
+                    alarmRepository.cancelRecurringAlarm()
                     false
                 } else if(apiKey.value != null) {
                     //ok
                     startRequest()
+                    alarmRepository.setRecurringAlarm()
                     true
                 } else {
                     false
@@ -91,31 +94,31 @@ class MainViewModel(
 
     private fun startRequest(){
         //efficiency?
-        val addresses : Array<String> =
-            hardwares.value.values.map { it.ipAddress }.toTypedArray()
-        val req: PeriodicWorkRequest =
-            PeriodicWorkRequestBuilder<StationWorker>(15, TimeUnit.MINUTES)
-                .setInputData(workDataOf(
-                    StationWorker.API_KEY to apiKey.value,
-                    StationWorker.ADDRESSES to addresses
-                ))
-                .addTag(StationWorker::class.java.name)
-                .build()
-
-        workManager.enqueueUniquePeriodicWork(
-            StationWorker::class.java.name,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            req
-        )
+//        val addresses : Array<String> =
+//            hardwares.value.values.map { it.ipAddress }.toTypedArray()
+//        val req: PeriodicWorkRequest =
+//            PeriodicWorkRequestBuilder<StationWorker>(15, TimeUnit.MINUTES)
+//                .setInputData(workDataOf(
+//                    StationWorker.API_KEY to apiKey.value,
+//                    StationWorker.ADDRESSES to addresses
+//                ))
+//                .addTag(StationWorker::class.java.name)
+//                .build()
+//
+//        workManager.enqueueUniquePeriodicWork(
+//            StationWorker::class.java.name,
+//            ExistingPeriodicWorkPolicy.REPLACE,
+//            req
+//        )
     }
 
     private fun cancelRequest(){
-        workManager.cancelUniqueWork(StationWorker::class.java.name)
-        val req: WorkRequest =
-            OneTimeWorkRequestBuilder<TerminatingWorker>().build()
-        workManager.enqueue(
-            req
-        )
+//        workManager.cancelUniqueWork(StationWorker::class.java.name)
+//        val req: WorkRequest =
+//            OneTimeWorkRequestBuilder<TerminatingWorker>().build()
+//        workManager.enqueue(
+//            req
+//        )
     }
 
     fun onSetApiKey(key: String){
@@ -124,10 +127,19 @@ class MainViewModel(
         }
     }
 
+    fun onPhotoTaken(){
+        _cameraOn.value = false
+    }
+
+    fun onCameraError(ex: Throwable){
+        _cameraOn.value = false
+    }
+
     companion object {
         class MainViewModelFactory(
             private val userPreferencesRepository: UserPreferencesRepository,
             private val savedHardwareRepository: SavedHardwareRepository,
+            private val alarmRepository: AlarmRepository,
             private val workManager: WorkManager
         ) : ViewModelProvider.Factory {
 
@@ -137,6 +149,7 @@ class MainViewModel(
                     return MainViewModel(
                         userPreferencesRepository,
                         savedHardwareRepository,
+                        alarmRepository,
                         workManager
                     ) as T
                 }

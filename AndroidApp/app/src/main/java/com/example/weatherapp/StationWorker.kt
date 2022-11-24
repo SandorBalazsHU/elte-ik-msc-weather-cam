@@ -4,6 +4,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.*
 
@@ -30,15 +32,17 @@ class StationWorker(
     private val notificationManager: NotificationManager =
         appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override suspend fun doWork(): Result {
         val apiKey = inputData.getString(API_KEY) ?: return Result.failure()
         val addresses = inputData.getStringArray(ADDRESSES) ?: return Result.failure()
         setForeground(createForegroundInfo())
 
         return try {
-            StationService.startService(appContext, apiKey, addresses)
+        //    StationService.startService(appContext, apiKey, addresses)
             Result.success()
         } catch (ex : Exception) {
+            Log.e("WORKER", "exception", ex)
             Result.failure()
         }
     }
