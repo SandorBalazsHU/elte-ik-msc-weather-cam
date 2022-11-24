@@ -6,10 +6,7 @@
           <span
             ><v-icon class="mr-2" icon="mdi-cloud"></v-icon>{{ login ? "Login" : "Register" }}</span
           >
-          <v-btn
-            @click="() => router.push({ path: '/' })"
-            prepend-icon="mdi-arrow-left-circle"
-            variant="text"
+          <v-btn @click="backToHomeHandler" prepend-icon="mdi-arrow-left-circle" variant="text"
             >Back</v-btn
           >
         </div></v-card-title
@@ -46,7 +43,7 @@
         <v-card-actions class="justify-end">
           <v-btn
             class="w-50"
-            @click="validate, valid && (login ? loginUser() : registerUser())"
+            @click="validate, authHandler()"
             color="green"
             :disabled="!valid"
             variant="tonal"
@@ -59,20 +56,8 @@
       </v-form>
       <v-divider></v-divider>
       <v-tabs class="w-100" fixed-tabs bg-color="black-darken-2">
-        <v-tab
-          class="tab-widen"
-          @click="router.replace({ path: '/login' }), (login = !login), resetInputs()"
-          :disabled="login"
-        >
-          Login
-        </v-tab>
-        <v-tab
-          class="tab-widen"
-          @click="router.replace({ path: '/register' }), (login = !login), resetInputs()"
-          :disabled="!login"
-        >
-          Register
-        </v-tab>
+        <v-tab class="tab-widen" @click="navToLoginHandler" :disabled="login"> Login </v-tab>
+        <v-tab class="tab-widen" @click="navToRegisterHandler" :disabled="!login"> Register </v-tab>
       </v-tabs>
     </v-card>
   </div>
@@ -101,6 +86,24 @@ const formData = reactive({ valid: false, username: "", password: "", passwordAg
 
 const userStore = useUserStore();
 const alertStore = useAlertStore();
+
+const backToHomeHandler = () => router.push({ path: "/" });
+
+function authHandler() {
+  valid.value && (login.value ? loginUser() : registerUser());
+}
+
+function navToRegisterHandler() {
+  router.replace({ path: "/register" });
+  login.value = !login.value;
+  resetInputs();
+}
+
+function navToLoginHandler() {
+  router.replace({ path: "/login" });
+  login.value = !login.value;
+  resetInputs();
+}
 
 function resetInputs() {
   (form as Ref<VForm>).value!.reset();

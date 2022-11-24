@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { sm, xs } from "@/utils/Sizing.js";
 import WsMeasurement from "@/components/dashboard/WsMeasurement.vue";
-import WsStationSelector from "@/components/dashboard/WsStationSelector.vue";
+import WsStationSelector from "@/components/dashboard/WsStationMonitorSelector.vue";
 import WsPhotoViewer from "@/components/dashboard/WsPhotoViewer.vue";
 import WsStationMeasurementChart from "@/components/dashboard/charts/WsStationMeasurementsChart.vue";
 

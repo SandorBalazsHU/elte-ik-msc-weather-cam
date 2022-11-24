@@ -2,7 +2,7 @@
   <v-app-bar density="comfortable">
     <v-app-bar-title>{{ isMobile ? "" : "Weather Camera Web Interface" }}</v-app-bar-title>
     <v-btn
-      @click="() => router.push({ path: '/login' })"
+      @click="navToLoginHandler"
       prepend-icon="mdi-login-variant"
       class="mx-1"
       variant="tonal"
@@ -10,7 +10,7 @@
       >Login</v-btn
     >
     <v-btn
-      @click="() => router.push({ path: '/register' })"
+      @click="navToRegisterHandler"
       prepend-icon="mdi-account-plus"
       class="mx-1 mr-2"
       variant="tonal"
@@ -50,6 +50,9 @@ import { useLinkStore } from "@/store/links.js";
 const github = useLinkStore().contactLinks.find(
   (contact) => contact.name.toLowerCase() === "github"
 )?.link;
+
+const navToLoginHandler = () => router.push({ path: "/login" });
+const navToRegisterHandler = () => router.push({ path: "/register" });
 </script>
 
 <style scoped>

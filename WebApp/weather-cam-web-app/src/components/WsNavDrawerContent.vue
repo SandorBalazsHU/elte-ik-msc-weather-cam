@@ -18,11 +18,7 @@
           :prepend-icon="link.icon"
           :title="link.name"
           :active="router.currentRoute.value.fullPath === link.link"
-          @click="
-            () => {
-              router.push(link.link);
-            }
-          "
+          @click="() => navItemClickHandler(link.link)"
         ></v-list-item>
       </v-list>
     </div>
@@ -56,6 +52,7 @@ export interface Props {
 defineProps<Props>();
 const themeStore = useThemeStore();
 const router = useRouter();
+const navItemClickHandler = (link: string) => router.push(link);
 </script>
 
 <style scoped>

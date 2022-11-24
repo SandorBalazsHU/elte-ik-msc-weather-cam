@@ -5,7 +5,7 @@
       :key="alertId"
       :closable="true"
       :type="alertType"
-      @click="() => alertStore.removeAlertById(id, alertId)"
+      @update:modelValue="closeAlertHandler(id, alertId)"
       v-for="{ payload, alertId, alertType } in alerts?.slice(calcDisplayed)"
       >{{ payload.message }}</v-alert
     >
@@ -42,6 +42,9 @@ function deleteErrors(name: string) {
   const alertLength = alerts.value?.length || 0;
   max < alertLength && alertStore.forgetLastAlerts(props.id, alertLength - max);
 }
+
+const closeAlertHandler = (id: string, alertId: number) => (value: boolean) =>
+  !value && alertStore.removeAlertById(id, alertId);
 
 alertStore.$onAction(({ name, after }) => {
   after(() => {
