@@ -55,5 +55,13 @@ export const useUserStore = defineStore("user", {
         if (propagateError) throw error;
       }
     },
+
+    async logout() {
+      const result = await userApi.logoutUserRaw();
+      if (result.raw.ok) {
+        this.$reset();
+        router.push({ path: "/" });
+      }
+    },
   },
 });

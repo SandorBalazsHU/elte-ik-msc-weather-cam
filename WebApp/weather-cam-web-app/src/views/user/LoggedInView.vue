@@ -24,7 +24,7 @@
 
       <v-menu activator="parent">
         <v-list>
-          <v-list-item style="cursor: pointer"
+          <v-list-item @click="userStore.logout()" style="cursor: pointer"
             ><span style="cursor: pointer"
               >Sign out <v-icon>mdi-logout-variant</v-icon></span
             ></v-list-item
