@@ -894,11 +894,12 @@ paths:
         ---
       responses:
         '200':
-          description: __Successfully__ updated station.
+          description: __Successfully__ generated new API key for station.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StationApiKey'
+                type: string
+                format: uuid
         '403':
           $ref: '#/components/responses/UnauthorizedJWT'
         '404':
@@ -1242,8 +1243,10 @@ components:
       example:
         - station_id: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
           station_name: home_station_01
+          station_timezone: 0
         - station_id: b530dde2-62b3-492f-a20c-4eee39ac3909
           station_name: home_station_02
+          station_timezone: -1
       items:
         $ref: '#/components/schemas/Station'
     ApiResponse:
