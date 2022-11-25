@@ -3,6 +3,7 @@
     <v-card-title class="d-flex pl-0 justify-space-between">
       <span class="data-title">Information </span>
       <v-btn
+        @click="changeStationHandler"
         :size="xs ? 'default' : 'large'"
         color="info"
         class="change-station-btn"
@@ -30,6 +31,8 @@ import type { Station } from "@/api/openapi/index.js";
 import type HttpStatusCode from "@/utils/HttpStatusCode.js";
 import { getRelativeTime } from "@/utils/Date.js";
 import { xs } from "@/utils/Sizing.js";
+import { useStationStore } from "@/store/stations.js";
+import { onMounted } from "vue";
 
 defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCode }>();
 
@@ -38,6 +41,19 @@ const batteryBarColor = (percent: number) => {
   if (percent < 50 && percent >= 20) return "yellow";
   return "red";
 };
+const stationStore = useStationStore();
+
+function changeStationHandler() {
+  console.log(stationStore.stations[0]);
+}
+
+onMounted(() => {
+  stationStore.fetchUserStations().then((stations) => {
+    if (!stationStore.selectedStationId && stations.length > 0) {
+      stationStore.changeSelectedStation(stations[0].stationId);
+    }
+  });
+});
 </script>
 
 <style scoped>

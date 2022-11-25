@@ -350,7 +350,7 @@ export class UserApi extends runtime.BaseAPI {
      * ## Functionality:  Generate new API key for a station. This can be used to revoke all access of a weather station.  __Important__: After a new API key is generated stations that use this API key lose access to upload measurements. If you want to continue using the weather station you need to update the API key in the mobile app.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
      * Generate new API key for a station.
      */
-    async updateStationRaw(requestParameters: UpdateStationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StationApiKey>> {
+    async updateStationRaw(requestParameters: UpdateStationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         if (requestParameters.stationId === null || requestParameters.stationId === undefined) {
             throw new runtime.RequiredError('stationId','Required parameter requestParameters.stationId was null or undefined when calling updateStation.');
         }
@@ -374,14 +374,14 @@ export class UserApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => StationApiKeyFromJSON(jsonValue));
+        return new runtime.TextApiResponse(response) as any;
     }
 
     /**
      * ## Functionality:  Generate new API key for a station. This can be used to revoke all access of a weather station.  __Important__: After a new API key is generated stations that use this API key lose access to upload measurements. If you want to continue using the weather station you need to update the API key in the mobile app.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
      * Generate new API key for a station.
      */
-    async updateStation(requestParameters: UpdateStationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StationApiKey> {
+    async updateStation(requestParameters: UpdateStationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.updateStationRaw(requestParameters, initOverrides);
         return await response.value();
     }
