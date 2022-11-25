@@ -25,7 +25,9 @@
       <span>Last active: {{ getRelativeTime(lastTimestamp) }}</span>
       <span v-if="!loadingStations"
         >Time zone: GMT{{
-          formatTimezone(stationStore.getSelectedStation?.stationTimezone ?? 0)
+          formatTimezone(
+            stationStore.getSelectedStation?.stationTimezone ?? new Date().getTimezoneOffset() / 60
+          )
         }}</span
       >
       <span v-else>Time zone: <v-progress-circular indeterminate></v-progress-circular></span>
@@ -58,16 +60,15 @@ function changeStationHandler() {
 const loadingStations = ref(false);
 
 onMounted(() => {
-  loadingStations.value = true;
-  stationStore
-    .fetchUserStations()
-    .then((stations) => {
-      if (!stationStore.selectedStationId && stations.length > 0) {
-        stationStore.changeSelectedStation(stations[0].stationId);
-      }
-    })
-    .then(() => (loadingStations.value = false));
+  loadStations();
 });
+
+async function loadStations() {
+  const stations = await stationStore.fetchUserStations();
+  if (!stationStore.selectedStationId && stations.length > 0) {
+    stationStore.changeSelectedStation(stations[0].stationId);
+  }
+}
 </script>
 
 <style scoped>

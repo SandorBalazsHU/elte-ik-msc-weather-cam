@@ -33,8 +33,8 @@ export const useStationStore = defineStore("stations", {
         }
         this.stations = await result.value();
       } catch (error) {
-        if (propagateError) throw error;
         console.log("There was an error with retieving stations!");
+        if (propagateError) throw error;
       }
       return this.stations;
     },

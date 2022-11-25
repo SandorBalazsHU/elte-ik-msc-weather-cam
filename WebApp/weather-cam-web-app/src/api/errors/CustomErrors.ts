@@ -1,3 +1,4 @@
+import type HttpStatusCode from "@/utils/HttpStatusCode.js";
 import Http from "@/utils/HttpStatusCode.js";
 import type { ModelApiResponse } from "../openapi/index.js";
 
@@ -45,6 +46,12 @@ const errorStr = (msg: string, status: Http, body: unknown) =>
   `ERROR: ${status}.${msg} ${body ? `body : ${body}` : ""}`;
 
 export function throwErrorByResponse(status: Http, responseBody: unknown = null) {
+  const errorNotDefined = (status: HttpStatusCode) => {
+    if (status >= 200 && status <= 299) {
+      return;
+    }
+    throw Error(errorStr("An error occured during your request.", status, responseBody));
+  };
   switch (status) {
     case Http.BAD_REQUEST:
       throw new BadRequestError(
@@ -61,8 +68,6 @@ export function throwErrorByResponse(status: Http, responseBody: unknown = null)
         errorStr("There was a conflict with processing your request!", status, responseBody)
       );
     default:
-      throw new Error(
-        errorStr("There was an error during processing your request!", status, responseBody)
-      );
+      errorNotDefined(status);
   }
 }
