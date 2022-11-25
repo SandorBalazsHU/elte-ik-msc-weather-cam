@@ -14,14 +14,21 @@
       >
     </v-card-title>
     <v-card-text class="station-data justify-space-around d-flex flex-column">
-      <span>Name: {{ stationData.stationName }}</span>
-      <span class="status-indicator"
+      <span v-if="!loadingStations">Name: {{ stationStore.getSelectedStation?.stationName }}</span>
+      <span v-else>Name: <v-progress-circular indeterminate></v-progress-circular></span>
+      <span v-if="!loadingStations" class="status-indicator"
         ><span>Status:</span> <v-badge :color="status === 200 ? 'green' : 'red'" inline> </v-badge
         ><span v-show="status === 200">Online</span>
         <span v-show="status !== 200">Offline</span></span
       >
+      <span v-else>Status: <v-progress-circular indeterminate></v-progress-circular></span>
       <span>Last active: {{ getRelativeTime(lastTimestamp) }}</span>
-      <span>Time zone: GMT+1</span>
+      <span v-if="!loadingStations"
+        >Time zone: GMT{{
+          formatTimezone(stationStore.getSelectedStation?.stationTimezone ?? 0)
+        }}</span
+      >
+      <span v-else>Time zone: <v-progress-circular indeterminate></v-progress-circular></span>
     </v-card-text>
   </v-card>
 </template>
@@ -32,10 +39,11 @@ import type HttpStatusCode from "@/utils/HttpStatusCode.js";
 import { getRelativeTime } from "@/utils/Date.js";
 import { xs } from "@/utils/Sizing.js";
 import { useStationStore } from "@/store/stations.js";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 
 defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCode }>();
 
+const formatTimezone = (timezone: number) => (timezone <= 0 ? `+${timezone}` : timezone);
 const batteryBarColor = (percent: number) => {
   if (percent >= 50) return "green";
   if (percent < 50 && percent >= 20) return "yellow";
@@ -47,12 +55,18 @@ function changeStationHandler() {
   console.log(stationStore.stations[0]);
 }
 
+const loadingStations = ref(false);
+
 onMounted(() => {
-  stationStore.fetchUserStations().then((stations) => {
-    if (!stationStore.selectedStationId && stations.length > 0) {
-      stationStore.changeSelectedStation(stations[0].stationId);
-    }
-  });
+  loadingStations.value = true;
+  stationStore
+    .fetchUserStations()
+    .then((stations) => {
+      if (!stationStore.selectedStationId && stations.length > 0) {
+        stationStore.changeSelectedStation(stations[0].stationId);
+      }
+    })
+    .then(() => (loadingStations.value = false));
 });
 </script>
 

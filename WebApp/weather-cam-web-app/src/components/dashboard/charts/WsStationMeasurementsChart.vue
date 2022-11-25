@@ -72,10 +72,6 @@ const gridColor = computed(() => {
   return useThemeStore().theme === "light" ? Chart.defaults.borderColor.toString() : "grey";
 });
 
-onMounted(() => {
-  console.log("Wat");
-});
-
 const options = computed<ChartOptions<"line">>(() => ({
   responsive: true,
   maintainAspectRatio: false,
