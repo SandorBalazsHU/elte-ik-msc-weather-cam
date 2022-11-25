@@ -5,6 +5,7 @@ import { useAlertStore } from "./alert.js";
 import router from "@/router/index.js";
 import type { LoginUserRequest, User } from "@/api/openapi/index.js";
 import { changeApiConfig, userApi } from "@/api/apis.js";
+import HttpStatusCode from "@/utils/HttpStatusCode.js";
 
 interface UserState {
   userData: User;
@@ -56,11 +57,16 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async logout() {
-      const result = await userApi.logoutUserRaw();
-      if (result.raw.ok) {
+    async logout(propagateError: boolean = false) {
+      try {
+        const result = await userApi.logoutUserRaw();
+        if (!result.raw.ok) {
+          throwErrorByResponse(result.raw.status);
+        }
         this.$reset();
         router.push({ path: "/" });
+      } catch (error) {
+        if (propagateError) throw error;
       }
     },
   },

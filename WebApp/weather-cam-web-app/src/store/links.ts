@@ -33,21 +33,18 @@ const defaultDrawerLinks = (username?: string) =>
       ]
     : []) as NavigationLink[];
 
-const defaultContactLinks = (username?: string) =>
-  (username
-    ? [
-        {
-          link: "https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam",
-          icon: "mdi-github",
-          name: "Github",
-        },
-        {
-          link: "https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam/tree/feature/webApp/Documentation/WebApi",
-          icon: "mdi-api",
-          name: "API",
-        },
-      ]
-    : []) as NavigationLink[];
+const defaultContactLinks: NavigationLink[] = [
+  {
+    link: "https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam",
+    icon: "mdi-github",
+    name: "Github",
+  },
+  {
+    link: "https://github.com/SandorBalazsHU/elte-ik-msc-weather-cam/tree/feature/webApp/Documentation/WebApi",
+    icon: "mdi-api",
+    name: "API",
+  },
+];
 
 export interface NavigationLink {
   name: string;
@@ -63,7 +60,17 @@ export interface LinkStoreState {
 export const useLinkStore = defineStore("links", {
   state: () =>
     ({
-      drawerLinks: defaultDrawerLinks(useUserStore().username),
-      contactLinks: defaultContactLinks(useUserStore().username),
+      drawerLinks: [] as NavigationLink[],
+      contactLinks: defaultContactLinks,
     } as LinkStoreState),
+
+  actions: {
+    addDrawerLink(link: NavigationLink) {
+      console.log("runnnnn");
+      this.drawerLinks.push(link);
+    },
+    generateUserSpecificLinks() {
+      this.drawerLinks = defaultDrawerLinks(useUserStore().username);
+    },
+  },
 });

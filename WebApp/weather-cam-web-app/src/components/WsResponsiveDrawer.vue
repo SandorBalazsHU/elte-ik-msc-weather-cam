@@ -18,9 +18,13 @@ import vuetify from "@/plugins/vuetify.js";
 import { useDrawerStore } from "@/store/drawer.js";
 import { useLinkStore } from "@/store/links.js";
 import { calcDrawerSize } from "@/utils/Sizing";
+import { onMounted } from "vue";
 
 import WsNavDrawerContent from "./WsNavDrawerContent.vue";
 
 const links = useLinkStore();
+onMounted(() => {
+  links.generateUserSpecificLinks();
+});
 const drawerStore = useDrawerStore();
 </script>
