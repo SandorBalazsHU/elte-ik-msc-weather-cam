@@ -1,7 +1,6 @@
 <?php
 
 class UserDao extends DatabaseAccessObject {
-	const DEFAULT_LIMIT = 20;
 	
 	public function getUserById(int $user_id): array {
 		try {
@@ -51,7 +50,5 @@ class UserDao extends DatabaseAccessObject {
 			return false;
 		}
 	}
-	
-	
 	
 }

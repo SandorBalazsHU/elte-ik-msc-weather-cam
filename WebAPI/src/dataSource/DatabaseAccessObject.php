@@ -22,7 +22,7 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
-	public function select($query = "", $params = []): array {
+	protected function select($query = "", $params = []): array {
 		try {
 			$stmt = $this->executeStatement($query, $params);
 			$result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -37,7 +37,7 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
-	public function selectOne($query = "", $params = []): array {
+	protected function selectOne($query = "", $params = []): array {
 		try {
 			$stmt = $this->executeStatement($query, $params);
 			$result = $stmt->get_result()->fetch_object();
@@ -52,7 +52,7 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
-	public function selectValue($query = "", $params = []) {
+	protected function selectValue($query = "", $params = []) {
 		try {
 			$stmt = $this->executeStatement($query, $params);
 			$result = $stmt->get_result()->fetch_array();
@@ -64,7 +64,7 @@ class DatabaseAccessObject {
 		}
 	}
 	
-	public function runQuery($query = "", $params = []): bool {
+	protected function runQuery($query = "", $params = []): bool {
 		try {
 			$stmt = $this->executeStatement($query, $params);
 			$error = $stmt->error;
@@ -82,7 +82,6 @@ class DatabaseAccessObject {
 	private function executeStatement(string $query = "", array $params = []): mysqli_stmt {
 		try {
 			$stmt = $this->connection->prepare($query);
-			
 			if ($stmt === false) {
 				throw new Exception("Unable to create prepared statement: " . $query);
 			}
