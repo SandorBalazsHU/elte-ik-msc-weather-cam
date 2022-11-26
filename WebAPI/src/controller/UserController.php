@@ -7,58 +7,27 @@ class UserController extends BaseController {
 	private UserDao $userDao;
 	private StationDao $stationDao;
 	private JwtDao $jwtDao;
-	private JwtHandler $jwt;
 	
 	public function __construct() {
+		parent::__construct();
+		
 		$this->userDao = new UserDao();
 		$this->stationDao = new StationDao();
 		$this->jwtDao = new JwtDao();
-		$this->jwt = new JwtHandler();
 	}
 	
-	public function processRequest() {
-		$method = $this->getRequestMethod();
-		$uri = $this->getUriSegments();
-		$params = $this->getQueryStringParams();
-		$body = $this->getJsonBody();
-		
-		// endpoints that are used without a JWT token
+	protected function processNoJwt(string $method, array $uri, array $params, array $body) {
 		if ($method == 'GET' && isset($uri[3]) && $uri[3] == 'login') {
 			$this->login($body);
 		}
 		if ($method == 'POST' && isset($uri[3]) && $uri[3] == 'register') {
 			$this->register($body);
 		}
-		
-		// jwt validation
-		$request_headers = getallheaders();
-		if (!isset($request_headers['Authorization'])) {
-			$this->error(403);
-		}
-		$jwt_token = $request_headers['Authorization'];
-		$user_id = $this->jwt->validate($jwt_token);
-		
-		switch ($method) {
-			case 'GET':
-				$this->get($uri, $params, $body, $user_id, $jwt_token);
-				break;
-			case 'POST':
-				$this->post($uri, $params, $user_id);
-				break;
-			case 'PUT':
-				$this->put($uri, $params, $body, $user_id);
-				break;
-			case 'DELETE':
-				$this->delete($uri, $params, $user_id);
-				break;
-		}
-		
-		$this->error(404);
 	}
 	
 	#region get
 	
-	private function get(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
+	protected function get(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		if (!isset($uri[3])) {
 			$this->getUser($user_id);
 			return;
@@ -128,9 +97,10 @@ class UserController extends BaseController {
 	}
 	
 	#endregion
+	#------------------------------------------------------------------------------------------------------------------
 	#region post
 	
-	private function post(array $uri, array $params, int $user_id) {
+	protected function post(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		switch ($uri[3]) {
 			case 'stations':
 				if (empty($uri[4])) $this->error(404);
@@ -186,9 +156,10 @@ class UserController extends BaseController {
 	}
 	
 	# endregion
+	#------------------------------------------------------------------------------------------------------------------
 	#region put
 	
-	private function put(array $uri, array $params, array $body, int $user_id) {
+	protected function put(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		if ($uri[3] == 'stations' && is_numeric($uri[4])) {
 			$this->generateKeyForStation($uri, $user_id);
 		} else {
@@ -263,12 +234,12 @@ class UserController extends BaseController {
 	}
 	
 	# endregion
+	#------------------------------------------------------------------------------------------------------------------
 	#region delete
 	
-	private function delete(array $uri, array $params, int $user_id) {
+	protected function delete(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		// TODO delete user and its stations, measurements and images
 	}
 	
 	# endregion
-	
 }

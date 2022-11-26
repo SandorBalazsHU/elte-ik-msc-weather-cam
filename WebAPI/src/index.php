@@ -5,6 +5,8 @@ require __DIR__ . "/include/bootstrap.php";
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode('/', $uri);
 
+$response_handler = new ResponseHandler();
+
 if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 	switch ($uri[2]) {
 		case 'user':
@@ -13,7 +15,8 @@ if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 			$userController->processRequest();
 			exit;
 		case 'stations':
-			if (!isset($uri[3])) code404();
+			if (!isset($uri[3]))
+				$response_handler->error(404);
 			
 			require PROJECT_ROOT_PATH . "/controller/MeasurementController.php";
 			require PROJECT_ROOT_PATH . "/controller/PictureController.php";
@@ -24,8 +27,9 @@ if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 			$stationController = new StationController();
 			
 			if (is_numeric($uri[3])) {
-				if (!isset($uri[4])) code404();
-
+				if (!isset($uri[4]))
+					$response_handler->error(404);
+				
 				switch ($uri[4]) {
 					case 'measurements':
 						$measurementController->processRequest();
@@ -36,9 +40,9 @@ if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 					default:
 						$stationController->processRequest();
 						exit;
-					}
+				}
 			}
-
+			
 			switch ($uri[3]) {
 				case 'pictures':
 					if (!isset($uri[4])) {
@@ -46,7 +50,7 @@ if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 					} else if ($uri[4] == 'storage') {
 						$stationController->processRequest();
 					} else {
-						code404();
+						$response_handler->error(404);
 					}
 					exit;
 				case 'measurements':
@@ -55,23 +59,20 @@ if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 					} else if ($uri[4] == 'storage') {
 						$stationController->processRequest();
 					} else {
-						code404();
+						$response_handler->error(404);
 					}
 					exit;
 				case 'status':
 					$stationController->processRequest();
+					exit;
 				default:
-					code404();
+					$response_handler->error(404);
 			}
 			exit;
 		default:
-			code404();
+			$response_handler->error(404);
 	}
 } else {
-	code404();
+	$response_handler->error(404);
 }
 
-function code404() {
-	http_response_code(404);
-	exit;
-}

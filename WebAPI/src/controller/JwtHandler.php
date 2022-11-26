@@ -19,7 +19,7 @@ use Lcobucci\JWT\Validation\Validator;
 
 require_once PROJECT_ROOT_PATH . "/dataSource/JwtDao.php";
 
-class JwtHandler extends BaseController {
+class JwtHandler extends ResponseHandler{
 	public static string $CLAIM_UID = 'uid';
 	public static int $CLAIM_NOT_FOUND = -1;
 	
