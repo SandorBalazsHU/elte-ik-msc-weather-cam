@@ -23,8 +23,68 @@ class StationController extends BaseController {
 	}
 	
 	protected function get(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
-		// TODO: Implement get() method.
+		if (!isset($uri[3]) || !isset($uri[4])) {
+			$this->error(404);
+		}
+		
+		if (is_numeric($uri[3])) {
+			$station_id = $uri[3];
+			
+			switch ($uri[4]) {
+				case 'api':
+					$this->getApiKey($station_id);
+					break;
+				case 'ping':
+					$this->getStatus($station_id);
+					break;
+			}
+			return;
+		}
+		
+		switch ($uri[3] . "/" . $uri[4]) {
+			case 'pictures/storage':
+				$this->getPictureStorage();
+				break;
+			case 'measurements/storage':
+				$this->getDbStorage();
+				break;
+		}
 	}
+	
+	private function getApiKey(int $station_id) {
+		$api_key = $this->stationDao->getApiKeyById($station_id);
+		$sub = substr($api_key, 4, strlen($api_key) - 8);
+		$hidden_st = str_replace($sub, str_repeat('*', strlen($sub)), $api_key);
+		
+		if (empty($hidden_st)) {
+			$this->error(400);
+		} else $this->sendJson($hidden_st);
+	}
+	
+	private function getStatus(int $station_id) {
+		// TODO implement endpoint
+	}
+	
+	private function getPictureStorage() {
+		$storage = $this->stationDao->getSystemStorage();
+		
+		if (empty($storage)) {
+			$this->error(400);
+		} else {
+			$this->sendJson($storage);
+		}
+	}
+	
+	private function getDbStorage() {
+		$storage = $this->stationDao->getSystemStorage();
+		
+		if (empty($storage)) {
+			$this->error(400);
+		} else {
+			$this->sendJson($storage);
+		}
+	}
+	
 	
 	protected function post(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		$this->error(404);

@@ -40,11 +40,11 @@ class ResponseHandler {
 	
 	/**
 	 * Send HTTP response with JSON encoded data
-	 * @param array $data Data to JSON encode
+	 * @param mixed $data Data to JSON encode
 	 * @param array $httpHeaders
 	 * @return void
 	 */
-	protected function sendJson(array $data, array $httpHeaders = array()) {
+	protected function sendJson($data, array $httpHeaders = array()) {
 		header('Content-Type: application/json');
 		http_response_code(200);
 		$this->addHeaders($httpHeaders);

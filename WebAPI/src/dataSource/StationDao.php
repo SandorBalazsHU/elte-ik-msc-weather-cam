@@ -35,6 +35,27 @@ class StationDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function getApiKeyById(int $station_id): string {
+		try {
+			return $this->selectValue(
+				"SELECT api_key FROM stations WHERE station_id = ?",
+				[$station_id]
+			);
+		} catch (Exception $e) {
+			return '';
+		}
+	}
+	
+	public function getSystemStorage(): array {
+		exec("df / | grep / | cut -f3,4 -d' '", $output);
+		$storage = explode(' ', $output[0]);
+		
+		return array(
+			'used_storage' => $storage[0],
+			'total_storage' => $storage[1]
+		);
+	}
+	
 	public function createStation(string $station_name, string $api_key, int $owner): bool {
 		try {
 			return $this->runQuery(
