@@ -1,7 +1,7 @@
 <template>
   <main>
     <div class="wrapper mb-3 w-100 flex-wrap d-flex justify-center">
-      <ws-station-selector
+      <ws-current-station-info
         class="station-selector"
         :status="200"
         :last-timestamp="1668297328"
@@ -10,7 +10,7 @@
           stationName: 'Home station',
           stationTimezone: 1,
         }"
-      ></ws-station-selector>
+      ></ws-current-station-info>
       <ws-measurement
         class="measurement-display"
         icon="mdi-thermometer "
@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { sm, xs } from "@/utils/Sizing.js";
 import WsMeasurement from "@/components/dashboard/WsMeasurement.vue";
-import WsStationSelector from "@/components/dashboard/WsStationMonitorSelector.vue";
+import WsCurrentStationInfo from "@/components/dashboard/WsStationMonitorSelector.vue";
 import WsPhotoViewer from "@/components/dashboard/WsPhotoViewer.vue";
 import WsStationMeasurementChart from "@/components/dashboard/charts/WsStationMeasurementsChart.vue";
 

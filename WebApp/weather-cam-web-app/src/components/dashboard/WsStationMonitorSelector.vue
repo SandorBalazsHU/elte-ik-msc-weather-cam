@@ -2,16 +2,7 @@
   <v-card class="d-flex flex-column">
     <v-card-title class="d-flex pl-0 justify-space-between">
       <span class="data-title">Information </span>
-      <v-btn
-        @click="changeStationHandler"
-        :size="xs ? 'default' : 'large'"
-        color="info"
-        class="change-station-btn"
-        variant="tonal"
-        append-icon="mdi-access-point-network"
-        elevation="2"
-        >Change</v-btn
-      >
+      <ws-station-selector class="change-station-btn"></ws-station-selector>
     </v-card-title>
     <v-card-text class="station-data justify-space-around d-flex flex-column">
       <span v-if="!loadingStations">Name: {{ stationStore.getSelectedStation?.stationName }}</span>
@@ -42,15 +33,11 @@ import { getRelativeTime } from "@/utils/Date.js";
 import { xs } from "@/utils/Sizing.js";
 import { useStationStore } from "@/store/stations.js";
 import { onMounted, ref } from "vue";
+import WsStationSelector from "@/components/dashboard/WsStationSelector.vue";
 
 defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCode }>();
 
-const formatTimezone = (timezone: number) => (timezone <= 0 ? `+${timezone}` : timezone);
-const batteryBarColor = (percent: number) => {
-  if (percent >= 50) return "green";
-  if (percent < 50 && percent >= 20) return "yellow";
-  return "red";
-};
+const formatTimezone = (timezone: number) => (timezone < 0 ? timezone : `+${timezone}`);
 const stationStore = useStationStore();
 
 function changeStationHandler() {
