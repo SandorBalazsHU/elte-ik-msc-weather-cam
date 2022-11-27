@@ -116,22 +116,16 @@ class MeasurementController extends BaseController {
 	#------------------------------------------------------------------------------------------------------------------
 	#region post
 	
-	protected
-	function post(
-		array $uri, array $params, array $body, int $user_id, string $jwt_token
-	) {
+	protected function post(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		$this->error(404);
 	}
 	
-	private
-	function saveMeasurement(
-		array $request_headers, array $body
-	) {
-		if (!isset($request_headers['api-key'])) {
+	private function saveMeasurement(array $request_headers, array $body) {
+		if (!isset($request_headers['api_key'])) {
 			$this->error(403);
 		}
 		
-		$api_key = $request_headers['api-key'];
+		$api_key = $request_headers['api_key'];
 		// TODO documentation unclear
 	}
 	
@@ -139,10 +133,7 @@ class MeasurementController extends BaseController {
 	#------------------------------------------------------------------------------------------------------------------
 	#region put
 	
-	protected
-	function put(
-		array $uri, array $params, array $body, int $user_id, string $jwt_token
-	) {
+	protected function put(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		$this->error(404);
 	}
 	
@@ -150,10 +141,7 @@ class MeasurementController extends BaseController {
 	#------------------------------------------------------------------------------------------------------------------
 	#region delete
 	
-	protected
-	function delete(
-		array $uri, array $params, array $body, int $user_id, string $jwt_token
-	) {
+	protected function delete(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		$this->error(404);
 	}
 	

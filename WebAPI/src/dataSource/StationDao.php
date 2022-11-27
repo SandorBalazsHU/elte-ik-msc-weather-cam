@@ -69,4 +69,15 @@ class StationDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function updateStatusByApiKey($api_key, int $status_code): bool {
+		try {
+			return $this->runQuery(
+				"UPDATE stations SET status=? WHERE api_key=?",
+				[$status_code, $api_key]
+			);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 }
