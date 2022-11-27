@@ -1,6 +1,10 @@
 <template>
   <v-row class="pr-2" justify="end">
-    <v-dialog :width="calcFormSize" v-model="dialog">
+    <v-dialog
+      @update:model-value="(value:boolean)=>openDialogHandler(value)"
+      :width="calcFormSize"
+      v-model="dialog"
+    >
       <template v-slot:activator="{ props }">
         <v-btn
           v-show="!xs"
@@ -20,7 +24,7 @@
           elevation="2"
         ></v-btn>
       </template>
-      <v-card>
+      <v-card :loading="fetchingStations">
         <v-card-title>
           <span class="text-h5">Select station</span>
         </v-card-title>
@@ -29,6 +33,7 @@
             <v-row>
               <v-col class="pa-0" cols="12">
                 <v-autocomplete
+                  :disabled="fetchingStations"
                   :items="
                     stations.stations
                       .filter(
@@ -36,7 +41,7 @@
                       )
                       .map((station) => station.stationName)
                   "
-                  label="Stations"
+                  :label="fetchingStations ? 'Fetching...' : 'Stations'"
                   v-model="currentlySelectedStation"
                 ></v-autocomplete>
               </v-col>
@@ -55,12 +60,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { xs, calcFormSize } from "@/utils/Sizing.js";
 import { useStationStore } from "@/store/stations.js";
 const stations = useStationStore();
 const dialog = ref(false);
 const currentlySelectedStation = ref(stations.getSelectedStation?.stationName);
+const fetchingStations = ref(true);
 
 const cancelHander = () => (dialog.value = false);
 const saveHandler = () => {
@@ -70,4 +76,11 @@ const saveHandler = () => {
   selectedId && stations.changeSelectedStation(selectedId);
   dialog.value = false;
 };
+
+function openDialogHandler(value: boolean) {
+  console.log("asd");
+  if (!value) return;
+  fetchingStations.value = true;
+  stations.fetchUserStations().then(() => (fetchingStations.value = false));
+}
 </script>

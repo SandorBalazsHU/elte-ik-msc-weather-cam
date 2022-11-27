@@ -40,10 +40,6 @@ defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCod
 const formatTimezone = (timezone: number) => (timezone < 0 ? timezone : `+${timezone}`);
 const stationStore = useStationStore();
 
-function changeStationHandler() {
-  console.log(stationStore.stations[0]);
-}
-
 const loadingStations = ref(false);
 
 onMounted(() => {
