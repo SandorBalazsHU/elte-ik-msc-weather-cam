@@ -26,6 +26,7 @@
     "chart.js": "^3.9.1",
     "ftp-deploy": "^2.4.3",
     "pinia": "^2.0.21",
+    "qrcode.vue": "^3.3.3",
     "roboto-fontface": "*",
     "textfit": "^2.4.0",
     "vue": "^3.2.38",

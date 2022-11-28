@@ -5,7 +5,7 @@
       :links="links.drawerLinks"
     ></ws-nav-drawer-content>
   </v-navigation-drawer>
-  <v-navigation-drawer :width="calcDrawerSize" v-else v-model="drawerStore.drawerOpen">
+  <v-navigation-drawer app :width="calcDrawerSize" v-else v-model="drawerStore.drawerOpen">
     <ws-nav-drawer-content
       :contacts="links.contactLinks"
       :links="links.drawerLinks"

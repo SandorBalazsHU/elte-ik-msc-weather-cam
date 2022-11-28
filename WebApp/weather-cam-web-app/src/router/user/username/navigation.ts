@@ -7,7 +7,6 @@ export const navigation = [
   },
   {
     path: "about",
-
     component: () => import("@/views/user/AboutView.vue"),
   },
   {
@@ -18,7 +17,7 @@ export const navigation = [
   {
     path: "stations",
 
-    component: () => import("@/views/errors/NotFoundView.vue"),
+    component: () => import("@/views/user/StationsView.vue"),
   },
   {
     path: "account",

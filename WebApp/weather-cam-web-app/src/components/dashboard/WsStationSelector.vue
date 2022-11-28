@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { xs, calcFormSize } from "@/utils/Sizing.js";
 import { useStationStore } from "@/store/stations.js";
 const stations = useStationStore();
@@ -77,9 +77,8 @@ const saveHandler = () => {
   dialog.value = false;
 };
 
-function openDialogHandler(value: boolean) {
-  console.log("asd");
-  if (!value) return;
+function openDialogHandler(open: boolean) {
+  if (!open) return;
   fetchingStations.value = true;
   stations.fetchUserStations().then(() => (fetchingStations.value = false));
 }
