@@ -18,10 +18,10 @@ class UserController extends BaseController {
 	
 	protected function processNoJwt(string $method, array $uri, array $params, array $body) {
 		if ($method == 'GET' && isset($uri[3]) && $uri[3] == 'login') {
-			$this->login($body);
+			$this->login($params);
 		}
 		if ($method == 'POST' && isset($uri[3]) && $uri[3] == 'register') {
-			$this->register($body);
+			$this->register($params);
 		}
 	}
 	
@@ -43,12 +43,12 @@ class UserController extends BaseController {
 		}
 	}
 	
-	private function login($body) {
-		if (empty($body['username']) || empty($body['password'])) {
+	private function login($params) {
+		if (empty($params['username']) || empty($params['password'])) {
 			$this->error(403);
 		}
 		
-		$user = $this->userDao->getUserByUnameAndPassword($body['username'], $body['password']);
+		$user = $this->userDao->getUserByUnameAndPassword($params['username'], $params['password']);
 		
 		if (empty($user)) {
 			$this->error(401);
@@ -109,13 +109,13 @@ class UserController extends BaseController {
 		}
 	}
 	
-	private function register(array $body) {
-		if (empty($body['username']) || empty($body['password'])) {
+	private function register(array $params) {
+		if (empty($params['username']) || empty($params['password'])) {
 			$this->error(400);
 		}
 		
-		$username = $body['username'];
-		$password = $body['password'];
+		$username = $params['username'];
+		$password = $params['password'];
 		
 		$existing_user = $this->userDao->getUserByUname($username);
 		if (!empty($existing_user)) {
@@ -163,7 +163,7 @@ class UserController extends BaseController {
 		if ($uri[3] == 'stations' && is_numeric($uri[4])) {
 			$this->generateKeyForStation($uri, $user_id);
 		} else {
-			$this->updateUser($body, $user_id);
+			$this->updateUser($params, $user_id);
 		}
 	}
 	
@@ -211,13 +211,13 @@ class UserController extends BaseController {
 	/**
 	 * PUT /user
 	 */
-	private function updateUser(array $body, int $user_id) {
-		if (empty($body['username']) || empty($body['password'])) {
+	private function updateUser(array $params, int $user_id) {
+		if (empty($params['username']) || empty($params['password'])) {
 			$this->error(400);
 		}
 		
-		$username = $body['username'];
-		$password = $body['password'];
+		$username = $params['username'];
+		$password = $params['password'];
 		
 		$existing_user = $this->userDao->getUserByUname($username);
 		if (empty($existing_user)) {
