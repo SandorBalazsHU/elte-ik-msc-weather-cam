@@ -1331,8 +1331,11 @@ components:
         measurement_id is a __unique__ identifier for measurements. 
         measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
       schema:
-        type: string
-        format: uuid
+        oneOf:
+          - type: string
+            format: uuid
+          - type: string
+            format: "latest"
     station_id:
       in: path
       name: station_id
