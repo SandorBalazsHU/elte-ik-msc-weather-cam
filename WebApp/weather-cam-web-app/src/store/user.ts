@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
 
-import { throwErrorByResponse } from "@/api/errors/CustomErrors.js";
+import { throwErrorByResponse, unifyError } from "@/api/errors/CustomErrors.js";
 import { useAlertStore } from "./alert.js";
 import router from "@/router/index.js";
 import type { LoginUserRequest, User } from "@/api/openapi/index.js";
 import { changeApiConfig, userApi } from "@/api/apis.js";
 import HttpStatusCode from "@/utils/HttpStatusCode.js";
+import type { FetchCallbacks } from "@/types/types.js";
 
 interface UserState {
   userData: User;
@@ -26,7 +27,7 @@ export const useUserStore = defineStore("user", {
   },
 
   actions: {
-    async login(loginData: LoginUserRequest, propagateError: boolean = false) {
+    async login(loginData: LoginUserRequest, callback?: FetchCallbacks) {
       try {
         const loginResult = await userApi.loginUserRaw({
           username: loginData.username,
@@ -34,7 +35,6 @@ export const useUserStore = defineStore("user", {
         });
         if (!loginResult.raw.ok) {
           const result = await loginResult.value();
-          useAlertStore().addAlert("login-errors", result);
           throwErrorByResponse(loginResult.raw.status, result);
         }
         this.bearerToken = loginResult.raw.headers.get("Authorization");
@@ -44,29 +44,24 @@ export const useUserStore = defineStore("user", {
           throwErrorByResponse(getUserResult.raw.status, await getUserResult.raw.json());
         }
         this.userData = await getUserResult.value();
+        callback?.onSuccess?.call(this);
         router.replace({ path: `user/${this.userData.username}/home` });
       } catch (error) {
-        if (error instanceof Error) {
-          useAlertStore().addAlert("login-errors", {
-            code: 500,
-            message: "Connection refused by server!",
-            type: "error",
-          });
-        }
-        if (propagateError) throw error;
+        callback?.onError?.call(this, unifyError(error));
       }
     },
 
-    async logout(propagateError: boolean = false) {
+    async logout(callback?: FetchCallbacks) {
       try {
         const result = await userApi.logoutUserRaw();
         if (!result.raw.ok) {
           throwErrorByResponse(result.raw.status);
         }
         this.$reset();
+        callback?.onSuccess?.call(this);
         router.push({ path: "/" });
       } catch (error) {
-        if (propagateError) throw error;
+        callback?.onError?.call(this, unifyError(error));
       }
     },
   },

@@ -37,18 +37,24 @@ import { onMounted, ref } from "vue";
 import WsStationPanelContainer from "@/components/WsStationPanelContainer.vue";
 import WsAlertContainer from "@/components/WsAlertContainer.vue";
 import { useAlertStore } from "@/store/alert.js";
+import type { HttpError } from "@/api/errors/CustomErrors.js";
 
 const stationsStore = useStationStore();
 const loadingStations = ref(false);
+
+const onStationFetchError = (error: HttpError) => {
+  loadingStations.value = false;
+  useAlertStore().addAlert("station-viewer-container", error);
+};
+
+const onStationFetchSuccess = () => (loadingStations.value = false);
+
 onMounted(() => {
   loadingStations.value = true;
-  stationsStore
-    .fetchUserStations(true)
-    .then(() => (loadingStations.value = false))
-    .catch((err) => {
-      loadingStations.value = false;
-      useAlertStore().addAlert("station-viewer-container", err, "error");
-    });
+  stationsStore.fetchUserStations({
+    onError: onStationFetchError,
+    onSuccess: onStationFetchSuccess,
+  });
 });
 </script>
 <style scoped></style>

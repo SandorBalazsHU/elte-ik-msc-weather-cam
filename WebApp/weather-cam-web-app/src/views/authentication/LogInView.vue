@@ -77,6 +77,7 @@ import {
   usernameLoginRules,
   usernameRegisterRules,
 } from "@/utils/FormValidators.js";
+import type { HttpError } from "@/api/errors/CustomErrors.js";
 
 const valid = ref(false);
 const login = ref(true);
@@ -118,11 +119,18 @@ async function validate() {
 async function loginUser() {
   loading.value = true;
   alertStore.clearAlerts("login-errors");
-  await userStore.login({
-    username: formData.username,
-    password: formData.password,
-  });
+  await userStore.login(
+    {
+      username: formData.username,
+      password: formData.password,
+    },
+    { onError: onLoginError }
+  );
   loading.value = false;
+}
+
+function onLoginError(error: HttpError) {
+  useAlertStore().addAlert("login-errors", error);
 }
 
 async function registerUser() {

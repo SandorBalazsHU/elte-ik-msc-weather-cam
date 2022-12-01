@@ -37,6 +37,7 @@ import WsStatusIndicator from "@/components/WsStatusIndicator.vue";
 import states from "@/utils/StationStates.js";
 import { formatTimezone } from "@/utils/Date.js";
 import { useAlertStore } from "@/store/alert.js";
+import type { HttpError } from "@/api/errors/CustomErrors.js";
 
 defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCode }>();
 
@@ -44,21 +45,18 @@ const stationStore = useStationStore();
 
 const loadingStations = ref(false);
 
+const onStationFetchSuccess = () => (loadingStations.value = false);
+const onStationFetchError = (error: HttpError) => {
+  loadingStations.value = false;
+  useAlertStore().addAlert("monitor-error-container", error);
+};
 onMounted(() => {
-  loadStations();
+  loadingStations.value = true;
+  stationStore.fetchUserStations({
+    onSuccess: onStationFetchSuccess,
+    onError: onStationFetchError,
+  });
 });
-
-async function loadStations() {
-  try {
-    await stationStore.fetchUserStations(true);
-  } catch (error) {
-    useAlertStore().addAlert("monitor-error-container", {
-      code: 400,
-      message: "Failed to retrieve stations!",
-      type: "error",
-    });
-  }
-}
 </script>
 
 <style scoped>

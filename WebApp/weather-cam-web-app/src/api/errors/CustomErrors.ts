@@ -2,48 +2,72 @@ import type HttpStatusCode from "@/utils/HttpStatusCode.js";
 import Http from "@/utils/HttpStatusCode.js";
 import type { ModelApiResponse } from "../openapi/index.js";
 
-export class BadRequestError extends Error {
-  //400
-  constructor(errorString: string) {
+export class HttpError extends Error {
+  statusCode: HttpStatusCode;
+  constructor(statusCode: HttpStatusCode, errorString: string) {
     super(errorString);
+    this.statusCode = statusCode;
     this.name = "BadRequestError";
   }
 }
 
-export class UnauthorizedError extends Error {
+export class BadRequestError extends HttpError {
+  //400
+  constructor(errorString: string) {
+    super(400, errorString);
+    this.name = "BadRequestError";
+  }
+}
+
+export class UnauthorizedError extends HttpError {
   //401
   constructor(errorString: string) {
-    super(errorString);
+    super(401, errorString);
     this.name = "UnauthorizedError";
   }
 }
 
-export class ForbiddenError extends Error {
+export class ForbiddenError extends HttpError {
   //403
   constructor(errorString: string) {
-    super(errorString);
+    super(403, errorString);
     this.name = "ForbiddenError";
   }
 }
 
-export class NotFoundError extends Error {
+export class NotFoundError extends HttpError {
   //404
   constructor(errorString: string) {
-    super(errorString);
+    super(404, errorString);
     this.name = "NotFoundError";
   }
 }
 
-export class ConflictError extends Error {
+export class ConflictError extends HttpError {
   //409
   constructor(errorString: string) {
-    super(errorString);
+    super(409, errorString);
     this.name = "ConflictError";
+  }
+}
+
+export class InternalServerError extends HttpError {
+  //500
+  constructor(errorString: string) {
+    super(500, errorString);
+    this.name = "InternalServerError";
   }
 }
 
 const errorStr = (msg: string, status: Http, body: unknown) =>
   `ERROR: ${status}.${msg} ${body ? `body : ${body}` : ""}`;
+
+export const unifyError = (error: unknown) =>
+  error instanceof HttpError
+    ? error
+    : (new InternalServerError(
+        "An unknown error occured! Maybe the server is offline."
+      ) as HttpError);
 
 export function throwErrorByResponse(status: Http, responseBody: unknown = null) {
   const errorNotDefined = (status: HttpStatusCode) => {
@@ -66,6 +90,10 @@ export function throwErrorByResponse(status: Http, responseBody: unknown = null)
     case Http.CONFLICT:
       throw new ConflictError(
         errorStr("There was a conflict with processing your request!", status, responseBody)
+      );
+    case Http.INTERNAL_SERVER_ERROR:
+      throw new ConflictError(
+        errorStr("An internal server error occured, please try again later!", status, responseBody)
       );
     default:
       errorNotDefined(status);

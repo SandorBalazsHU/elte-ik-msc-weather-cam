@@ -1,6 +1,7 @@
 import { userApi } from "@/api/apis.js";
-import { throwErrorByResponse } from "@/api/errors/CustomErrors.js";
+import { throwErrorByResponse, unifyError } from "@/api/errors/CustomErrors.js";
 import type { Station } from "@/api/openapi/index.js";
+import type { FetchCallbacks } from "@/types/types.js";
 import { defineStore } from "pinia";
 import { useAlertStore } from "./alert.js";
 
@@ -26,7 +27,7 @@ export const useStationStore = defineStore("stations", {
       )?.stationId;
     },
 
-    async fetchUserStations(propagateError: boolean = false) {
+    async fetchUserStations(callback?: FetchCallbacks) {
       try {
         const result = await userApi.getStationsRaw();
         if (!result.raw.ok) {
@@ -36,9 +37,10 @@ export const useStationStore = defineStore("stations", {
         if (!this.selectedStationId && this.stations.length > 0) {
           this.changeSelectedStation(this.stations[0].stationId);
         }
+        callback?.onSuccess?.call(this);
       } catch (error) {
         this.stations = [];
-        if (propagateError) throw error;
+        callback?.onError?.call(this, unifyError(error));
       }
       return this.stations;
     },

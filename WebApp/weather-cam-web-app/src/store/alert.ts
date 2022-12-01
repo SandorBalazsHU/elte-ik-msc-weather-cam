@@ -1,3 +1,4 @@
+import type { HttpError } from "@/api/errors/CustomErrors.js";
 import type { ModelApiResponse } from "@/api/openapi/index.js";
 import { defineStore } from "pinia";
 
@@ -6,7 +7,7 @@ type AlertData = ModelApiResponse;
 export interface AlertRecord {
   alertId: number;
   alertType: AlertTypes;
-  payload: AlertData;
+  payload: AlertData | HttpError;
 }
 
 interface AlertState {
@@ -23,7 +24,11 @@ export const useAlertStore = defineStore("alert", {
       inactiveAlertContainers: new Map(),
     } as AlertState),
   actions: {
-    addAlert(containerId: string, payload: ModelApiResponse, alertType: AlertTypes = "error") {
+    addAlert(
+      containerId: string,
+      payload: ModelApiResponse | HttpError,
+      alertType: AlertTypes = "error"
+    ) {
       const exists = this.alertContainers.get(containerId);
       if (!exists) return false;
       exists?.push({ alertType, alertId: this.alertId++, payload });
