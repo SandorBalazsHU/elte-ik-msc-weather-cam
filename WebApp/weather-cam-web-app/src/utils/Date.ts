@@ -7,3 +7,5 @@ export const getRelativeTime = (d1: number, d2: number = Date.now() / 1000) => {
   console.log();
   return rtf.format(Math.floor(elapsed / 60), "minutes");
 };
+
+export const formatTimezone = (timezone: number) => (timezone < 0 ? timezone : `+${timezone}`);

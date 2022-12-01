@@ -1,5 +1,10 @@
 <template>
   <main>
+    <ws-alert-container
+      :max-displayed="1"
+      :max-stored="1"
+      id="monitor-error-container"
+    ></ws-alert-container>
     <div class="wrapper mb-3 w-100 flex-wrap d-flex justify-center">
       <ws-current-station-info
         class="station-selector"
@@ -60,6 +65,7 @@ import WsMeasurement from "@/components/dashboard/WsMeasurement.vue";
 import WsCurrentStationInfo from "@/components/dashboard/WsStationMonitorSelector.vue";
 import WsPhotoViewer from "@/components/dashboard/WsPhotoViewer.vue";
 import WsStationMeasurementChart from "@/components/dashboard/charts/WsStationMeasurementsChart.vue";
+import WsAlertContainer from "@/components/WsAlertContainer.vue";
 
 const batteryBarColor = (percent: number) => {
   if (percent >= 50) return "green";

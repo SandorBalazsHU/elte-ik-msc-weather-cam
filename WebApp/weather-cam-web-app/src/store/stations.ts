@@ -2,6 +2,7 @@ import { userApi } from "@/api/apis.js";
 import { throwErrorByResponse } from "@/api/errors/CustomErrors.js";
 import type { Station } from "@/api/openapi/index.js";
 import { defineStore } from "pinia";
+import { useAlertStore } from "./alert.js";
 
 interface StationsState {
   stations: Station[];
@@ -32,8 +33,11 @@ export const useStationStore = defineStore("stations", {
           throwErrorByResponse(result.raw.status);
         }
         this.stations = await result.value();
+        if (!this.selectedStationId && this.stations.length > 0) {
+          this.changeSelectedStation(this.stations[0].stationId);
+        }
       } catch (error) {
-        console.log("There was an error with retieving stations!");
+        this.stations = [];
         if (propagateError) throw error;
       }
       return this.stations;

@@ -35,10 +35,11 @@ import { onMounted, ref } from "vue";
 import WsStationSelector from "@/components/dashboard/WsStationSelector.vue";
 import WsStatusIndicator from "@/components/WsStatusIndicator.vue";
 import states from "@/utils/StationStates.js";
+import { formatTimezone } from "@/utils/Date.js";
+import { useAlertStore } from "@/store/alert.js";
 
 defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCode }>();
 
-const formatTimezone = (timezone: number) => (timezone < 0 ? timezone : `+${timezone}`);
 const stationStore = useStationStore();
 
 const loadingStations = ref(false);
@@ -48,9 +49,14 @@ onMounted(() => {
 });
 
 async function loadStations() {
-  const stations = await stationStore.fetchUserStations();
-  if (!stationStore.selectedStationId && stations.length > 0) {
-    stationStore.changeSelectedStation(stations[0].stationId);
+  try {
+    await stationStore.fetchUserStations(true);
+  } catch (error) {
+    useAlertStore().addAlert("monitor-error-container", {
+      code: 400,
+      message: "Failed to retrieve stations!",
+      type: "error",
+    });
   }
 }
 </script>
