@@ -1,6 +1,5 @@
 import type HttpStatusCode from "@/utils/HttpStatusCode.js";
 import Http from "@/utils/HttpStatusCode.js";
-import type { ModelApiResponse } from "../openapi/index.js";
 
 export class HttpError extends Error {
   statusCode: HttpStatusCode;

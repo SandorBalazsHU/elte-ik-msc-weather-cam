@@ -17,35 +17,40 @@
         }"
       ></ws-current-station-info>
       <ws-measurement
+        :loading="loadingMeasurements"
         class="measurement-display"
         icon="mdi-thermometer "
         unit-of-measure="C°"
         :title="sm || xs ? 'Temp.' : 'Temperature'"
-        :data="24.3"
+        :data="latestMeasurement.temperature"
       ></ws-measurement>
+
       <ws-measurement
+        :loading="loadingMeasurements"
         class="measurement-display"
         icon="mdi-gauge"
         unit-of-measure="hPa"
         title="Pressure"
-        :data="1000"
+        :data="latestMeasurement.pressure"
       ></ws-measurement>
 
       <ws-measurement
+        :loading="loadingMeasurements"
         class="measurement-display"
         :bar="{ color: 'blue' }"
         icon="mdi-water-percent "
         :unit-of-measure="'%'"
         :title="'Humidity'"
-        :data="66"
+        :data="latestMeasurement.humidity"
       ></ws-measurement>
       <ws-measurement
+        :loading="loadingMeasurements"
         class="measurement-display"
+        :data="latestMeasurement.battery"
         :bar="{ color: batteryBarColor(56) }"
         icon="mdi-battery-40 "
         :unit-of-measure="'%'"
         :title="'Battery'"
-        :data="56"
       ></ws-measurement>
     </div>
     <v-divider></v-divider>
@@ -66,12 +71,45 @@ import WsCurrentStationInfo from "@/components/dashboard/WsStationMonitorSelecto
 import WsPhotoViewer from "@/components/dashboard/WsPhotoViewer.vue";
 import WsStationMeasurementChart from "@/components/dashboard/charts/WsStationMeasurementsChart.vue";
 import WsAlertContainer from "@/components/WsAlertContainer.vue";
+import { onMounted, ref } from "vue";
+import { useMeasurementStore } from "@/store/measurements.js";
+import { useAlertStore } from "@/store/alert.js";
+import type { HttpError } from "@/api/errors/CustomErrors.js";
+import { useStationStore } from "@/store/stations.js";
+import { storeToRefs } from "pinia";
 
+const stationsStore = useStationStore();
+const measurementsStore = useMeasurementStore();
+const { latestMeasurement } = storeToRefs(measurementsStore);
+const loadingMeasurements = ref(false);
+const onFetchMeasurementSuccess = () => {
+  console.log(latestMeasurement);
+  loadingMeasurements.value = false;
+};
+const onFetchMeasurementError = (error: HttpError) => {
+  useAlertStore().addAlert("monitor-error-container", error);
+  loadingMeasurements.value = false;
+};
 const batteryBarColor = (percent: number) => {
   if (percent >= 50) return "green";
   if (percent < 50 && percent >= 20) return "yellow";
   return "red";
 };
+async function loadMeasurements() {
+  loadingMeasurements.value = true;
+  const fetchCallbacks = {
+    onError: onFetchMeasurementError,
+    onSuccess: onFetchMeasurementSuccess,
+  };
+  await stationsStore.fetchUserStations(fetchCallbacks);
+  await measurementsStore.fetchLatestMeasurement(stationsStore.selectedStationId!, fetchCallbacks);
+  loadingMeasurements.value = false;
+}
+
+onMounted(() => {
+  console.log("mounted");
+  loadMeasurements();
+});
 </script>
 
 <style scoped>

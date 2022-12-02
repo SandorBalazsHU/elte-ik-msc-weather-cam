@@ -3,7 +3,6 @@ import { throwErrorByResponse, unifyError } from "@/api/errors/CustomErrors.js";
 import type { Station } from "@/api/openapi/index.js";
 import type { FetchCallbacks } from "@/types/types.js";
 import { defineStore } from "pinia";
-import { useAlertStore } from "./alert.js";
 
 interface StationsState {
   stations: Station[];

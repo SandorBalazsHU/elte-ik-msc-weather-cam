@@ -1,5 +1,6 @@
 <template>
   <v-sheet :elevation="3" rounded="rounded" :width="0" class="square flex-grow-1">
+    <v-progress-linear v-show="loading" indeterminate></v-progress-linear>
     <div class="measurement d-flex h-100 flex-column">
       <div class="d-flex justify-space-between data-title flex-grow-0">
         <span>{{ title }}</span>
@@ -7,13 +8,13 @@
       </div>
 
       <div class="d-flex data flex-grow-1">
-        <span class="measurement-data">{{ `${data} ${unitOfMeasure}` }}</span>
+        <span class="measurement-data"> {{ data ? `${data} ${unitOfMeasure}` : "" }} </span>
       </div>
       <v-progress-linear
         v-show="bar"
         rounded
         class="no-border-top"
-        v-model="data"
+        :model-value="data"
         :color="bar?.color"
         :max="bar?.max"
         :min="bar?.min"
@@ -24,17 +25,24 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, toRefs } from "vue";
 import textFit from "textfit";
 import debounce from "@/utils/Debounce.js";
-const props = defineProps<{
+defineProps<{
   bar?: { min?: number; max?: number; color: string };
   icon?: string;
   title: string;
-  data: number;
+  data: number | undefined;
   unitOfMeasure?: string;
+  loading: boolean;
 }>();
-const data = ref<number>(props.data);
+
+onUpdated(() => {
+  nextTick(() => {
+    textFit(document.getElementsByClassName("measurement-data"), fitParams);
+  });
+});
+
 const fitParams = {
   multiLine: true,
   widthOnly: true,
@@ -66,6 +74,7 @@ onBeforeUnmount(() => window.removeEventListener("resize", resizeHandler));
 }
 .measurement-data {
   width: 100%;
+  display: block;
 }
 
 .data {

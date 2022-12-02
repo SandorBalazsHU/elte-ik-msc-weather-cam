@@ -1,11 +1,9 @@
 import { defineStore } from "pinia";
 
 import { throwErrorByResponse, unifyError } from "@/api/errors/CustomErrors.js";
-import { useAlertStore } from "./alert.js";
 import router from "@/router/index.js";
 import type { LoginUserRequest, User } from "@/api/openapi/index.js";
 import { changeApiConfig, userApi } from "@/api/apis.js";
-import HttpStatusCode from "@/utils/HttpStatusCode.js";
 import type { FetchCallbacks } from "@/types/types.js";
 
 interface UserState {
