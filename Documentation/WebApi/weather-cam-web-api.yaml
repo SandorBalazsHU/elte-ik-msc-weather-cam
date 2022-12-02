@@ -193,6 +193,7 @@ paths:
           schema:
             type: integer
             format: int64
+            minimum: 0
         - in: query
           name: date_end
           description: |
@@ -201,14 +202,16 @@ paths:
           schema:
             type: integer
             format: int64
+            minimum: 0
         - in: query
           name: measurement_id
           description: |
             measurement_id is a __unique__ identifier for measurements. 
-            measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+            measurement_id is an unsigned integer.
           schema:
-            type: string
-            format: uuid
+            type: integer
+            format: int64
+            minimum: 0
         - in: query
           name: offset
           description: |
@@ -325,7 +328,7 @@ paths:
             application/json:
               schema:
                 type: string
-                example: 19fsXXXX-XXXX-XXXX-XXXX-XXXXXXXXc0d1
+                example: 19fsXXXXXXXXXXXXXXXXXXXXXXXXc0d1
         '400':
           description: |
             __Failed__ to ping station.
@@ -508,12 +511,7 @@ paths:
         - apiKeyAuth: []
   '/stations/{station_id}/pictures/{picture_id}':
     parameters:
-      - in: path
-        name: picture_id
-        required: true
-        schema:
-          type: string
-          format: uuid
+      - $ref: '#/components/parameters/picture_id'
       - $ref: '#/components/parameters/station_id'
     get:
       summary: Find picture by id.
@@ -614,15 +612,7 @@ paths:
         ---
       parameters:
         - $ref: '#/components/parameters/station_id'
-        - in: query
-          name: picture_id
-          description: |
-            picture_id is a __unique__ identifier for pictures. 
-            picture_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/picture_id'
         - in: query
           name: offset
           description: |
@@ -899,7 +889,7 @@ paths:
             application/json:
               schema:
                 type: string
-                format: uuid
+                example: "u5IW6qRrd5Q50bWSz7CgrNDrz6dePjZ9Tctf8GqNHyz8KGFkvyycBb"
         '403':
           $ref: '#/components/responses/UnauthorizedJWT'
         '404':
@@ -1081,23 +1071,25 @@ components:
       required: ['measurement_id','station_id']
       description: |
         IndexedMeasurement is the same as Measurement with the exception of added properties station_id and measurement_id.  
-        station_id and measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+        station_id and measurement_id are unsigned integers.
       allOf:
         - $ref: '#/components/schemas/Measurement'
         - type: object
           properties:
             measurement_id:
-              type: string
-              format: uuid
+              type: integer
+              format: int64
+              minimum: 0
               description: |
                 measurement_id is a __unique__ identifier for measurements.  
-                measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+                measurement_id is an unsigned integer.
             station_id:
-              type: string
-              format: uuid
+              type: integer
+              format: int64
+              minimum: 0
               description: |
                 station_id is a __unique__ identifier for weather stations.  
-                station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+                station_id is an unsigned integer.
     Measurement:
       description: Measurement contains the data recorded by the sensors.
       required: ['temperature','pressure','humidity','battery','timestamp']
@@ -1172,10 +1164,11 @@ components:
         user_id:
           description: |
             user_id is the unique identifier of the user.
-            station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
-          type: string
-          format: uuid
-          example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+            station_id is an unsigned integer.
+          type: integer
+          format: int64
+          minimum: 0
+          example: 0
         username:
           description: username is a unique name used to identify the user.
           type: string
@@ -1197,28 +1190,21 @@ components:
     Station:
       description: Station contains information about a weather station.
       type: object
-      required: ['station_id','station_name','station_timezone']
+      required: ['station_id','station_name']
       properties:
         station_id:
           description: |
             station_id is a __unique__ identifier for stations. 
-            station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
-          type: string
-          format: uuid
-          example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+            station_id is an unsigned integer.
+          type: integer
+          format: int64
+          minimum: 0
+          example: 0
         station_name:
           type: string
           description: station_name is the unique name of the station.
           example: home_station_01
           
-        station_timezone:
-          type: number
-          description: | 
-            station_timezone is the timezone where the station is located at.
-            station_timezone follows the [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) standard.
-          example: -3
-          minimum: -12
-          maximum: 14
     StationApiKey:
       type: object
       required: ['station_id','api_key']
@@ -1227,26 +1213,24 @@ components:
         **Important**: The api_key is only recieved once after creating a new station make sure to write it down somewhere! 
       properties:
         station_id:
-          type: string
           description: |
             station_id is a __unique__ identifier for stations. 
-            station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
-          format: uuid
-          example: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+            station_id is an unsigned integer.
+          type: integer
+          format: int64
+          minimum: 0
         api_key:
           type: string
-          format: uuid
           description: |
             api_key gives access to upload measurements to the server.  
     StationArray:
       type: array
       example:
-        - station_id: 49b82cfb-b8bd-4c50-b8fc-c174c62c9e04
+        - station_id: 0
           station_name: home_station_01
-          station_timezone: 0
-        - station_id: b530dde2-62b3-492f-a20c-4eee39ac3909
+        - station_id: 1
           station_name: home_station_02
-          station_timezone: -1
+         
       items:
         $ref: '#/components/schemas/Station'
     ApiResponse:
@@ -1322,6 +1306,17 @@ components:
             ApiResponse400:
               $ref: '#/components/examples/ApiResponse400'
   parameters:
+    picture_id:
+      in: path
+      name: picture_id
+      required: true
+      
+      description: |
+        picture_id is a __unique__ identifier for pictures. 
+        picture_id is an unsigned integer.
+      schema:
+        type : string
+        pattern: '^latest$|^\d+$'
     measurement_id:
       in: path
       name: measurement_id
@@ -1329,20 +1324,21 @@ components:
       
       description: |
         measurement_id is a __unique__ identifier for measurements. 
-        measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+        measurement_id is an unsigned integer.
       schema:
         type : string
-        pattern: 'latest|^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'
+        pattern: '^latest$|^\d+$'
     station_id:
       in: path
       name: station_id
       required: true
       description: |
         station_id is a __unique__ identifier for weather stations
-        station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+        station_id is an unsigned integer.
       schema:
-        type: string
-        format: uuid
+        type: integer
+        format: int64
+        minimum: 0
     username:
       name: username
       in: path
