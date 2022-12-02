@@ -1,7 +1,9 @@
 <template>
   <v-sheet :elevation="3" rounded="rounded" :width="0" class="square flex-grow-1">
-    <v-progress-linear v-show="loading" indeterminate></v-progress-linear>
     <div class="measurement d-flex h-100 flex-column">
+      <div style="height: 4px" class="w-100">
+        <v-progress-linear v-show="loading" indeterminate></v-progress-linear>
+      </div>
       <div class="d-flex justify-space-between data-title flex-grow-0">
         <span>{{ title }}</span>
         <v-icon v-if="icon">{{ icon }}</v-icon>
@@ -25,14 +27,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, toRefs } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, onUpdated } from "vue";
 import textFit from "textfit";
 import debounce from "@/utils/Debounce.js";
 defineProps<{
   bar?: { min?: number; max?: number; color: string };
   icon?: string;
   title: string;
-  data: number | undefined;
+  data: number;
   unitOfMeasure?: string;
   loading: boolean;
 }>();

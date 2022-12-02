@@ -26,11 +26,11 @@ import {
 } from '../models';
 
 export interface GetPartialApiKeyRequest {
-    stationId: string;
+    stationId: number;
 }
 
 export interface GetStationStatusRequest {
-    stationId: string;
+    stationId: number;
 }
 
 export interface UpdateStationStatusRequest {

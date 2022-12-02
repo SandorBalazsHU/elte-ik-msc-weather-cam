@@ -12,7 +12,7 @@
           variant="solo"
         ></v-select>
       </div>
-      <LineChart :height="calcPictureSize" v-bind="lineChartProps" />
+      <LineChart v-bind="lineChartProps" />
     </div>
   </v-sheet>
 </template>
@@ -101,6 +101,7 @@ const options = computed<ChartOptions<"line">>(() => ({
 
 const { lineChartProps, lineChartRef } = useLineChart({
   chartData: testData,
+  height: calcPictureSize.value,
   options,
 });
 </script>

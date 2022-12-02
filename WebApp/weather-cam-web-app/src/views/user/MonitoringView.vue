@@ -9,11 +9,10 @@
       <ws-current-station-info
         class="station-selector"
         :status="200"
-        :last-timestamp="1668297328"
+        :last-timestamp="latestMeasurement.timestamp"
         :station-data="{
-          stationId: 'fdd19b30-62e5-11ed-81ce-0242ac120002',
+          stationId: 1,
           stationName: 'Home station',
-          stationTimezone: 1,
         }"
       ></ws-current-station-info>
       <ws-measurement
@@ -47,7 +46,7 @@
         :loading="loadingMeasurements"
         class="measurement-display"
         :data="latestMeasurement.battery"
-        :bar="{ color: batteryBarColor(56) }"
+        :bar="{ color: batteryBarColor(latestMeasurement.battery) }"
         icon="mdi-battery-40 "
         :unit-of-measure="'%'"
         :title="'Battery'"
@@ -77,16 +76,19 @@ import { useAlertStore } from "@/store/alert.js";
 import type { HttpError } from "@/api/errors/CustomErrors.js";
 import { useStationStore } from "@/store/stations.js";
 import { storeToRefs } from "pinia";
+import { useTimeAgo, useTimeoutPoll } from "@vueuse/core";
 
 const stationsStore = useStationStore();
 const measurementsStore = useMeasurementStore();
 const { latestMeasurement } = storeToRefs(measurementsStore);
 const loadingMeasurements = ref(false);
 const onFetchMeasurementSuccess = () => {
-  console.log(latestMeasurement);
+  timeout.resume();
+  useAlertStore().clearAlerts("monitor-error-container");
   loadingMeasurements.value = false;
 };
 const onFetchMeasurementError = (error: HttpError) => {
+  timeout.resume();
   useAlertStore().addAlert("monitor-error-container", error);
   loadingMeasurements.value = false;
 };
@@ -106,8 +108,9 @@ async function loadMeasurements() {
   loadingMeasurements.value = false;
 }
 
+const timeout = useTimeoutPoll(loadMeasurements, 10000);
+
 onMounted(() => {
-  console.log("mounted");
   loadMeasurements();
 });
 </script>

@@ -21,26 +21,18 @@ import { exists, mapValues } from '../runtime';
 export interface Station {
     /**
      * station_id is a __unique__ identifier for stations. 
-station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+station_id is an unsigned integer.
 
-     * @type {string}
+     * @type {number}
      * @memberof Station
      */
-    stationId: string;
+    stationId: number;
     /**
      * station_name is the unique name of the station.
      * @type {string}
      * @memberof Station
      */
     stationName: string;
-    /**
-     * station_timezone is the timezone where the station is located at.
-station_timezone follows the [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) standard.
-
-     * @type {number}
-     * @memberof Station
-     */
-    stationTimezone: number;
 }
 
 /**
@@ -50,7 +42,6 @@ export function instanceOfStation(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "stationId" in value;
     isInstance = isInstance && "stationName" in value;
-    isInstance = isInstance && "stationTimezone" in value;
 
     return isInstance;
 }
@@ -67,7 +58,6 @@ export function StationFromJSONTyped(json: any, ignoreDiscriminator: boolean): S
         
         'stationId': json['station_id'],
         'stationName': json['station_name'],
-        'stationTimezone': json['station_timezone'],
     };
 }
 
@@ -82,7 +72,6 @@ export function StationToJSON(value?: Station | null): any {
         
         'station_id': value.stationId,
         'station_name': value.stationName,
-        'station_timezone': value.stationTimezone,
     };
 }
 

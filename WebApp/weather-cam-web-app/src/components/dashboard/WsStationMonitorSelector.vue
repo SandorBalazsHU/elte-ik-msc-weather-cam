@@ -13,15 +13,7 @@
       <span v-if="!loadingStations">Name: {{ stationStore.getSelectedStation?.stationName }}</span>
       <span v-else>Name: <v-progress-circular indeterminate></v-progress-circular></span>
 
-      <span>Last active: {{ getRelativeTime(lastTimestamp) }}</span>
-      <span v-if="!loadingStations"
-        >Time zone: GMT{{
-          formatTimezone(
-            stationStore.getSelectedStation?.stationTimezone ?? new Date().getTimezoneOffset() / 60
-          )
-        }}</span
-      >
-      <span v-else>Time zone: <v-progress-circular indeterminate></v-progress-circular></span>
+      <span>Last active: {{ useTimeAgo(new Date(props.lastTimestamp * 1000)).value }}</span>
     </v-card-text>
   </v-card>
 </template>
@@ -29,22 +21,25 @@
 <script lang="ts" setup>
 import type { Station } from "@/api/openapi/index.js";
 import type HttpStatusCode from "@/utils/HttpStatusCode.js";
-import { getRelativeTime } from "@/utils/Date.js";
 import { useStationStore } from "@/store/stations.js";
 import { onMounted, ref } from "vue";
 import WsStationSelector from "@/components/dashboard/WsStationSelector.vue";
 import WsStatusIndicator from "@/components/WsStatusIndicator.vue";
 import states from "@/utils/StationStates.js";
-import { formatTimezone } from "@/utils/Date.js";
 import { useAlertStore } from "@/store/alert.js";
 import type { HttpError } from "@/api/errors/CustomErrors.js";
 
-defineProps<{ stationData: Station; lastTimestamp: number; status: HttpStatusCode }>();
+import { useTimeAgo } from "@vueuse/core";
+
+const props = defineProps<{
+  stationData: Station;
+  lastTimestamp: number;
+  status: HttpStatusCode;
+}>();
 
 const stationStore = useStationStore();
 
 const loadingStations = ref(false);
-
 const onStationFetchSuccess = () => (loadingStations.value = false);
 const onStationFetchError = (error: HttpError) => {
   loadingStations.value = false;

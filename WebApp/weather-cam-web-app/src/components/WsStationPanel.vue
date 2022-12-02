@@ -23,7 +23,6 @@
         :status="200"
       ></ws-status-indicator>
       <div>ID: {{ station.stationId }}</div>
-      <div>Timezone: GMT{{ formatTimezone(station.stationTimezone) }}</div>
       <div>API Key: {{ apiKey }}</div>
       <div v-if="xs" class="text-right mt-2">
         <v-btn class="mx-2" color="secondary" icon="mdi-wrench"></v-btn>
@@ -39,7 +38,6 @@ import { xs, isMobile } from "@/utils/Sizing.js";
 import stationStates from "@/utils/StationStates.js";
 import { stationsApi } from "@/api/apis.js";
 import { onMounted, ref } from "vue";
-import { formatTimezone } from "@/utils/Date.js";
 import { useAlertStore } from "@/store/alert.js";
 import WsStatusIndicator from "./WsStatusIndicator.vue";
 

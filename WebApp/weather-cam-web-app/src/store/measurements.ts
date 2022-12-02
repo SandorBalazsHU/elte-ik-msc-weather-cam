@@ -10,14 +10,21 @@ interface MeasurementsState {
 export const useMeasurementStore = defineStore("measurements", {
   state: () =>
     ({
-      latestMeasurement: {} as Measurement,
+      latestMeasurement: {
+        battery: NaN,
+        humidity: NaN,
+        pressure: NaN,
+        temperature: NaN,
+        timestamp: NaN,
+      } as Measurement,
     } as MeasurementsState),
 
   actions: {
-    async fetchLatestMeasurement(stationId: string, callback?: FetchCallbacks) {
+    async fetchLatestMeasurement(stationId: number, callback?: FetchCallbacks) {
       try {
         const measurement = await measurementApi.getLatestStationMeasurementRaw({
           stationId: stationId,
+          relative: "latest",
         });
         if (!measurement.raw.ok) {
           throwErrorByResponse(measurement.raw.status);
@@ -25,7 +32,6 @@ export const useMeasurementStore = defineStore("measurements", {
         this.latestMeasurement = await measurement.value();
         callback?.onSuccess?.call(this);
       } catch (error) {
-        console.log("I got error");
         callback?.onError?.call(this, unifyError(error));
       }
     },

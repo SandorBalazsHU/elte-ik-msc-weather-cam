@@ -23,12 +23,12 @@ import { exists, mapValues } from '../runtime';
 export interface StationApiKey {
     /**
      * station_id is a __unique__ identifier for stations. 
-station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+station_id is an unsigned integer.
 
-     * @type {string}
+     * @type {number}
      * @memberof StationApiKey
      */
-    stationId: string;
+    stationId: number;
     /**
      * api_key gives access to upload measurements to the server.  
 

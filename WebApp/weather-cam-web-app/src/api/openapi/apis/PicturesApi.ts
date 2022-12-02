@@ -27,17 +27,18 @@ export interface AddPictureRequest {
 }
 
 export interface GetLastPictureRequest {
-    stationId: string;
+    stationId: number;
+    relative: string;
 }
 
 export interface GetPictureByIdRequest {
-    pictureId: string;
-    stationId: string;
+    pictureId: number;
+    stationId: number;
 }
 
 export interface GetRelativePictureRequest {
-    stationId: string;
-    pictureId: string;
+    stationId: number;
+    pictureId: number;
     offset: number;
 }
 
@@ -86,12 +87,16 @@ export class PicturesApi extends runtime.BaseAPI {
     }
 
     /**
-     * ## Functionality:  Returns the __latest__ picture recieved from the weather station.   *Note*: The latest picture is defined as the last picture of station with station_id processed by the server.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
+     * ## Functionality:  Returns the __latest or the first__ picture recieved from the weather station.   *Note*: The latest picture is defined as the last picture of station with station_id processed by the server.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
      * Find last picture.
      */
     async getLastPictureRaw(requestParameters: GetLastPictureRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
         if (requestParameters.stationId === null || requestParameters.stationId === undefined) {
             throw new runtime.RequiredError('stationId','Required parameter requestParameters.stationId was null or undefined when calling getLastPicture.');
+        }
+
+        if (requestParameters.relative === null || requestParameters.relative === undefined) {
+            throw new runtime.RequiredError('relative','Required parameter requestParameters.relative was null or undefined when calling getLastPicture.');
         }
 
         const queryParameters: any = {};
@@ -107,7 +112,7 @@ export class PicturesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/stations/{station_id}/pictures/latest`.replace(`{${"station_id"}}`, encodeURIComponent(String(requestParameters.stationId))),
+            path: `/stations/{station_id}/pictures/{relative}`.replace(`{${"station_id"}}`, encodeURIComponent(String(requestParameters.stationId))).replace(`{${"relative"}}`, encodeURIComponent(String(requestParameters.relative))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -117,7 +122,7 @@ export class PicturesApi extends runtime.BaseAPI {
     }
 
     /**
-     * ## Functionality:  Returns the __latest__ picture recieved from the weather station.   *Note*: The latest picture is defined as the last picture of station with station_id processed by the server.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
+     * ## Functionality:  Returns the __latest or the first__ picture recieved from the weather station.   *Note*: The latest picture is defined as the last picture of station with station_id processed by the server.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
      * Find last picture.
      */
     async getLastPicture(requestParameters: GetLastPictureRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {

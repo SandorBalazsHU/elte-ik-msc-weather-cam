@@ -53,7 +53,7 @@ export interface RegisterUserRequest {
 }
 
 export interface UpdateStationRequest {
-    stationId: string;
+    stationId: number;
 }
 
 export interface UpdateUserRequest {

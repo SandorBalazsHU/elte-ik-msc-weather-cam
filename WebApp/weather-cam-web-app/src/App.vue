@@ -21,7 +21,6 @@ nextTick(() => {
 });
 
 function setViewHeight() {
-  console.log("runn");
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty("--vh", `${vh}px`);
 }

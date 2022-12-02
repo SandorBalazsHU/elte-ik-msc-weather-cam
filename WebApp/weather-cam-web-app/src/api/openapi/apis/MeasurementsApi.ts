@@ -32,24 +32,21 @@ export interface AddMeasurementsRequest {
     measurement: Array<Measurement>;
 }
 
-export interface GetFirstStationMeasurementRequest {
-    stationId: string;
-}
-
 export interface GetLatestStationMeasurementRequest {
-    stationId: string;
+    stationId: number;
+    relative: string;
 }
 
 export interface GetStationMeasurementByIdRequest {
-    measurementId: string;
-    stationId: string;
+    measurementId: number;
+    stationId: number;
 }
 
 export interface GetStationMeasurementsByQueryRequest {
-    stationId: string;
+    stationId: number;
     dateBegin?: number;
     dateEnd?: number;
-    measurementId?: string;
+    measurementId?: number;
     offset?: number;
 }
 
@@ -98,47 +95,7 @@ export class MeasurementsApi extends runtime.BaseAPI {
     }
 
     /**
-     * ## Functionality:  Returns the __first__ measurement recieved from the weather station.   *Note*: The first measurement is defined as the first measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
-     * Find the first measurement of a station.
-     */
-    async getFirstStationMeasurementRaw(requestParameters: GetFirstStationMeasurementRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<IndexedMeasurement>> {
-        if (requestParameters.stationId === null || requestParameters.stationId === undefined) {
-            throw new runtime.RequiredError('stationId','Required parameter requestParameters.stationId was null or undefined when calling getFirstStationMeasurement.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearerAuth", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/stations/{station_id}/measurements/first`.replace(`{${"station_id"}}`, encodeURIComponent(String(requestParameters.stationId))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => IndexedMeasurementFromJSON(jsonValue));
-    }
-
-    /**
-     * ## Functionality:  Returns the __first__ measurement recieved from the weather station.   *Note*: The first measurement is defined as the first measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
-     * Find the first measurement of a station.
-     */
-    async getFirstStationMeasurement(requestParameters: GetFirstStationMeasurementRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IndexedMeasurement> {
-        const response = await this.getFirstStationMeasurementRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * ## Functionality:  Returns the __latest__ measurement recieved from the weather station.   *Note*: The latest measurement is defined as the last measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
+     * ## Functionality:  Returns the __latest or the first__ measurement recieved from the weather station.   *Note*: The latest measurement is defined as the last measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
      * Find the latest measurement of a station.
      */
     async getLatestStationMeasurementRaw(requestParameters: GetLatestStationMeasurementRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<IndexedMeasurement>> {
@@ -146,6 +103,10 @@ export class MeasurementsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('stationId','Required parameter requestParameters.stationId was null or undefined when calling getLatestStationMeasurement.');
         }
 
+        if (requestParameters.relative === null || requestParameters.relative === undefined) {
+            throw new runtime.RequiredError('relative','Required parameter requestParameters.relative was null or undefined when calling getLatestStationMeasurement.');
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -159,7 +120,7 @@ export class MeasurementsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/stations/{station_id}/measurements/latest`.replace(`{${"station_id"}}`, encodeURIComponent(String(requestParameters.stationId))),
+            path: `/stations/{station_id}/measurements/{relative}`.replace(`{${"station_id"}}`, encodeURIComponent(String(requestParameters.stationId))).replace(`{${"relative"}}`, encodeURIComponent(String(requestParameters.relative))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -169,7 +130,7 @@ export class MeasurementsApi extends runtime.BaseAPI {
     }
 
     /**
-     * ## Functionality:  Returns the __latest__ measurement recieved from the weather station.   *Note*: The latest measurement is defined as the last measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
+     * ## Functionality:  Returns the __latest or the first__ measurement recieved from the weather station.   *Note*: The latest measurement is defined as the last measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
      * Find the latest measurement of a station.
      */
     async getLatestStationMeasurement(requestParameters: GetLatestStationMeasurementRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IndexedMeasurement> {

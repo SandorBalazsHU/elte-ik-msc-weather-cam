@@ -6,7 +6,7 @@ import { defineStore } from "pinia";
 
 interface StationsState {
   stations: Station[];
-  selectedStationId: string | undefined;
+  selectedStationId: number | undefined;
 }
 
 export const useStationStore = defineStore("stations", {
@@ -20,7 +20,7 @@ export const useStationStore = defineStore("stations", {
       stations.find((station) => station.stationId === selectedStationId),
   },
   actions: {
-    changeSelectedStation(stationId: string) {
+    changeSelectedStation(stationId: number) {
       this.selectedStationId = this.stations.find(
         (station) => station.stationId === stationId
       )?.stationId;

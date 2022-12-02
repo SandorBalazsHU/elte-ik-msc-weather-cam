@@ -33,7 +33,7 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   if (!useUserStore().bearerToken && "username" in to.params) {
-    router.replace("/login");
+    router.push("/login");
   }
   return true;
 });

@@ -21,12 +21,12 @@ import { exists, mapValues } from '../runtime';
 export interface User {
     /**
      * user_id is the unique identifier of the user.
-station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+station_id is an unsigned integer.
 
-     * @type {string}
+     * @type {number}
      * @memberof User
      */
-    userId: string;
+    userId: number;
     /**
      * username is a unique name used to identify the user.
      * @type {string}

@@ -21,20 +21,20 @@ import { exists, mapValues } from '../runtime';
 export interface IndexedMeasurementAllOf {
     /**
      * measurement_id is a __unique__ identifier for measurements.  
-measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+measurement_id is an unsigned integer.
 
-     * @type {string}
+     * @type {number}
      * @memberof IndexedMeasurementAllOf
      */
-    measurementId?: string;
+    measurementId?: number;
     /**
      * station_id is a __unique__ identifier for weather stations.  
-station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.
+station_id is an unsigned integer.
 
-     * @type {string}
+     * @type {number}
      * @memberof IndexedMeasurementAllOf
      */
-    stationId?: string;
+    stationId?: number;
 }
 
 /**
