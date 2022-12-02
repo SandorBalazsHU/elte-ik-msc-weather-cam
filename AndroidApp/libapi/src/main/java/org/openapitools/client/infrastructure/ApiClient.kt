@@ -52,7 +52,7 @@ open class ApiClient(
     }
 
     companion object {
-          const val BASE_URL = "https://api.weather.s-b-x.com/v1"
+          const val BASE_URL = "http://192.168.0.248:4010"  // "https://api.weather.s-b-x.com/v1"
           protected val UNSAFE_HEADERS = listOf(HttpHeaders.ContentType)
     }
 

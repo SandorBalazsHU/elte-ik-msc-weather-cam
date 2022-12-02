@@ -50,7 +50,6 @@ import io.ktor.http.ParametersBuilder
             val localVariableQuery = mutableMapOf<String, List<String>>()
 
             val localVariableHeaders = mutableMapOf<String, String>()
-
             val localVariableConfig = RequestConfig<kotlin.Any?>(
             RequestMethod.POST,
             "/stations/pictures",

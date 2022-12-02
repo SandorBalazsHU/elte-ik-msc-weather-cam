@@ -7,24 +7,36 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkManager
 import com.example.weatherapp.camera.CameraCapture
+import com.example.weatherapp.camera.executor
+import com.example.weatherapp.camera.getCameraProvider
+import com.example.weatherapp.camera.takePicture
 import com.example.weatherapp.data.alarms.AlarmRepository
 import com.example.weatherapp.data.hardware.SavedHardwareRepository
 import com.example.weatherapp.data.preferences.UserPreferencesRepository
 import com.example.weatherapp.ui.theme.WeatherAppTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -39,18 +51,21 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // temporary solution
+        //window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         requestPermissions()
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
         alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val wm = WorkManager.getInstance(this@MainActivity)
+        val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         val repo = UserPreferencesRepository(this)
         val hwRepo = SavedHardwareRepository(this)
         val alarmRepo = AlarmRepository(this)
+        val stationClient = StationClient()
         viewModel = ViewModelProvider(
             this,
             MainViewModel.Companion.MainViewModelFactory(
-                repo, hwRepo, alarmRepo, wm,
+                repo, hwRepo, alarmRepo, powerManager, stationClient
             )
         ).get(MainViewModel::class.java)
         setContent {
@@ -96,6 +111,39 @@ class MainActivity : ComponentActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+
+//    private val cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+//
+//    suspend fun captureImage(
+//        onImageFile: (File) -> Unit = { },
+//        onException: (Exception) -> Unit = { }
+//    ){
+//        val cameraProvider = getCameraProvider()
+//        val imageCaptureUseCase =
+//                ImageCapture.Builder()
+//                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+//                    .build()
+//        //var previewUseCase = Preview.Builder().build()
+//        try {
+//            // Must unbind the use-cases before rebinding them.
+//            cameraProvider.unbindAll()
+//            cameraProvider.bindToLifecycle(
+//                this, cameraSelector, /*previewUseCase,*/ imageCaptureUseCase
+//            )
+//        } catch (ex: Exception) {
+//            Log.e("CameraCapture", "Failed to bind camera use cases", ex)
+//        }
+//        lifecycleScope.launch {
+//            try {
+//                delay(10*1000L)
+//                onImageFile(imageCaptureUseCase.takePicture(executor))
+//                cameraProvider.unbindAll()
+//            } catch (ex: Exception){
+//                onException(ex)
+//            }
+//        }
+//    }
+
 }
 
 @Composable
@@ -112,7 +160,7 @@ fun MainWindow(
                                 "Image captured!",
                                 Toast.LENGTH_LONG
                             ).show()
-                            viewModel.onPhotoTaken()
+                            viewModel.onPhotoTaken(it)
                           },
             onException = {
                 Log.e("CAMERA", "Error", it.cause)
