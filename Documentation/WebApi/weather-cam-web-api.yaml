@@ -86,12 +86,12 @@ paths:
       operationId: getStationMeasurementById
       tags:
         - measurements
-  '/stations/{station_id}/measurements/latest':
+  '/stations/{station_id}/measurements/{relative}':
     get:
       summary: Find the latest measurement of a station.
       description: |
         ## Functionality: 
-        Returns the __latest__ measurement recieved from the weather station.  
+        Returns the __latest or the first__ measurement recieved from the weather station.  
         *Note*: The latest measurement is defined as the last measurement of station with station_id processed by the server.
         ---
         ### Prerequisites:
@@ -99,6 +99,7 @@ paths:
         ---
       parameters:
         - $ref: '#/components/parameters/station_id'
+        - $ref: '#/components/parameters/relative'
       responses:
         '200':
           description: __Successfully__ found the requested measurement.
@@ -124,48 +125,6 @@ paths:
                 ApiResponse404:
                   $ref: '#/components/examples/ApiResponse404'
       operationId: getLatestStationMeasurement
-      security:
-        - bearerAuth: []
-      tags:
-        - measurements
-  '/stations/{station_id}/measurements/first':
-    get:
-      summary: Find the first measurement of a station.
-      description: |
-        ## Functionality: 
-        Returns the __first__ measurement recieved from the weather station.  
-        *Note*: The first measurement is defined as the first measurement of station with station_id processed by the server.
-        ---
-        ### Prerequisites:
-          - This endpoint can only be used with a valid JWT token.
-        ---
-      parameters:
-        - $ref: '#/components/parameters/station_id'
-      responses:
-        '200':
-          description: __Successfully__ found the requested measurement.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IndexedMeasurement'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/UnauthorizedJWT'
-        '404':
-          description: |
-            __Failed__ to find the requested measurement.
-            *Possible causes*:
-              - There are no measurements for this station on the server.
-              
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                ApiResponse404:
-                  $ref: '#/components/examples/ApiResponse404'
-      operationId: getFirstStationMeasurement
       security:
         - bearerAuth: []
       tags:
@@ -554,14 +513,15 @@ paths:
                   $ref: '#/components/examples/ApiResponse404'
       security:
         - bearerAuth: []
-  '/stations/{station_id}/pictures/latest':
+  '/stations/{station_id}/pictures/{relative}':
     get:
       parameters:
         - $ref: '#/components/parameters/station_id'
+        - $ref: '#/components/parameters/relative'
       summary: Find last picture.
       description: |
         ## Functionality: 
-        Returns the __latest__ picture recieved from the weather station.  
+        Returns the __latest or the first__ picture recieved from the weather station.  
         *Note*: The latest picture is defined as the last picture of station with station_id processed by the server.
 
         ---
@@ -612,7 +572,7 @@ paths:
         ---
       parameters:
         - $ref: '#/components/parameters/station_id'
-        - $ref: '#/components/parameters/picture_id'
+        - $ref: '#/components/parameters/picture_id_query'
         - in: query
           name: offset
           description: |
@@ -1315,8 +1275,30 @@ components:
         picture_id is a __unique__ identifier for pictures. 
         picture_id is an unsigned integer.
       schema:
-        type : string
-        pattern: '^latest$|^\d+$'
+        type: integer
+        format: int64
+        minimum: 0
+        
+    relative:
+      in: path
+      name: relative
+      schema:
+        type: string
+        pattern: '^latest$|^first$'
+      required: true
+        
+    picture_id_query:
+      in: query
+      name: picture_id
+      required: true
+      
+      description: |
+        picture_id is a __unique__ identifier for pictures. 
+        picture_id is an unsigned integer.
+      schema:
+        type : integer
+        format: int64
+        minimum: 0
     measurement_id:
       in: path
       name: measurement_id
@@ -1326,8 +1308,9 @@ components:
         measurement_id is a __unique__ identifier for measurements. 
         measurement_id is an unsigned integer.
       schema:
-        type : string
-        pattern: '^latest$|^\d+$'
+        type: integer
+        format: int64
+        minimum: 0
     station_id:
       in: path
       name: station_id
