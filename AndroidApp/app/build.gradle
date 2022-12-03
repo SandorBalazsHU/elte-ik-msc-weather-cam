@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlinx-serialization'
     id "com.google.protobuf" version "0.8.17"
-
+        id "org.openapi.generator" version "6.2.1"
 }
 
 android {
@@ -105,4 +105,25 @@ protobuf {
             }
         }
     }
+}
+
+openApiGenerate {
+    globalProperties = [
+            supportingFiles: "",
+            apis           : "",
+            models         : "",
+    ]
+    inputSpec = "$rootDir/../Documentation/WebApi/weather-cam-web-api.yaml".toString()
+    generatorName = "kotlin"
+    outputDir = "$rootDir/libapi"
+    // templateDir = "template"
+    modelPackage = "com.example.weatherapi.data.entities"
+    apiPackage = "com.example.weatherapi.data.api"
+    modelNameSuffix = "Entity"
+    additionalProperties = [
+            useCoroutines       : "true",
+            library             : "jvm-retrofit2",
+            serializationLibrary: "kotlinx_serialization",
+            sourceFolder        : "src/main/java",
+    ]
 }

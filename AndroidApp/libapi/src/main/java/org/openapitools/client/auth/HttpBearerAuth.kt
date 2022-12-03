@@ -1,14 +1,39 @@
 package org.openapitools.client.auth
 
-class HttpBearerAuth(private val scheme: String?) : Authentication {
-    var bearerToken: String? = null
+import java.io.IOException
 
-    override fun apply(query: MutableMap<String, List<String>>, headers: MutableMap<String, String>) {
-        val token: String = bearerToken ?: return
-        headers["Authorization"] = (if (scheme != null) upperCaseBearer(scheme)!! + " " else "") + token
+import okhttp3.Interceptor
+import okhttp3.Interceptor.Chain
+import okhttp3.Response
+
+class HttpBearerAuth(
+    private var schema: String = "",
+    var bearerToken: String = ""
+) : Interceptor {
+
+    @Throws(IOException::class)
+    override fun intercept(chain: Chain): Response {
+        var request = chain.request()
+
+        // If the request already have an authorization (eg. Basic auth), do nothing
+        if (request.header("Authorization") == null && bearerToken.isNotBlank()) {
+            request = request.newBuilder()
+                .addHeader("Authorization", headerValue())
+                .build()
+        }
+        return chain.proceed(request)
     }
 
-    private fun upperCaseBearer(scheme: String): String? {
-        return if ("bearer".equals(scheme, ignoreCase = true)) "Bearer" else scheme
+    private fun headerValue(): String {
+        return if (schema.isNotBlank()) {
+            "${upperCaseBearer()} $bearerToken"
+        } else {
+            bearerToken
+        }
     }
+
+    private fun upperCaseBearer(): String {
+        return if (schema.lowercase().equals("bearer")) "Bearer" else schema
+    }
+
 }

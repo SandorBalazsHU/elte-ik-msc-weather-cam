@@ -1,16 +1,50 @@
 package org.openapitools.client.auth
 
-class ApiKeyAuth(private val location: String, val paramName: String) : Authentication {
-    var apiKey: String? = null
-    var apiKeyPrefix: String? = null
+import java.io.IOException
+import java.net.URI
+import java.net.URISyntaxException
 
-    override fun apply(query: MutableMap<String, List<String>>, headers: MutableMap<String, String>) {
-        val key: String = apiKey ?: return
-        val prefix: String? = apiKeyPrefix
-        val value: String = if (prefix != null) "$prefix $key" else key
-        when (location) {
-            "query" -> query[paramName] = listOf(value)
-            "header" -> headers[paramName] = value
+import okhttp3.Interceptor
+import okhttp3.Response
+
+class ApiKeyAuth(
+        private val location: String = "",
+        private val paramName: String = "",
+        private var apiKey: String = ""
+) : Interceptor {
+
+    @Throws(IOException::class)
+    override fun intercept(chain: Interceptor.Chain): Response {
+        var request = chain.request()
+
+        if ("query" == location) {
+            var newQuery = request.url.toUri().query
+            val paramValue = "$paramName=$apiKey"
+            if (newQuery == null) {
+                newQuery = paramValue
+            } else {
+                newQuery += "&$paramValue"
+            }
+
+            val newUri: URI
+            try {
+                val oldUri = request.url.toUri()
+                newUri = URI(oldUri.scheme, oldUri.authority,
+                    oldUri.path, newQuery, oldUri.fragment)
+            } catch (e: URISyntaxException) {
+                throw IOException(e)
+            }
+
+            request = request.newBuilder().url(newUri.toURL()).build()
+        } else if ("header" == location) {
+            request = request.newBuilder()
+                    .addHeader(paramName, apiKey)
+                    .build()
+        } else if ("cookie" == location) {
+            request = request.newBuilder()
+                    .addHeader("Cookie", "$paramName=$apiKey")
+                    .build()
         }
+        return chain.proceed(request)
     }
 }
