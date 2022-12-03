@@ -14,6 +14,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import org.openapitools.client.infrastructure.Serializer.kotlinxSerializationJson
 import okhttp3.MediaType.Companion.toMediaType
+import java.util.concurrent.TimeUnit
 
 class ApiClient(
     private var baseUrl: String = defaultBasePath,
@@ -43,6 +44,9 @@ class ApiClient(
     private val defaultClientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient()
             .newBuilder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
             .addInterceptor(HttpLoggingInterceptor { message -> logger?.invoke(message) }
                 .apply { level = HttpLoggingInterceptor.Level.BODY }
             )

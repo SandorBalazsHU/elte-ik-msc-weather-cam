@@ -46,12 +46,11 @@ All URIs are relative to *https://api.weather.s-b-x.com/v1*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *MeasurementsApi* | [**addMeasurements**](docs/MeasurementsApi.md#addmeasurements) | **POST** stations/measurements | Add new measurements to server
-*MeasurementsApi* | [**getFirstStationMeasurement**](docs/MeasurementsApi.md#getfirststationmeasurement) | **GET** stations/{station_id}/measurements/first | Find the first measurement of a station.
-*MeasurementsApi* | [**getLatestStationMeasurement**](docs/MeasurementsApi.md#getlateststationmeasurement) | **GET** stations/{station_id}/measurements/latest | Find the latest measurement of a station.
+*MeasurementsApi* | [**getLatestStationMeasurement**](docs/MeasurementsApi.md#getlateststationmeasurement) | **GET** stations/{station_id}/measurements/{relative} | Find the latest measurement of a station.
 *MeasurementsApi* | [**getStationMeasurementById**](docs/MeasurementsApi.md#getstationmeasurementbyid) | **GET** stations/{station_id}/measurements/{measurement_id} | Find a single measurement of a station.
 *MeasurementsApi* | [**getStationMeasurementsByQuery**](docs/MeasurementsApi.md#getstationmeasurementsbyquery) | **GET** stations/{station_id}/measurements | Find multiple measurements of a station in a given time range or relative to a measurement.
 *PicturesApi* | [**addPicture**](docs/PicturesApi.md#addpicture) | **POST** stations/pictures | Add picture to server.
-*PicturesApi* | [**getLastPicture**](docs/PicturesApi.md#getlastpicture) | **GET** stations/{station_id}/pictures/latest | Find last picture.
+*PicturesApi* | [**getLastPicture**](docs/PicturesApi.md#getlastpicture) | **GET** stations/{station_id}/pictures/{relative} | Find last picture.
 *PicturesApi* | [**getPictureById**](docs/PicturesApi.md#getpicturebyid) | **GET** stations/{station_id}/pictures/{picture_id} | Find picture by id.
 *PicturesApi* | [**getRelativePicture**](docs/PicturesApi.md#getrelativepicture) | **GET** stations/{station_id}/pictures | Find picture relative to other picture.
 *StationsApi* | [**getMeasurementStorageInfo**](docs/StationsApi.md#getmeasurementstorageinfo) | **GET** stations/measurements/storage | Returns information about the storage server for the measurements.

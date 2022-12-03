@@ -21,15 +21,15 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Contextual
 
 /**
- * IndexedMeasurement is the same as Measurement with the exception of added properties station_id and measurement_id.   station_id and measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+ * IndexedMeasurement is the same as Measurement with the exception of added properties station_id and measurement_id.   station_id and measurement_id are unsigned integers. 
  *
  * @param temperature temperature in celsius.
  * @param pressure pressure in millibars.
  * @param humidity humidity in percentage.
  * @param battery remaining battery in percentage
  * @param timestamp the time of recording the measurement timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard. 
- * @param measurementId measurement_id is a __unique__ identifier for measurements.   measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
- * @param stationId station_id is a __unique__ identifier for weather stations.   station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+ * @param measurementId measurement_id is a __unique__ identifier for measurements.   measurement_id is an unsigned integer. 
+ * @param stationId station_id is a __unique__ identifier for weather stations.   station_id is an unsigned integer. 
  */
 @Serializable
 
@@ -37,31 +37,31 @@ data class IndexedMeasurementEntity (
 
     /* temperature in celsius. */
     @SerialName(value = "temperature")
-    val temperature: kotlin.Float? = null,
+    val temperature: kotlin.Float,
 
     /* pressure in millibars. */
     @SerialName(value = "pressure")
-    val pressure: kotlin.Float? = null,
+    val pressure: kotlin.Float,
 
     /* humidity in percentage. */
     @SerialName(value = "humidity")
-    val humidity: kotlin.Float? = null,
+    val humidity: kotlin.Float,
 
     /* remaining battery in percentage */
     @SerialName(value = "battery")
-    val battery: kotlin.Float? = null,
+    val battery: kotlin.Float,
 
     /* the time of recording the measurement timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.  */
     @SerialName(value = "timestamp")
-    val timestamp: kotlin.Long? = null,
+    val timestamp: kotlin.Long,
 
-    /* measurement_id is a __unique__ identifier for measurements.   measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  */
-    @Contextual @SerialName(value = "measurement_id")
-    val measurementId: java.util.UUID? = null,
+    /* measurement_id is a __unique__ identifier for measurements.   measurement_id is an unsigned integer.  */
+    @SerialName(value = "measurement_id")
+    val measurementId: kotlin.Long,
 
-    /* station_id is a __unique__ identifier for weather stations.   station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  */
-    @Contextual @SerialName(value = "station_id")
-    val stationId: java.util.UUID? = null
+    /* station_id is a __unique__ identifier for weather stations.   station_id is an unsigned integer.  */
+    @SerialName(value = "station_id")
+    val stationId: kotlin.Long
 
 )
 

@@ -33,15 +33,15 @@ data class ApiResponseEntity (
 
     /* code is the status of the returned request. code follows the [HTTP response codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) */
     @SerialName(value = "code")
-    val code: kotlin.Int? = null,
+    val code: kotlin.Int,
 
     /* type is used to categorize responses. The different types of responses can be found [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status). */
     @SerialName(value = "type")
-    val type: kotlin.String? = null,
+    val type: kotlin.String,
 
     /* message is a more detailed information about the response. */
     @SerialName(value = "message")
-    val message: kotlin.String? = null
+    val message: kotlin.String
 
 )
 

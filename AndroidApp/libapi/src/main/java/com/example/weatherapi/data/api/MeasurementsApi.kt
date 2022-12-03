@@ -27,34 +27,20 @@ interface MeasurementsApi {
     suspend fun addMeasurements(@Body measurementEntity: kotlin.collections.List<MeasurementEntity>): Response<ApiResponseEntity>
 
     /**
-     * Find the first measurement of a station.
-     * ## Functionality:  Returns the __first__ measurement recieved from the weather station.   *Note*: The first measurement is defined as the first measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
-     * Responses:
-     *  - 200: __Successfully__ found the requested measurement.
-     *  - 400: __Failed__ to process request. *Possible causes*:   - Malformed or missing input parameter. 
-     *  - 403: __Failed__ to authorize request with the provided JWT token. *Possible causes*:   - JWT token is invalid. 
-     *  - 404: __Failed__ to find the requested measurement. *Possible causes*:   - There are no measurements for this station on the server.    
-     *
-     * @param stationId station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
-     * @return [IndexedMeasurementEntity]
-     */
-    @GET("stations/{station_id}/measurements/first")
-    suspend fun getFirstStationMeasurement(@Path("station_id") stationId: java.util.UUID): Response<IndexedMeasurementEntity>
-
-    /**
      * Find the latest measurement of a station.
-     * ## Functionality:  Returns the __latest__ measurement recieved from the weather station.   *Note*: The latest measurement is defined as the last measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
+     * ## Functionality:  Returns the __latest or the first__ measurement recieved from the weather station.   *Note*: The latest measurement is defined as the last measurement of station with station_id processed by the server. --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
      * Responses:
      *  - 200: __Successfully__ found the requested measurement.
      *  - 400: __Failed__ to process request. *Possible causes*:   - Malformed or missing input parameter. 
      *  - 403: __Failed__ to authorize request with the provided JWT token. *Possible causes*:   - JWT token is invalid. 
      *  - 404: __Failed__ to find the requested measurement. *Possible causes*:   - There are no measurements for this station on the server.    
      *
-     * @param stationId station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+     * @param stationId station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
+     * @param relative 
      * @return [IndexedMeasurementEntity]
      */
-    @GET("stations/{station_id}/measurements/latest")
-    suspend fun getLatestStationMeasurement(@Path("station_id") stationId: java.util.UUID): Response<IndexedMeasurementEntity>
+    @GET("stations/{station_id}/measurements/{relative}")
+    suspend fun getLatestStationMeasurement(@Path("station_id") stationId: kotlin.Long, @Path("relative") relative: kotlin.String): Response<IndexedMeasurementEntity>
 
     /**
      * Find a single measurement of a station.
@@ -65,12 +51,12 @@ interface MeasurementsApi {
      *  - 403: __Failed__ to authorize request with the provided JWT token. *Possible causes*:   - JWT token is invalid. 
      *  - 404: __Failed__ to find the requested measurement. *Possible causes*:   - Measurement with given measurement_id does not exist.   - Station with given station_id does not exist. 
      *
-     * @param measurementId measurement_id is a __unique__ identifier for measurements.  measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
-     * @param stationId station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+     * @param measurementId measurement_id is a __unique__ identifier for measurements.  measurement_id is an unsigned integer. 
+     * @param stationId station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
      * @return [IndexedMeasurementEntity]
      */
     @GET("stations/{station_id}/measurements/{measurement_id}")
-    suspend fun getStationMeasurementById(@Path("measurement_id") measurementId: java.util.UUID, @Path("station_id") stationId: java.util.UUID): Response<IndexedMeasurementEntity>
+    suspend fun getStationMeasurementById(@Path("measurement_id") measurementId: kotlin.Long, @Path("station_id") stationId: kotlin.Long): Response<IndexedMeasurementEntity>
 
     /**
      * Find multiple measurements of a station in a given time range or relative to a measurement.
@@ -82,14 +68,14 @@ interface MeasurementsApi {
      *  - 403: __Failed__ to authorize request with the provided JWT token. *Possible causes*:   - JWT token is invalid. 
      *  - 404: __Failed__ to find the requested measurements. *Possible causes*:   - Measurement with given measurement_id does not exist.   - Station with given station_id does not exist.    
      *
-     * @param stationId station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+     * @param stationId station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
      * @param dateBegin date_begin is the timestamp of which the returned measurements must be chronologically bigger or equal to. date_begin follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.  (optional)
      * @param dateEnd date_end is the timestamp of which the returned measurements must be chronologically smaller or equal to. date_end follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.  (optional)
-     * @param measurementId measurement_id is a __unique__ identifier for measurements.  measurement_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  (optional)
+     * @param measurementId measurement_id is a __unique__ identifier for measurements.  measurement_id is an unsigned integer.  (optional)
      * @param offset offset is the number of measurements to be returned before or after the measurement provided in parameter measurement_id. The signed property of offset is used to decide the returned measurements. For more information see the table below: | offset value | result | |---|---| | offset &lt; 0 | If a measurement with measurement_id for station with sation_id exist than an array containing the measurement identified by measurement_id and an additional abs(offset) amount of measurements chronologically __before__ measurement_id is returned.   | | offset &gt; 0 | If a measurement with measurement_id for station with sation_id exist than an array containing the measurement identified by measurement_id and an additional abs(offset) amount of measurements chronologically __after__ measurement_id is returned.   | | offset &#x3D; 0 | If a measurement with measurement_id for station with sation_id exist than an array containing the measurement identified by measurement_id is returned.   |  (optional)
      * @return [kotlin.collections.List<IndexedMeasurementEntity>]
      */
     @GET("stations/{station_id}/measurements")
-    suspend fun getStationMeasurementsByQuery(@Path("station_id") stationId: java.util.UUID, @Query("date_begin") dateBegin: kotlin.Long? = null, @Query("date_end") dateEnd: kotlin.Long? = null, @Query("measurement_id") measurementId: java.util.UUID? = null, @Query("offset") offset: kotlin.Long? = null): Response<kotlin.collections.List<IndexedMeasurementEntity>>
+    suspend fun getStationMeasurementsByQuery(@Path("station_id") stationId: kotlin.Long, @Query("date_begin") dateBegin: kotlin.Long? = null, @Query("date_end") dateEnd: kotlin.Long? = null, @Query("measurement_id") measurementId: kotlin.Long? = null, @Query("offset") offset: kotlin.Long? = null): Response<kotlin.collections.List<IndexedMeasurementEntity>>
 
 }

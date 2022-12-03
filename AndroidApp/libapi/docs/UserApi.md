@@ -30,14 +30,18 @@ Add new stations to the user.
 val apiClient = ApiClient()
 apiClient.setBearerToken("TOKEN")
 val webService = apiClient.createWebservice(UserApi::class.java)
+val stationName : kotlin.String = stationName_example // kotlin.String | The unique name for the new station.
 
 launch(Dispatchers.IO) {
-    val result : StationApiKeyEntity = webService.addStations()
+    val result : StationApiKeyEntity = webService.addStations(stationName)
 }
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **stationName** | **kotlin.String**| The unique name for the new station. |
 
 ### Return type
 
@@ -313,10 +317,10 @@ Generate new API key for a station.
 val apiClient = ApiClient()
 apiClient.setBearerToken("TOKEN")
 val webService = apiClient.createWebservice(UserApi::class.java)
-val stationId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+val stationId : kotlin.Long = 789 // kotlin.Long | station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
 
 launch(Dispatchers.IO) {
-    val result : StationApiKeyEntity = webService.updateStation(stationId)
+    val result : kotlin.String = webService.updateStation(stationId)
 }
 ```
 
@@ -324,11 +328,11 @@ launch(Dispatchers.IO) {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **stationId** | **java.util.UUID**| station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  |
+ **stationId** | **kotlin.Long**| station_id is a __unique__ identifier for weather stations station_id is an unsigned integer.  |
 
 ### Return type
 
-[**StationApiKeyEntity**](StationApiKeyEntity.md)
+**kotlin.String**
 
 ### Authorization
 

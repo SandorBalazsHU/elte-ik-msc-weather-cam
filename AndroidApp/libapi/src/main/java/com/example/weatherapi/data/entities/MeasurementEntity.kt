@@ -35,23 +35,23 @@ data class MeasurementEntity (
 
     /* temperature in celsius. */
     @SerialName(value = "temperature")
-    val temperature: kotlin.Float? = null,
+    val temperature: kotlin.Float,
 
     /* pressure in millibars. */
     @SerialName(value = "pressure")
-    val pressure: kotlin.Float? = null,
+    val pressure: kotlin.Float,
 
     /* humidity in percentage. */
     @SerialName(value = "humidity")
-    val humidity: kotlin.Float? = null,
+    val humidity: kotlin.Float,
 
     /* remaining battery in percentage */
     @SerialName(value = "battery")
-    val battery: kotlin.Float? = null,
+    val battery: kotlin.Float,
 
     /* the time of recording the measurement timestamp follows the [unix time](https://en.wikipedia.org/wiki/Unix_time) standard.  */
     @SerialName(value = "timestamp")
-    val timestamp: kotlin.Long? = null
+    val timestamp: kotlin.Long
 
 )
 

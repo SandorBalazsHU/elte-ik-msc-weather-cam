@@ -5,7 +5,7 @@ All URIs are relative to *https://api.weather.s-b-x.com/v1*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**addPicture**](PicturesApi.md#addPicture) | **POST** stations/pictures | Add picture to server.
-[**getLastPicture**](PicturesApi.md#getLastPicture) | **GET** stations/{station_id}/pictures/latest | Find last picture.
+[**getLastPicture**](PicturesApi.md#getLastPicture) | **GET** stations/{station_id}/pictures/{relative} | Find last picture.
 [**getPictureById**](PicturesApi.md#getPictureById) | **GET** stations/{station_id}/pictures/{picture_id} | Find picture by id.
 [**getRelativePicture**](PicturesApi.md#getRelativePicture) | **GET** stations/{station_id}/pictures | Find picture relative to other picture.
 
@@ -53,7 +53,7 @@ Name | Type | Description  | Notes
 
 Find last picture.
 
-## Functionality:  Returns the __latest__ picture recieved from the weather station.   *Note*: The latest picture is defined as the last picture of station with station_id processed by the server.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
+## Functionality:  Returns the __latest or the first__ picture recieved from the weather station.   *Note*: The latest picture is defined as the last picture of station with station_id processed by the server.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
 
 ### Example
 ```kotlin
@@ -65,10 +65,11 @@ Find last picture.
 val apiClient = ApiClient()
 apiClient.setBearerToken("TOKEN")
 val webService = apiClient.createWebservice(PicturesApi::class.java)
-val stationId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+val stationId : kotlin.Long = 789 // kotlin.Long | station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
+val relative : kotlin.String = relative_example // kotlin.String | 
 
 launch(Dispatchers.IO) {
-    val result : java.io.File = webService.getLastPicture(stationId)
+    val result : java.io.File = webService.getLastPicture(stationId, relative)
 }
 ```
 
@@ -76,7 +77,8 @@ launch(Dispatchers.IO) {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **stationId** | **java.util.UUID**| station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  |
+ **stationId** | **kotlin.Long**| station_id is a __unique__ identifier for weather stations station_id is an unsigned integer.  |
+ **relative** | **kotlin.String**|  |
 
 ### Return type
 
@@ -108,8 +110,8 @@ Find picture by id.
 val apiClient = ApiClient()
 apiClient.setBearerToken("TOKEN")
 val webService = apiClient.createWebservice(PicturesApi::class.java)
-val pictureId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | 
-val stationId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+val pictureId : kotlin.Long = 789 // kotlin.Long | picture_id is a __unique__ identifier for pictures.  picture_id is an unsigned integer. 
+val stationId : kotlin.Long = 789 // kotlin.Long | station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
 
 launch(Dispatchers.IO) {
     val result : java.io.File = webService.getPictureById(pictureId, stationId)
@@ -120,8 +122,8 @@ launch(Dispatchers.IO) {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **pictureId** | **java.util.UUID**|  |
- **stationId** | **java.util.UUID**| station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  |
+ **pictureId** | **kotlin.Long**| picture_id is a __unique__ identifier for pictures.  picture_id is an unsigned integer.  |
+ **stationId** | **kotlin.Long**| station_id is a __unique__ identifier for weather stations station_id is an unsigned integer.  |
 
 ### Return type
 
@@ -153,8 +155,8 @@ Find picture relative to other picture.
 val apiClient = ApiClient()
 apiClient.setBearerToken("TOKEN")
 val webService = apiClient.createWebservice(PicturesApi::class.java)
-val stationId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
-val pictureId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | picture_id is a __unique__ identifier for pictures.  picture_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
+val stationId : kotlin.Long = 789 // kotlin.Long | station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
+val pictureId : kotlin.Long = 789 // kotlin.Long | picture_id is a __unique__ identifier for pictures.  picture_id is an unsigned integer. 
 val offset : kotlin.Long = 789 // kotlin.Long | offset is a signed integer this signed property of is used to calculate the returned picture. For more information see the table below: | offset value | result | |---|---| | offset < 0 | If a picture with picture_id exist than the picture abs(offset) __before__ picture_id is returned.   | | offset > 0 | If a picture with picture_id exist than the picture abs(offset) __after__ picture_id is returned.   | | offset = 0 | If a record with picture_id exist than the picture identified by picture_id is returned.   | 
 
 launch(Dispatchers.IO) {
@@ -166,8 +168,8 @@ launch(Dispatchers.IO) {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **stationId** | **java.util.UUID**| station_id is a __unique__ identifier for weather stations station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  |
- **pictureId** | **java.util.UUID**| picture_id is a __unique__ identifier for pictures.  picture_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  |
+ **stationId** | **kotlin.Long**| station_id is a __unique__ identifier for weather stations station_id is an unsigned integer.  |
+ **pictureId** | **kotlin.Long**| picture_id is a __unique__ identifier for pictures.  picture_id is an unsigned integer.  |
  **offset** | **kotlin.Long**| offset is a signed integer this signed property of is used to calculate the returned picture. For more information see the table below: | offset value | result | |---|---| | offset &lt; 0 | If a picture with picture_id exist than the picture abs(offset) __before__ picture_id is returned.   | | offset &gt; 0 | If a picture with picture_id exist than the picture abs(offset) __after__ picture_id is returned.   | | offset &#x3D; 0 | If a record with picture_id exist than the picture identified by picture_id is returned.   |  |
 
 ### Return type

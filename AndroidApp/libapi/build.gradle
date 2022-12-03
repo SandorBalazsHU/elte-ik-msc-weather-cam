@@ -3,8 +3,6 @@ version '1.0.0'
 
 
 buildscript {
-    ext.retrofitVersion = '2.9.0'
-
     repositories {
         maven { url "https://repo1.maven.org/maven2" }
     }
@@ -24,7 +22,7 @@ test {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
     implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
