@@ -22,6 +22,8 @@ class StationController extends BaseController {
 		}
 	}
 	
+	#region get
+	
 	protected function get(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		if (!isset($uri[3]) || !isset($uri[4])) {
 			$this->error(404);
@@ -32,10 +34,10 @@ class StationController extends BaseController {
 			
 			switch ($uri[4]) {
 				case 'api':
-					$this->getApiKey($station_id);
+					$this->getApiKey($station_id, $user_id);
 					break;
 				case 'ping':
-					$this->getStatus($station_id);
+					$this->getStatus($station_id, $user_id);
 					break;
 			}
 			return;
@@ -51,8 +53,15 @@ class StationController extends BaseController {
 		}
 	}
 	
-	private function getApiKey(int $station_id) {
-		$api_key = $this->stationDao->getApiKeyById($station_id);
+	private function getApiKey(int $station_id, int $user_id) {
+		$station = $this->stationDao->getStationById($station_id);
+		
+		if (empty($station))
+			$this->error(400);
+		if (empty($station['owner']) || $station['owner'] != $user_id)
+			$this->error(403);
+		
+		$api_key = $station['api_key'];
 		$sub = substr($api_key, 4, strlen($api_key) - 8);
 		$hidden_st = str_replace($sub, str_repeat('*', strlen($sub)), $api_key);
 		
@@ -61,8 +70,20 @@ class StationController extends BaseController {
 		} else $this->sendJson($hidden_st);
 	}
 	
-	private function getStatus(int $station_id) {
-		// TODO implement endpoint
+	private function getStatus(int $station_id, int $user_id) {
+		$station = $this->stationDao->getStationById($station_id);
+		
+		if (empty($station))
+			$this->error(400);
+		if (empty($station['owner']) || $station['owner'] != $user_id)
+			$this->error(403);
+		
+		$status = $station['status'] ?? 500;
+		if ($status == 200) {
+			$this->response(200);
+		} else {
+			$this->error(400);
+		}
 	}
 	
 	private function getPictureStorage() {
@@ -85,10 +106,17 @@ class StationController extends BaseController {
 		}
 	}
 	
+	#endregion
+	#------------------------------------------------------------------------------------------------------------------
+	#region post
 	
 	protected function post(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		$this->error(404);
 	}
+	
+	#endregion
+	#------------------------------------------------------------------------------------------------------------------
+	#region put
 	
 	protected function put(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		$this->error(404);
@@ -114,8 +142,14 @@ class StationController extends BaseController {
 		}
 	}
 	
+	#endregion
+	#------------------------------------------------------------------------------------------------------------------
+	#region delete
+	
 	protected function delete(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		$this->error(404);
 	}
+	
+	#endregion
 	
 }

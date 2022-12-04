@@ -33,7 +33,6 @@ class MeasurementDao extends DatabaseAccessObject {
 		}
 	}
 	
-	
 	public function getMultipleMeasurements(array $filter): array {
 		$filter_options = ['station_id', 'measurement_id', 'date_begin', 'date_end'];
 		$filter = array_intersect_key($filter, array_flip($filter_options));
