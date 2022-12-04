@@ -114,10 +114,11 @@ class MeasurementDao extends DatabaseAccessObject {
 		string $station_id,
 		array  $measurements
 	): bool {
-		$holes = substr(str_repeat(",(?, ?, ?, ?, ?)", count($measurements)), 1);
-		$values = [$station_id];
+		$holes = substr(str_repeat(",(?, ?, ?, ?, ?, ?)", count($measurements)), 1);
+		$values = [];
 		
 		foreach ($measurements as $measurement) {
+			$values[] = $station_id;
 			$values[] = $measurement['temperature'] ?? 'NULL';
 			$values[] = $measurement['pressure'] ?? 'NULL';
 			$values[] = $measurement['humidity'] ?? 'NULL';
@@ -125,7 +126,6 @@ class MeasurementDao extends DatabaseAccessObject {
 			$values[] = $measurement['timestamp'] ?? 'NULL';
 		}
 		
-		// TODO debug query
 		try {
 			$sql = "INSERT INTO measurements
 	    			(station_id, temperature, pressure, humidity, battery, timestamp)

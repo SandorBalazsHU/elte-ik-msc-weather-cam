@@ -134,11 +134,6 @@ class MeasurementController extends BaseController {
 		foreach ($body as $measurement) {
 			if (!$this->validateMeasurement($measurement))
 				$this->error(400);
-
-//			$result = $this->measurementDao->insertMeasurement($station_id, $measurement);
-//			if (!$result) {
-//				$this->error(400);
-//			}
 		}
 		
 		$result = $this->measurementDao->insertMeasurements($station_id, $body);
@@ -154,7 +149,7 @@ class MeasurementController extends BaseController {
 		
 		$found = 0;
 		foreach ($measurement as $data => $value) {
-			if (in_array($data, $args))
+			if (in_array($data, $args) && !empty($value))
 				$found++;
 			
 			// TODO validate measurement data
