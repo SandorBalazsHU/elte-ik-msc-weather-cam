@@ -100,8 +100,8 @@ class StationController extends BaseController {
 		}
 		$api_key = $request_headers['api_key'];
 		
-		$key_does_not_exist = $this->stationDao->isApiKeyUnique($api_key);
-		if ($key_does_not_exist) {
+		$key_exists = $this->stationDao->apiKeyExists($api_key);
+		if (!$key_exists) {
 			$this->error(403);
 		}
 		

@@ -65,6 +65,9 @@ class ResponseHandler {
 			case 200:
 				$response['message'] = 'Successfully processed request.';
 				break;
+			case 201:
+				$response['message'] = 'Successfully created resource.';
+				break;
 		}
 		
 		$this->sendJsonError($response);

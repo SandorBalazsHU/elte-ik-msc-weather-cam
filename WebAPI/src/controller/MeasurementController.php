@@ -124,9 +124,43 @@ class MeasurementController extends BaseController {
 		if (!isset($request_headers['api_key'])) {
 			$this->error(403);
 		}
-		
 		$api_key = $request_headers['api_key'];
-		// TODO documentation unclear
+		
+		$station_id = $this->stationDao->getStationIdByApiKey($api_key);
+		if ($station_id == DatabaseAccessObject::VALUE_NOT_FOUND) {
+			$this->error(403);
+		}
+		
+		foreach ($body as $measurement) {
+			if (!$this->validateMeasurement($measurement))
+				$this->error(400);
+
+//			$result = $this->measurementDao->insertMeasurement($station_id, $measurement);
+//			if (!$result) {
+//				$this->error(400);
+//			}
+		}
+		
+		$result = $this->measurementDao->insertMeasurements($station_id, $body);
+		if ($result) {
+			$this->response(201);
+		} else {
+			$this->error(400);
+		}
+	}
+	
+	private function validateMeasurement($measurement): bool {
+		$args = ["temperature", "pressure", "humidity", "battery", "timestamp"];
+		
+		$found = 0;
+		foreach ($measurement as $data => $value) {
+			if (in_array($data, $args))
+				$found++;
+			
+			// TODO validate measurement data
+		}
+		
+		return !empty($measurement) && $found > 0;
 	}
 	
 	#endregion

@@ -2,6 +2,7 @@
 
 class DatabaseAccessObject {
 	public const EMPTY_RESULT = 'EMPTY_RESULT';
+	public const VALUE_NOT_FOUND = -1;
 	protected mysqli $connection;
 	
 	/**

@@ -56,7 +56,7 @@ class MeasurementDao extends DatabaseAccessObject {
 		uksort($filter, function ($a, $b) use ($filter_options) {
 			$a_pos = array_search($a, array_values($filter_options));
 			$b_pos = array_search($b, array_values($filter_options));
-
+			
 			if ($a_pos == $b_pos) return 0;
 			return $a_pos < $b_pos ? -1 : 1;
 		});
@@ -90,22 +90,47 @@ class MeasurementDao extends DatabaseAccessObject {
 	
 	public function insertMeasurement(
 		string $station_id,
-		string $temperature,
-		string $pressure,
-		string $humidity,
-		string $battery,
-		string $timestamp
+		array  $measurement
 	): bool {
+		$temperature = $measurement['temperature'] ?? 'NULL';
+		$pressure = $measurement['pressure'] ?? 'NULL';
+		$humidity = $measurement['humidity'] ?? 'NULL';
+		$battery = $measurement['battery'] ?? 'NULL';
+		$timestamp = $measurement['timestamp'] ?? 'NULL';
+		
 		try {
 			return $this->runQuery(
 				"INSERT INTO measurements
 					(station_id, temperature, pressure, humidity, battery, timestamp)
 					VALUES (?, ?, ?, ?, ?, ?)",
-				[
-					$station_id, $temperature ?: 'NULL', $pressure ?: 'NULL',
-					$humidity ?: 'NULL', $battery ?: 'NULL', $timestamp ?: 'NULL'
-				]
+				[$station_id, $temperature, $pressure, $humidity, $battery, $timestamp]
 			);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
+	public function insertMeasurements(
+		string $station_id,
+		array  $measurements
+	): bool {
+		$holes = substr(str_repeat(",(?, ?, ?, ?, ?)", count($measurements)), 1);
+		$values = [$station_id];
+		
+		foreach ($measurements as $measurement) {
+			$values[] = $measurement['temperature'] ?? 'NULL';
+			$values[] = $measurement['pressure'] ?? 'NULL';
+			$values[] = $measurement['humidity'] ?? 'NULL';
+			$values[] = $measurement['battery'] ?? 'NULL';
+			$values[] = $measurement['timestamp'] ?? 'NULL';
+		}
+		
+		// TODO debug query
+		try {
+			$sql = "INSERT INTO measurements
+	    			(station_id, temperature, pressure, humidity, battery, timestamp)
+					VALUES $holes";
+			return $this->runQuery($sql, $values);
 		} catch (Exception $e) {
 			return false;
 		}

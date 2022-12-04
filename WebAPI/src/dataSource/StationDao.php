@@ -24,6 +24,17 @@ class StationDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function getStationIdByApiKey(string $api_key): int {
+		try {
+			return $this->selectValue(
+				"SELECT station_id FROM stations WHERE api_key = ? LIMIT 1",
+				[$api_key]
+			);
+		} catch (Exception $e) {
+			return parent::VALUE_NOT_FOUND;
+		}
+	}
+	
 	public function getStationsOfUser(int $user_id): array {
 		try {
 			return $this->select(
@@ -78,7 +89,7 @@ class StationDao extends DatabaseAccessObject {
 		}
 	}
 	
-	public function isApiKeyUnique($api_key): bool {
+	public function isApiKeyUnique(string $api_key): bool {
 		try {
 			$result = $this->selectValue(
 				"SELECT COUNT(*) FROM stations WHERE api_key=?",
@@ -88,6 +99,10 @@ class StationDao extends DatabaseAccessObject {
 		} catch (Exception $e) {
 			return false;
 		}
+	}
+	
+	public function apiKeyExists(string $api_key): bool {
+		return !$this->isApiKeyUnique($api_key);
 	}
 	
 	public function updateStatusByApiKey($api_key, int $status_code): bool {
