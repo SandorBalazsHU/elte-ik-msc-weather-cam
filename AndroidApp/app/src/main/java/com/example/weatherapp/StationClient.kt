@@ -8,6 +8,7 @@ import com.example.weatherapi.data.entities.MeasurementEntity
 import com.example.weatherapp.data.hardware.HardwareEntity
 import com.example.weatherapp.data.hardware.HwMeasurementEntity
 import com.example.weatherapp.data.hardware.MeasurementsRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
@@ -31,8 +32,6 @@ class StationClient(
 
     fun setApiKey(key: String): Boolean {
         return try {
-            //api key param name?
-            //any other auth?
             apiClient.setBearerToken(key)
             true
         } catch (ex: Exception){
@@ -68,11 +67,10 @@ class StationClient(
     suspend fun addPicture(file: java.io.File): ClientResult<Int> = withContext(Dispatchers.IO) {
         runClientCatching {
             Log.d("WeatherStationClient", "RUN CLIENT")
-            val reqFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-            val body: MultipartBody.Part =
-                MultipartBody.Part.createFormData("upload", file.name, reqFile)
-            val name: RequestBody = "camera_picture".toRequestBody("text/plain".toMediaTypeOrNull())
-            val res = picturesService.addPicture(body, name)
+            val bytes = file.readBytes()
+            val body =
+                bytes.toRequestBody("application/octet-stream".toMediaTypeOrNull(), 0, bytes.size)
+            val res = picturesService.addPicture("application/octet-stream", body)
             Log.d("WeatherStationClient", "add picture code: ${res.code()}")
             res.code()
         }
@@ -85,12 +83,11 @@ class StationClient(
         }
 
 
-    //TODO eliminate null checks, maybe rewrite HwMeasurementEntity
     private fun translateMeasurement(hwEnt: HwMeasurementEntity) : MeasurementEntity =
         MeasurementEntity(
-            temperature = hwEnt.temp!!,
-            pressure = hwEnt.pressure!!,
-            humidity = hwEnt.humidity!!,
+            temperature = hwEnt.temp,
+            pressure = hwEnt.pressure,
+            humidity = hwEnt.humidity,
             timestamp = SystemClock.elapsedRealtime(),
             battery = -1f //TODO battery manager
         )
@@ -106,7 +103,10 @@ inline fun <R> runClientCatching(block: () -> R): ClientResult<R> =
     try {
         val res = block()
         ClientResult.Success(res)
-    } catch (e: IOException){
+    } catch (cancellationException: CancellationException) {
+        //avoid interference with coroutines
+        throw cancellationException
+    } catch (e: Throwable){
         ClientResult.Error(e)
     }
 

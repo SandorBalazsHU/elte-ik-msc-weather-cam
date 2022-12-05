@@ -22,12 +22,11 @@ interface PicturesApi {
      *  - 400: __Failed__ to process request. *Possible causes*:   - Malformed or missing input parameter. 
      *  - 403: __Failed__ to authenticate request with the provided API key. *Possible causes*:   - API key is invalid. 
      *
-     * @param body Server
      * @return [ApiResponseEntity]
      */
-    @Multipart
     @POST("stations/pictures/")
-    suspend fun addPicture(@Part image: MultipartBody.Part, @Part("name") name: RequestBody):
+    suspend fun addPicture(@Header("Content-Type") mime: String,
+                           @Body body: RequestBody):
             Response<ApiResponseEntity>
 
 }

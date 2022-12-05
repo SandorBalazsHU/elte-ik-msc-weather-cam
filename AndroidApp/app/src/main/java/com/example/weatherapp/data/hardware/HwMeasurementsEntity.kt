@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 /**
  * Measurement contains the data recorded by the sensors.
  *
- * @param temperature temperature in celsius.
+ * @param temp temperature in celsius.
  * @param pressure pressure in millibars.
  * @param humidity humidity in percentage.
  */
@@ -16,19 +16,14 @@ data class HwMeasurementEntity (
 
     /* temperature in celsius. */
     @SerialName(value = "temp")
-    val temp: kotlin.Float? = null,
+    val temp: kotlin.Float,
 
     /* pressure in millibars. */
     @SerialName(value = "pressure")
-    val pressure: kotlin.Float? = null,
+    val pressure: kotlin.Float,
 
     /* humidity in percentage. */
     @SerialName(value = "humidity")
-    val humidity: kotlin.Float? = null,
+    val humidity: kotlin.Float,
 
-    @SerialName(value = "time")
-    val time: kotlin.String? = null,
-
-    @SerialName(value = "date")
-    val date: kotlin.String? = null
 )

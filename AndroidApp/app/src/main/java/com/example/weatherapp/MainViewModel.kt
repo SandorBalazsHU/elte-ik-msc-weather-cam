@@ -86,12 +86,9 @@ class MainViewModel(
         viewModelScope.launch {
             _pollingEnabled.getAndUpdate {
                 if(it) {
-                    cancelRequest()
                     alarmRepository.cancelRecurringAlarm()
                     false
                 } else if(apiKey.value != null) {
-                    //ok
-                    startRequest()
                     alarmRepository.setRecurringAlarm()
                     true
                 } else {
@@ -99,35 +96,6 @@ class MainViewModel(
                 }
             }
         }
-    }
-
-    private fun startRequest(){
-        //efficiency?
-//        val addresses : Array<String> =
-//            hardwares.value.values.map { it.ipAddress }.toTypedArray()
-//        val req: PeriodicWorkRequest =
-//            PeriodicWorkRequestBuilder<StationWorker>(15, TimeUnit.MINUTES)
-//                .setInputData(workDataOf(
-//                    StationWorker.API_KEY to apiKey.value,
-//                    StationWorker.ADDRESSES to addresses
-//                ))
-//                .addTag(StationWorker::class.java.name)
-//                .build()
-//
-//        workManager.enqueueUniquePeriodicWork(
-//            StationWorker::class.java.name,
-//            ExistingPeriodicWorkPolicy.REPLACE,
-//            req
-//        )
-    }
-
-    private fun cancelRequest(){
-//        workManager.cancelUniqueWork(StationWorker::class.java.name)
-//        val req: WorkRequest =
-//            OneTimeWorkRequestBuilder<TerminatingWorker>().build()
-//        workManager.enqueue(
-//            req
-//        )
     }
 
     fun onSetApiKey(key: String){
@@ -145,6 +113,7 @@ class MainViewModel(
     }
 
     fun onCameraError(ex: Throwable){
+        Log.e("MainViewModel", "Camera error", ex)
         wakeLock.release()
         _cameraOn.value = false
     }

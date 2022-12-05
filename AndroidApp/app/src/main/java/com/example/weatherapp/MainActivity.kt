@@ -15,9 +15,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -28,9 +25,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkManager
 import com.example.weatherapp.camera.CameraCapture
-import com.example.weatherapp.camera.executor
-import com.example.weatherapp.camera.getCameraProvider
-import com.example.weatherapp.camera.takePicture
 import com.example.weatherapp.data.alarms.AlarmRepository
 import com.example.weatherapp.data.hardware.SavedHardwareRepository
 import com.example.weatherapp.data.preferences.UserPreferencesRepository
@@ -52,7 +46,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // temporary solution
-        //window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // possible better solution, requires api level 27, maybe do for 27 >= and < 27
+        //setTurnScreenOn(true)
         requestPermissions()
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -110,39 +106,6 @@ class MainActivity : ComponentActivity() {
 
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
-
-
-//    private val cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-//
-//    suspend fun captureImage(
-//        onImageFile: (File) -> Unit = { },
-//        onException: (Exception) -> Unit = { }
-//    ){
-//        val cameraProvider = getCameraProvider()
-//        val imageCaptureUseCase =
-//                ImageCapture.Builder()
-//                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-//                    .build()
-//        //var previewUseCase = Preview.Builder().build()
-//        try {
-//            // Must unbind the use-cases before rebinding them.
-//            cameraProvider.unbindAll()
-//            cameraProvider.bindToLifecycle(
-//                this, cameraSelector, /*previewUseCase,*/ imageCaptureUseCase
-//            )
-//        } catch (ex: Exception) {
-//            Log.e("CameraCapture", "Failed to bind camera use cases", ex)
-//        }
-//        lifecycleScope.launch {
-//            try {
-//                delay(10*1000L)
-//                onImageFile(imageCaptureUseCase.takePicture(executor))
-//                cameraProvider.unbindAll()
-//            } catch (ex: Exception){
-//                onException(ex)
-//            }
-//        }
-//    }
 
 }
 
