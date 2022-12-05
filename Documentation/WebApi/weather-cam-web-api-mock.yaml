@@ -867,6 +867,38 @@ paths:
       tags:
         - user
   '/user/stations/{station_id}':
+    delete:
+      parameters:
+        - $ref: '#/components/parameters/station_id'
+      responses:
+        '200':
+          description: __Successfully__ logged out user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                ApiResponse200:
+                  $ref: '#/components/examples/ApiResponse200'
+        '403':
+          $ref: '#/components/responses/UnauthorizedJWT'
+        '404':
+          description: |
+            __Failed__ to delete station.
+            *Possible causes*:
+              - Station with given station_id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                ApiResponse404:
+                  $ref: '#/components/examples/ApiResponse404'
+      operationId: deleteStation
+      security:
+        - bearerAuth: []
+      tags:
+        - user
     put:
       parameters:
         - $ref: '#/components/parameters/station_id'
@@ -904,7 +936,7 @@ paths:
               examples:
                 ApiResponse404:
                   $ref: '#/components/examples/ApiResponse404'
-      operationId: updateStation
+      operationId: regenerateApiKey
       security:
         - bearerAuth: []
       tags:
@@ -1221,6 +1253,7 @@ components:
           minimum: 0
         api_key:
           type: string
+          example: 'TUSlX5hZSJAIB0ouD7yBG1RiHuXoNMXfjrjKBnPfBlb9N9jBDCLz0icn0zG6MkhQeomeCdo'
           description: |
             api_key gives access to upload measurements to the server.  
     StationArray:
