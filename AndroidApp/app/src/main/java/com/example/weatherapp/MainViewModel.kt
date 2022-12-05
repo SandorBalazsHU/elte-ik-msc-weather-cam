@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import android.os.PowerManager
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -19,7 +20,8 @@ class MainViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val savedHardwareRepository: SavedHardwareRepository,
     private val alarmRepository: AlarmRepository,
-    private val workManager: WorkManager
+    private val powerManager: PowerManager,
+    private val stationClient: StationClient
 ) : ViewModel() {
     private val _hardwares : MutableStateFlow<Map<String, HardwareEntity>> = MutableStateFlow(
         emptyMap()
@@ -40,9 +42,15 @@ class MainViewModel(
     val cameraOn : StateFlow<Boolean>
         get() = _cameraOn
 
+    private val wakeLock =
+        powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "weatherapp:wakelock")
+
     init {
         viewModelScope.launch {
             alarmRepository.alarmFlow.collect {
+                wakeLock.acquire(3*60*1000L /*3 minutes*/)
+                //TODO: handle result
+                //stationClient.pollMeasurements(hardwares.value)
                 _cameraOn.value = true
             }
         }
@@ -54,6 +62,7 @@ class MainViewModel(
                 _errMsg.value = err.message
             }.collect { (prefs, saved) ->
                 _apiKey.value = prefs.apiKey
+                prefs.apiKey?.let { stationClient.setApiKey(it) }
                 _hardwares.value = saved
             }
         }
@@ -77,12 +86,9 @@ class MainViewModel(
         viewModelScope.launch {
             _pollingEnabled.getAndUpdate {
                 if(it) {
-                    cancelRequest()
                     alarmRepository.cancelRecurringAlarm()
                     false
                 } else if(apiKey.value != null) {
-                    //ok
-                    startRequest()
                     alarmRepository.setRecurringAlarm()
                     true
                 } else {
@@ -92,46 +98,23 @@ class MainViewModel(
         }
     }
 
-    private fun startRequest(){
-        //efficiency?
-//        val addresses : Array<String> =
-//            hardwares.value.values.map { it.ipAddress }.toTypedArray()
-//        val req: PeriodicWorkRequest =
-//            PeriodicWorkRequestBuilder<StationWorker>(15, TimeUnit.MINUTES)
-//                .setInputData(workDataOf(
-//                    StationWorker.API_KEY to apiKey.value,
-//                    StationWorker.ADDRESSES to addresses
-//                ))
-//                .addTag(StationWorker::class.java.name)
-//                .build()
-//
-//        workManager.enqueueUniquePeriodicWork(
-//            StationWorker::class.java.name,
-//            ExistingPeriodicWorkPolicy.REPLACE,
-//            req
-//        )
-    }
-
-    private fun cancelRequest(){
-//        workManager.cancelUniqueWork(StationWorker::class.java.name)
-//        val req: WorkRequest =
-//            OneTimeWorkRequestBuilder<TerminatingWorker>().build()
-//        workManager.enqueue(
-//            req
-//        )
-    }
-
     fun onSetApiKey(key: String){
         viewModelScope.launch {
             userPreferencesRepository.setApiKey(key)
         }
     }
 
-    fun onPhotoTaken(){
-        _cameraOn.value = false
+    fun onPhotoTaken(file: java.io.File){
+        viewModelScope.launch {
+            stationClient.addPicture(file)
+            wakeLock.release()
+            _cameraOn.value = false
+        }
     }
 
     fun onCameraError(ex: Throwable){
+        Log.e("MainViewModel", "Camera error", ex)
+        wakeLock.release()
         _cameraOn.value = false
     }
 
@@ -140,7 +123,8 @@ class MainViewModel(
             private val userPreferencesRepository: UserPreferencesRepository,
             private val savedHardwareRepository: SavedHardwareRepository,
             private val alarmRepository: AlarmRepository,
-            private val workManager: WorkManager
+            private val powerManager: PowerManager,
+            private val stationClient: StationClient
         ) : ViewModelProvider.Factory {
 
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -150,12 +134,18 @@ class MainViewModel(
                         userPreferencesRepository,
                         savedHardwareRepository,
                         alarmRepository,
-                        workManager
+                        powerManager,
+                        stationClient
                     ) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class")
             }
         }
     }
-}
 
+    override fun onCleared() {
+        super.onCleared()
+        alarmRepository.cancelRecurringAlarm()
+        wakeLock.release()
+    }
+}

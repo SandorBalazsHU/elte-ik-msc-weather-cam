@@ -1,14 +1,19 @@
 package com.example.weatherapp.data.hardware
 
-import com.example.weatherapp.data.HwHttpClient
-import com.example.weatherapp.data.hardware.HwMeasurementEntity
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import android.util.Log
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.internal.wait
+import okhttp3.logging.HttpLoggingInterceptor
+import org.openapitools.client.infrastructure.Serializer
+import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.util.concurrent.TimeUnit
 
 class MeasurementsRepository (
     private val measurementsSource : MeasurementsSource = MeasurementsSource()
@@ -18,30 +23,43 @@ class MeasurementsRepository (
 }
 
 
-class MeasurementsSource(
-    private val client: HttpClient = HwHttpClient
-) {
-    suspend fun getMeasurements(endpoint: String) : HwMeasurementEntity? = withContext(Dispatchers.IO){
-        client.getMeasurements(endpoint)
-    }
+class MeasurementsSource {
+    companion object {
 
-    private suspend fun HttpClient.getMeasurements(endpoint: String): HwMeasurementEntity? {
-        //workaround for wrong content-type
-        //it should be json, but it is text
-        //val endpoint = "http://mock.weather.s-b-x.com"
-        return try {
-            val res : HwMeasurementEntity =
-                client.get(endpoint){
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Any)
-                }.body()
-            res
-        } catch (e : NoTransformationFoundException) {
-            val entString: String = client.get(endpoint).body()
-            val json = kotlinx.serialization.json.Json {
-                ignoreUnknownKeys = true
-            }
-            json.decodeFromString(entString)
+        private val loggingInterceptor = HttpLoggingInterceptor().apply {
+            this.level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        @OptIn(ExperimentalSerializationApi::class)
+        operator fun invoke(baseUrl: String): HardwareApi {
+            val client = OkHttpClient.Builder().apply {
+                addNetworkInterceptor(loggingInterceptor)
+                connectTimeout(10, TimeUnit.MINUTES)
+                readTimeout(10, TimeUnit.MINUTES)
+                writeTimeout(10, TimeUnit.MINUTES)
+            }.build()
+
+            return Retrofit.Builder()
+                .client(client)
+                .baseUrl(baseUrl)
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(Serializer.kotlinxSerializationJson.asConverterFactory("application/json".toMediaType()))
+                .build()
+                .create(HardwareApi::class.java)
         }
     }
+
+
+    suspend fun getMeasurements(endpoint: String) : HwMeasurementEntity? = withContext(Dispatchers.IO){
+        val client = invoke(endpoint)
+        val res = client.getMeasurements()
+        //res.wait()
+        if(res.isSuccessful){
+            res.body()
+        } else {
+            Log.e("MeasurementsSource", "could not GET endpoint: ${endpoint}, error: ${res.errorBody()}")
+            null
+        }
+    }
+
 }

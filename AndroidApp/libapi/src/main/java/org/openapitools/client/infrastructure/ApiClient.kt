@@ -1,179 +1,140 @@
 package org.openapitools.client.infrastructure
 
-
-import io.ktor.client.HttpClient
-import io.ktor.client.HttpClientConfig
-import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.forms.FormDataContent
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.header
-import io.ktor.client.request.parameter
-import io.ktor.client.request.request
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
-import io.ktor.http.Parameters
-import io.ktor.http.URLBuilder
-import io.ktor.http.content.PartData
-import io.ktor.http.encodeURLQueryComponent
-import io.ktor.http.encodedPath
-import io.ktor.http.takeFrom
 import org.openapitools.client.auth.ApiKeyAuth
-import org.openapitools.client.auth.Authentication
-import org.openapitools.client.auth.HttpBasicAuth
 import org.openapitools.client.auth.HttpBearerAuth
-import org.openapitools.client.auth.OAuth
-import org.openapitools.client.auth.*
 
-open class ApiClient(
-        private val baseUrl: String,
-        httpClientEngine: HttpClientEngine?,
-        httpClientConfig: ((HttpClientConfig<*>) -> Unit)? = null,
+import okhttp3.Call
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
+import retrofit2.converter.scalars.ScalarsConverterFactory
+
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import org.openapitools.client.infrastructure.Serializer.kotlinxSerializationJson
+import okhttp3.MediaType.Companion.toMediaType
+import java.util.concurrent.TimeUnit
+
+class ApiClient(
+    private var baseUrl: String = defaultBasePath,
+    private val okHttpClientBuilder: OkHttpClient.Builder? = null,
+    private val callFactory : Call.Factory? = null,
+    private val converterFactory: Converter.Factory? = null,
 ) {
+    private val apiAuthorizations = mutableMapOf<String, Interceptor>()
+    var logger: ((String) -> Unit)? = null
 
-    private val clientConfig: (HttpClientConfig<*>) -> Unit by lazy {
-        {
-            it.install(ContentNegotiation) {
+    private val retrofitBuilder: Retrofit.Builder by lazy {
+        Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(kotlinxSerializationJson.asConverterFactory("application/json".toMediaType()))
+            .apply {
+                if (converterFactory != null) {
+                    addConverterFactory(converterFactory)
+                }
             }
-            httpClientConfig?.invoke(it)
+    }
+
+    private val clientBuilder: OkHttpClient.Builder by lazy {
+        okHttpClientBuilder ?: defaultClientBuilder
+    }
+
+    private val defaultClientBuilder: OkHttpClient.Builder by lazy {
+        OkHttpClient()
+            .newBuilder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .addInterceptor(HttpLoggingInterceptor { message -> logger?.invoke(message) }
+                .apply { level = HttpLoggingInterceptor.Level.BODY }
+            )
+    }
+
+    init {
+        normalizeBaseUrl()
+    }
+
+    constructor(
+        baseUrl: String = defaultBasePath,
+        okHttpClientBuilder: OkHttpClient.Builder? = null,
+        
+        authNames: Array<String>
+    ) : this(baseUrl, okHttpClientBuilder) {
+        authNames.forEach { authName ->
+            val auth = when (authName) {
+                "apiKeyAuth" -> ApiKeyAuth("header", "api_key")"bearerAuth" -> HttpBearerAuth("bearer")
+                else -> throw RuntimeException("auth name $authName not found in available auth names")
+            }
+            addAuthorization(authName, auth)
         }
     }
 
-    private val client: HttpClient by lazy {
-        httpClientEngine?.let { HttpClient(it, clientConfig) } ?: HttpClient(clientConfig)
+    constructor(
+        baseUrl: String = defaultBasePath,
+        okHttpClientBuilder: OkHttpClient.Builder? = null,
+        
+        authName: String,
+        bearerToken: String
+    ) : this(baseUrl, okHttpClientBuilder, arrayOf(authName)) {
+        setBearerToken(bearerToken)
     }
 
-    private val authentications: kotlin.collections.Map<String, Authentication> by lazy {
-        mapOf(
-                "apiKeyAuth" to ApiKeyAuth("header", "api_key"), 
-                "bearerAuth" to HttpBearerAuth("bearer"))
+    fun setBearerToken(bearerToken: String): ApiClient {
+        apiAuthorizations.values.runOnFirst<Interceptor, HttpBearerAuth> {
+            this.bearerToken = bearerToken
+        }
+        return this
+    }
+
+    /**
+     * Adds an authorization to be used by the client
+     * @param authName Authentication name
+     * @param authorization Authorization interceptor
+     * @return ApiClient
+     */
+    fun addAuthorization(authName: String, authorization: Interceptor): ApiClient {
+        if (apiAuthorizations.containsKey(authName)) {
+            throw RuntimeException("auth name $authName already in api authorizations")
+        }
+        apiAuthorizations[authName] = authorization
+        clientBuilder.addInterceptor(authorization)
+        return this
+    }
+
+    fun setLogger(logger: (String) -> Unit): ApiClient {
+        this.logger = logger
+        return this
+    }
+
+    fun <S> createService(serviceClass: Class<S>): S {
+        val usedCallFactory = this.callFactory ?: clientBuilder.build()
+        return retrofitBuilder.callFactory(usedCallFactory).build().create(serviceClass)
+    }
+
+    private fun normalizeBaseUrl() {
+        if (!baseUrl.endsWith("/")) {
+            baseUrl += "/"
+        }
+    }
+
+    private inline fun <T, reified U> Iterable<T>.runOnFirst(callback: U.() -> Unit) {
+        for (element in this) {
+            if (element is U)  {
+                callback.invoke(element)
+                break
+            }
+        }
     }
 
     companion object {
-          const val BASE_URL = "https://api.weather.s-b-x.com/v1"
-          protected val UNSAFE_HEADERS = listOf(HttpHeaders.ContentType)
-    }
+        @JvmStatic
+        protected val baseUrlKey = "org.openapitools.client.baseUrl"
 
-    /**
-     * Set the username for the first HTTP basic authentication.
-     *
-     * @param username Username
-     */
-    fun setUsername(username: String) {
-        val auth = authentications.values.firstOrNull { it is HttpBasicAuth } as HttpBasicAuth?
-                ?: throw Exception("No HTTP basic authentication configured")
-        auth.username = username
-    }
-
-    /**
-     * Set the password for the first HTTP basic authentication.
-     *
-     * @param password Password
-     */
-    fun setPassword(password: String) {
-        val auth = authentications.values.firstOrNull { it is HttpBasicAuth } as HttpBasicAuth?
-                ?: throw Exception("No HTTP basic authentication configured")
-        auth.password = password
-    }
-
-    /**
-     * Set the API key value for the first API key authentication.
-     *
-     * @param apiKey API key
-     * @param paramName The name of the API key parameter, or null or set the first key.
-     */
-    fun setApiKey(apiKey: String, paramName: String? = null) {
-        val auth = authentications.values.firstOrNull { it is ApiKeyAuth && (paramName == null || paramName == it.paramName)} as ApiKeyAuth?
-                ?: throw Exception("No API key authentication configured")
-        auth.apiKey = apiKey
-    }
-
-    /**
-     * Set the API key prefix for the first API key authentication.
-     *
-     * @param apiKeyPrefix API key prefix
-     * @param paramName The name of the API key parameter, or null or set the first key.
-     */
-    fun setApiKeyPrefix(apiKeyPrefix: String, paramName: String? = null) {
-        val auth = authentications.values.firstOrNull { it is ApiKeyAuth && (paramName == null || paramName == it.paramName) } as ApiKeyAuth?
-                ?: throw Exception("No API key authentication configured")
-        auth.apiKeyPrefix = apiKeyPrefix
-    }
-
-    /**
-     * Set the access token for the first OAuth2 authentication.
-     *
-     * @param accessToken Access token
-     */
-    fun setAccessToken(accessToken: String) {
-        val auth = authentications.values.firstOrNull { it is OAuth } as OAuth?
-                ?: throw Exception("No OAuth2 authentication configured")
-        auth.accessToken = accessToken
-    }
-
-    /**
-     * Set the access token for the first Bearer authentication.
-     *
-     * @param bearerToken The bearer token.
-     */
-    fun setBearerToken(bearerToken: String) {
-        val auth = authentications.values.firstOrNull { it is HttpBearerAuth } as HttpBearerAuth?
-                ?: throw Exception("No Bearer authentication configured")
-        auth.bearerToken = bearerToken
-    }
-
-    protected suspend fun <T: Any?> multipartFormRequest(requestConfig: RequestConfig<T>, body: kotlin.collections.List<PartData>?, authNames: kotlin.collections.List<String>): HttpResponse {
-        return request(requestConfig, MultiPartFormDataContent(body ?: listOf()), authNames)
-    }
-
-    protected suspend fun <T: Any?> urlEncodedFormRequest(requestConfig: RequestConfig<T>, body: Parameters?, authNames: kotlin.collections.List<String>): HttpResponse {
-        return request(requestConfig, FormDataContent(body ?: Parameters.Empty), authNames)
-    }
-
-    protected suspend fun <T: Any?> jsonRequest(requestConfig: RequestConfig<T>, body: Any? = null, authNames: kotlin.collections.List<String>): HttpResponse = request(requestConfig, body, authNames)
-
-    protected suspend fun <T: Any?> request(requestConfig: RequestConfig<T>, body: Any? = null, authNames: kotlin.collections.List<String>): HttpResponse {
-        requestConfig.updateForAuth<T>(authNames)
-        val headers = requestConfig.headers
-
-        return client.request {
-            this.url {
-                this.takeFrom(URLBuilder(baseUrl))
-                appendPath(requestConfig.path.trimStart('/').split('/'))
-                requestConfig.query.forEach { query ->
-                    query.value.forEach { value ->
-                        parameter(query.key, value)
-                    }
-                }
-            }
-            this.method = requestConfig.method.httpMethod
-            headers.filter { header -> !UNSAFE_HEADERS.contains(header.key) }.forEach { header -> this.header(header.key, header.value) }
-            if (requestConfig.method in listOf(RequestMethod.PUT, RequestMethod.POST, RequestMethod.PATCH))
-                setBody(body)
+        @JvmStatic
+        val defaultBasePath: String by lazy {
+            System.getProperties().getProperty(baseUrlKey, "https://api.weather.s-b-x.com/v1")
         }
     }
-
-    private fun <T: Any?> RequestConfig<T>.updateForAuth(authNames: kotlin.collections.List<String>) {
-        for (authName in authNames) {
-            val auth = authentications?.get(authName) ?: throw Exception("Authentication undefined: $authName")
-            auth.apply(query, headers)
-        }
-    }
-
-    private fun URLBuilder.appendPath(components: kotlin.collections.List<String>): URLBuilder = apply {
-        encodedPath = encodedPath.trimEnd('/') + components.joinToString("/", prefix = "/") { it.encodeURLQueryComponent() }
-    }
-
-    private val RequestMethod.httpMethod: HttpMethod
-        get() = when (this) {
-            RequestMethod.DELETE -> HttpMethod.Delete
-            RequestMethod.GET -> HttpMethod.Get
-            RequestMethod.HEAD -> HttpMethod.Head
-            RequestMethod.PATCH -> HttpMethod.Patch
-            RequestMethod.PUT -> HttpMethod.Put
-            RequestMethod.POST -> HttpMethod.Post
-            RequestMethod.OPTIONS -> HttpMethod.Options
-        }
 }

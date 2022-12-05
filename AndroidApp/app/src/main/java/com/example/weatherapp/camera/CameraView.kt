@@ -22,7 +22,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import java.io.File
-import coil.compose.*
 import kotlinx.coroutines.delay
 
 

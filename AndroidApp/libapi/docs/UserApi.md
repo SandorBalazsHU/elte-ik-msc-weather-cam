@@ -4,19 +4,17 @@ All URIs are relative to *https://api.weather.s-b-x.com/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**addStations**](UserApi.md#addStations) | **POST** /user/stations | Add new stations to the user.
-[**deleteUser**](UserApi.md#deleteUser) | **DELETE** /user/{username} | Delete user.
-[**getStations**](UserApi.md#getStations) | **GET** /user/stations | Returns an array of stations registered with the user.
-[**loginUser**](UserApi.md#loginUser) | **GET** /user/login | Logs user into the system
-[**logoutUser**](UserApi.md#logoutUser) | **GET** /user/logout | Logs out current logged in user.
-[**updateStation**](UserApi.md#updateStation) | **PUT** /user/stations/{station_id} | Generate new API key for a station.
-[**userRegisterPost**](UserApi.md#userRegisterPost) | **POST** /user/register | Add new user.
-[**userUsernamePut**](UserApi.md#userUsernamePut) | **PUT** /user/{username} | Update user data.
+[**addStations**](UserApi.md#addStations) | **POST** user/stations | Add new stations to the user.
+[**deleteUser**](UserApi.md#deleteUser) | **DELETE** user/{username} | Delete user.
+[**getCurrentUser**](UserApi.md#getCurrentUser) | **GET** user | Gets data about the logged in user.
+[**getStations**](UserApi.md#getStations) | **GET** user/stations | Returns an array of stations registered with the user.
+[**loginUser**](UserApi.md#loginUser) | **GET** user/login | Logs user into the system
+[**logoutUser**](UserApi.md#logoutUser) | **GET** user/logout | Logs out current logged in user.
+[**registerUser**](UserApi.md#registerUser) | **POST** user/register | Add new user.
+[**updateStation**](UserApi.md#updateStation) | **PUT** user/stations/{station_id} | Generate new API key for a station.
+[**updateUser**](UserApi.md#updateUser) | **PUT** user/{username} | Update user data.
 
 
-<a name="addStations"></a>
-# **addStations**
-> StationApiKeyEntity addStations()
 
 Add new stations to the user.
 
@@ -25,24 +23,25 @@ Add new stations to the user.
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = UserApi()
-try {
-    val result : StationApiKeyEntity = apiInstance.addStations()
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling UserApi#addStations")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling UserApi#addStations")
-    e.printStackTrace()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(UserApi::class.java)
+val stationName : kotlin.String = stationName_example // kotlin.String | The unique name for the new station.
+
+launch(Dispatchers.IO) {
+    val result : StationApiKeyEntity = webService.addStations(stationName)
 }
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **stationName** | **kotlin.String**| The unique name for the new station. |
 
 ### Return type
 
@@ -52,38 +51,32 @@ This endpoint does not need any parameter.
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="deleteUser"></a>
-# **deleteUser**
-> ApiResponseEntity deleteUser(username)
 
 Delete user.
 
-## Functionality:  Deletes a user.  --- ### Prerequisites: - This endpoint can only be used with a valid JWT token. --- 
+## Functionality:  Deletes a user.  --- ### Prerequisites: - This endpoint can only be used with a valid JWT token.  --- 
 
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = UserApi()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(UserApi::class.java)
 val username : kotlin.String = username_example // kotlin.String | The unique username of the user.
-try {
-    val result : ApiResponseEntity = apiInstance.deleteUser(username)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling UserApi#deleteUser")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling UserApi#deleteUser")
-    e.printStackTrace()
+
+launch(Dispatchers.IO) {
+    val result : ApiResponseEntity = webService.deleteUser(username)
 }
 ```
 
@@ -101,37 +94,70 @@ Name | Type | Description  | Notes
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="getStations"></a>
-# **getStations**
-> kotlin.collections.List&lt;StationEntity&gt; getStations()
 
-Returns an array of stations registered with the user.
+Gets data about the logged in user.
 
-## Functionality:  Returns an array of stations associated with the user.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
+## Functionality:    Returns data about the currently logged in user. This is useful when the JWT token is saved in the cookies.    ---  ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
 
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = UserApi()
-try {
-    val result : kotlin.collections.List<StationEntity> = apiInstance.getStations()
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling UserApi#getStations")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling UserApi#getStations")
-    e.printStackTrace()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(UserApi::class.java)
+
+launch(Dispatchers.IO) {
+    val result : UserEntity = webService.getCurrentUser()
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**UserEntity**](UserEntity.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+Returns an array of stations registered with the user.
+
+## Functionality:  Returns an array of stations associated with the user.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
+
+### Example
+```kotlin
+// Import classes:
+//import org.openapitools.client.*
+//import org.openapitools.client.infrastructure.*
+//import com.example.weatherapi.data.entities.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(UserApi::class.java)
+
+launch(Dispatchers.IO) {
+    val result : kotlin.collections.List<StationEntity> = webService.getStations()
 }
 ```
 
@@ -146,39 +172,32 @@ This endpoint does not need any parameter.
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="loginUser"></a>
-# **loginUser**
-> ApiResponseEntity loginUser(username, password)
 
 Logs user into the system
 
-## Functionality:  Returns a JWT token. This token can later be used to authenticate requests.  --- 
+## Functionality:    Returns a JWT token. This token can later be used to authenticate requests.    --- 
 
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = UserApi()
+val apiClient = ApiClient()
+val webService = apiClient.createWebservice(UserApi::class.java)
 val username : kotlin.String = username_example // kotlin.String | The unique username for the user.
 val password : kotlin.String = password_example // kotlin.String | The password associated with the username.
-try {
-    val result : ApiResponseEntity = apiInstance.loginUser(username, password)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling UserApi#loginUser")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling UserApi#loginUser")
-    e.printStackTrace()
+
+launch(Dispatchers.IO) {
+    val result : ApiResponseEntity = webService.loginUser(username, password)
 }
 ```
 
@@ -186,8 +205,8 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **kotlin.String**| The unique username for the user. | [optional]
- **password** | **kotlin.String**| The password associated with the username. | [optional]
+ **username** | **kotlin.String**| The unique username for the user. |
+ **password** | **kotlin.String**| The password associated with the username. |
 
 ### Return type
 
@@ -202,30 +221,24 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="logoutUser"></a>
-# **logoutUser**
-> ApiResponseEntity logoutUser()
 
 Logs out current logged in user.
 
-## Functionality:  Logs out current logged in user.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
+## Functionality:  Logs out current logged in user.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
 
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = UserApi()
-try {
-    val result : ApiResponseEntity = apiInstance.logoutUser()
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling UserApi#logoutUser")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling UserApi#logoutUser")
-    e.printStackTrace()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(UserApi::class.java)
+
+launch(Dispatchers.IO) {
+    val result : ApiResponseEntity = webService.logoutUser()
 }
 ```
 
@@ -240,65 +253,13 @@ This endpoint does not need any parameter.
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="updateStation"></a>
-# **updateStation**
-> StationApiKeyEntity updateStation(stationId)
-
-Generate new API key for a station.
-
-## Functionality:  Generate new API key for a station. This can be used to revoke all access of a weather station.  __Important__: After a new API key is generated stations that use this API key lose access to upload measurements. If you want to continue using the weather station you need to update the API key in the mobile app.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
-
-### Example
-```kotlin
-// Import classes:
-//import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
-
-val apiInstance = UserApi()
-val stationId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | station_id is a __unique__ identifier for weather stations  station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
-try {
-    val result : StationApiKeyEntity = apiInstance.updateStation(stationId)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling UserApi#updateStation")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling UserApi#updateStation")
-    e.printStackTrace()
-}
-```
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **stationId** | **java.util.UUID**| station_id is a __unique__ identifier for weather stations  station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  |
-
-### Return type
-
-[**StationApiKeyEntity**](StationApiKeyEntity.md)
-
-### Authorization
-
-
-Configure bearerAuth:
-    ApiClient.accessToken = ""
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-<a name="userRegisterPost"></a>
-# **userRegisterPost**
-> ApiResponseEntity userRegisterPost(username, password)
 
 Add new user.
 
@@ -307,21 +268,17 @@ Add new user.
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = UserApi()
+val apiClient = ApiClient()
+val webService = apiClient.createWebservice(UserApi::class.java)
 val username : kotlin.String = username_example // kotlin.String | The unique username of the new user
 val password : kotlin.String = password_example // kotlin.String | The password of the new user
-try {
-    val result : ApiResponseEntity = apiInstance.userRegisterPost(username, password)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling UserApi#userRegisterPost")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling UserApi#userRegisterPost")
-    e.printStackTrace()
+
+launch(Dispatchers.IO) {
+    val result : ApiResponseEntity = webService.registerUser(username, password)
 }
 ```
 
@@ -329,8 +286,8 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **kotlin.String**| The unique username of the new user | [optional]
- **password** | **kotlin.String**| The password of the new user | [optional]
+ **username** | **kotlin.String**| The unique username of the new user |
+ **password** | **kotlin.String**| The password of the new user |
 
 ### Return type
 
@@ -345,32 +302,25 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="userUsernamePut"></a>
-# **userUsernamePut**
-> kotlin.String userUsernamePut(username, userEntity)
 
-Update user data.
+Generate new API key for a station.
 
-## Functionality:  Updates the data of an already existing user.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token. --- 
+## Functionality:  Generate new API key for a station. This can be used to revoke all access of a weather station.  __Important__: After a new API key is generated stations that use this API key lose access to upload measurements. If you want to continue using the weather station you need to update the API key in the mobile app.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
 
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = UserApi()
-val username : kotlin.String = username_example // kotlin.String | The unique username of the user.
-val userEntity : UserEntity =  // UserEntity | **Important:**The user_id of the user cannot be updated with this endpoint. 
-try {
-    val result : kotlin.String = apiInstance.userUsernamePut(username, userEntity)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling UserApi#userUsernamePut")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling UserApi#userUsernamePut")
-    e.printStackTrace()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(UserApi::class.java)
+val stationId : kotlin.Long = 789 // kotlin.Long | station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
+
+launch(Dispatchers.IO) {
+    val result : kotlin.String = webService.updateStation(stationId)
 }
 ```
 
@@ -378,8 +328,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **kotlin.String**| The unique username of the user. |
- **userEntity** | [**UserEntity**](UserEntity.md)| **Important:**The user_id of the user cannot be updated with this endpoint.  | [optional]
+ **stationId** | **kotlin.Long**| station_id is a __unique__ identifier for weather stations station_id is an unsigned integer.  |
 
 ### Return type
 
@@ -389,7 +338,52 @@ Name | Type | Description  | Notes
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+Update user data.
+
+## Functionality:  Updates the data of an already existing user.  --- ### Prerequisites:   - This endpoint can only be used with a valid JWT token.    --- 
+
+### Example
+```kotlin
+// Import classes:
+//import org.openapitools.client.*
+//import org.openapitools.client.infrastructure.*
+//import com.example.weatherapi.data.entities.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(UserApi::class.java)
+val username : kotlin.String = username_example // kotlin.String | The unique username of the user.
+val userUpdateableEntity : UserUpdateableEntity =  // UserUpdateableEntity | **Important:**The user_id of the user cannot be updated with this endpoint. 
+
+launch(Dispatchers.IO) {
+    val result : kotlin.String = webService.updateUser(username, userUpdateableEntity)
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **username** | **kotlin.String**| The unique username of the user. |
+ **userUpdateableEntity** | [**UserUpdateableEntity**](UserUpdateableEntity.md)| **Important:**The user_id of the user cannot be updated with this endpoint.  | [optional]
+
+### Return type
+
+**kotlin.String**
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 

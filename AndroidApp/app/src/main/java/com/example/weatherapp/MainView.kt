@@ -427,7 +427,6 @@ fun ApiKeyDialog(
                             onSetApiKey(apiKeyVal)
                             isOpen.value = false
                         }
-                        // todo some feedback that the values are missing
                     }
                 ) {
                     Text("Confirm")

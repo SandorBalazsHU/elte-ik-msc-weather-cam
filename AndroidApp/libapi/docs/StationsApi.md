@@ -4,16 +4,13 @@ All URIs are relative to *https://api.weather.s-b-x.com/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**getMeasurementStorageInfo**](StationsApi.md#getMeasurementStorageInfo) | **GET** /stations/measurements/storage | Returns information about the storage server for the measurements.
-[**getPartialApiKey**](StationsApi.md#getPartialApiKey) | **GET** /stations/{station_id}/api/ | Returns part of the API key for a station.
-[**getPictureStorageInfo**](StationsApi.md#getPictureStorageInfo) | **GET** /stations/pictures/storage | Returns information about the storage server for the pictures.
-[**getStationStatus**](StationsApi.md#getStationStatus) | **GET** /stations/{station_id}/ping | Pings the weather station.
-[**updateStationStatus**](StationsApi.md#updateStationStatus) | **PUT** /stations/status/{status_code} | Update the status of the weather station.
+[**getMeasurementStorageInfo**](StationsApi.md#getMeasurementStorageInfo) | **GET** stations/measurements/storage | Returns information about the storage server for the measurements.
+[**getPartialApiKey**](StationsApi.md#getPartialApiKey) | **GET** stations/{station_id}/api | Returns part of the API key for a station.
+[**getPictureStorageInfo**](StationsApi.md#getPictureStorageInfo) | **GET** stations/pictures/storage | Returns information about the storage server for the pictures.
+[**getStationStatus**](StationsApi.md#getStationStatus) | **GET** stations/{station_id}/ping | Pings the weather station.
+[**updateStationStatus**](StationsApi.md#updateStationStatus) | **PUT** stations/status/{status_code} | Update the status of the weather station.
 
 
-<a name="getMeasurementStorageInfo"></a>
-# **getMeasurementStorageInfo**
-> StorageInfoEntity getMeasurementStorageInfo()
 
 Returns information about the storage server for the measurements.
 
@@ -22,19 +19,16 @@ Returns information about the storage server for the measurements.
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = StationsApi()
-try {
-    val result : StorageInfoEntity = apiInstance.getMeasurementStorageInfo()
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling StationsApi#getMeasurementStorageInfo")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling StationsApi#getMeasurementStorageInfo")
-    e.printStackTrace()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(StationsApi::class.java)
+
+launch(Dispatchers.IO) {
+    val result : StorageInfoEntity = webService.getMeasurementStorageInfo()
 }
 ```
 
@@ -49,16 +43,13 @@ This endpoint does not need any parameter.
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="getPartialApiKey"></a>
-# **getPartialApiKey**
-> kotlin.String getPartialApiKey(stationId)
 
 Returns part of the API key for a station.
 
@@ -67,20 +58,17 @@ Returns part of the API key for a station.
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = StationsApi()
-val stationId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | station_id is a __unique__ identifier for weather stations  station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
-try {
-    val result : kotlin.String = apiInstance.getPartialApiKey(stationId)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling StationsApi#getPartialApiKey")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling StationsApi#getPartialApiKey")
-    e.printStackTrace()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(StationsApi::class.java)
+val stationId : kotlin.Long = 789 // kotlin.Long | station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
+
+launch(Dispatchers.IO) {
+    val result : kotlin.String = webService.getPartialApiKey(stationId)
 }
 ```
 
@@ -88,7 +76,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **stationId** | **java.util.UUID**| station_id is a __unique__ identifier for weather stations  station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  |
+ **stationId** | **kotlin.Long**| station_id is a __unique__ identifier for weather stations station_id is an unsigned integer.  |
 
 ### Return type
 
@@ -98,16 +86,13 @@ Name | Type | Description  | Notes
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="getPictureStorageInfo"></a>
-# **getPictureStorageInfo**
-> StorageInfoEntity getPictureStorageInfo()
 
 Returns information about the storage server for the pictures.
 
@@ -116,19 +101,16 @@ Returns information about the storage server for the pictures.
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = StationsApi()
-try {
-    val result : StorageInfoEntity = apiInstance.getPictureStorageInfo()
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling StationsApi#getPictureStorageInfo")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling StationsApi#getPictureStorageInfo")
-    e.printStackTrace()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(StationsApi::class.java)
+
+launch(Dispatchers.IO) {
+    val result : StorageInfoEntity = webService.getPictureStorageInfo()
 }
 ```
 
@@ -143,16 +125,13 @@ This endpoint does not need any parameter.
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="getStationStatus"></a>
-# **getStationStatus**
-> ApiResponseEntity getStationStatus(stationId)
 
 Pings the weather station.
 
@@ -161,20 +140,17 @@ Pings the weather station.
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = StationsApi()
-val stationId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | station_id is a __unique__ identifier for weather stations  station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard. 
-try {
-    val result : ApiResponseEntity = apiInstance.getStationStatus(stationId)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling StationsApi#getStationStatus")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling StationsApi#getStationStatus")
-    e.printStackTrace()
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(StationsApi::class.java)
+val stationId : kotlin.Long = 789 // kotlin.Long | station_id is a __unique__ identifier for weather stations station_id is an unsigned integer. 
+
+launch(Dispatchers.IO) {
+    val result : ApiResponseEntity = webService.getStationStatus(stationId)
 }
 ```
 
@@ -182,7 +158,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **stationId** | **java.util.UUID**| station_id is a __unique__ identifier for weather stations  station_id follows the [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) standard.  |
+ **stationId** | **kotlin.Long**| station_id is a __unique__ identifier for weather stations station_id is an unsigned integer.  |
 
 ### Return type
 
@@ -192,16 +168,13 @@ Name | Type | Description  | Notes
 
 
 Configure bearerAuth:
-    ApiClient.accessToken = ""
+    ApiClient().setBearerToken("TOKEN")
 
 ### HTTP request headers
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a name="updateStationStatus"></a>
-# **updateStationStatus**
-> ApiResponseEntity updateStationStatus(statusCode)
 
 Update the status of the weather station.
 
@@ -210,20 +183,16 @@ Update the status of the weather station.
 ### Example
 ```kotlin
 // Import classes:
+//import org.openapitools.client.*
 //import org.openapitools.client.infrastructure.*
-//import com.example.libapi.data.entities.*
+//import com.example.weatherapi.data.entities.*
 
-val apiInstance = StationsApi()
-val statusCode : java.math.BigDecimal = 8.14 // java.math.BigDecimal | 
-try {
-    val result : ApiResponseEntity = apiInstance.updateStationStatus(statusCode)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling StationsApi#updateStationStatus")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling StationsApi#updateStationStatus")
-    e.printStackTrace()
+val apiClient = ApiClient()
+val webService = apiClient.createWebservice(StationsApi::class.java)
+val statusCode : kotlin.Int = 56 // kotlin.Int | 
+
+launch(Dispatchers.IO) {
+    val result : ApiResponseEntity = webService.updateStationStatus(statusCode)
 }
 ```
 
@@ -231,7 +200,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **statusCode** | **java.math.BigDecimal**|  |
+ **statusCode** | **kotlin.Int**|  |
 
 ### Return type
 
@@ -240,9 +209,6 @@ Name | Type | Description  | Notes
 ### Authorization
 
 
-Configure apiKeyAuth:
-    ApiClient.apiKey["api_key"] = ""
-    ApiClient.apiKeyPrefix["api_key"] = ""
 
 ### HTTP request headers
 

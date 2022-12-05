@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlinx-serialization'
     id "com.google.protobuf" version "0.8.17"
-
+        id "org.openapi.generator" version "6.2.1"
 }
 
 android {
@@ -64,10 +64,6 @@ dependencies {
     implementation 'androidx.compose.material:material:1.1.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
-    implementation "io.ktor:ktor-client-core:$ktor_version"
-    implementation "io.ktor:ktor-client-android:$ktor_version"
-    implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation "androidx.work:work-runtime-ktx:$work_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
@@ -78,7 +74,11 @@ dependencies {
     implementation "androidx.camera:camera-camera2:${camerax_version}"
     implementation "androidx.camera:camera-lifecycle:${camerax_version}"
     implementation "androidx.camera:camera-view:${camerax_version}"
-    implementation("io.coil-kt:coil-compose:2.2.2")
+
+    implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0"
+    implementation "com.squareup.retrofit2:converter-scalars:$retrofitVersion"
 
     implementation project(path: ':libapi')
 
@@ -107,3 +107,23 @@ protobuf {
         }
     }
 }
+
+//openApiGenerate {
+//    globalProperties = [
+//            supportingFiles: "",
+//            apis           : "",
+//            models         : "",
+//    ]
+//    inputSpec = "$rootDir/../Documentation/WebApi/weather-cam-web-api.yaml".toString()
+//    generatorName = "kotlin"
+//    outputDir = "$rootDir/libapi"
+//    modelPackage = "com.example.weatherapi.data.entities"
+//    apiPackage = "com.example.weatherapi.data.api"
+//    modelNameSuffix = "Entity"
+//    additionalProperties = [
+//            useCoroutines       : "true",
+//            library             : "jvm-retrofit2",
+//            serializationLibrary: "kotlinx_serialization",
+//            sourceFolder        : "src/main/java",
+//    ]
+//}

@@ -5,10 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-feature android:name="android.hardware.camera.any" />
-
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -48,6 +46,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:turnScreenOn="true"
+            android:showWhenLocked="true"
             android:label="Weather Station Application"
             android:theme="@style/Theme.WeatherApp">
             <intent-filter>
@@ -61,9 +61,6 @@
                 android:value="" />
         </activity>
 
-        <service
-            android:name=".StationService"
-            android:foregroundServiceType="location|camera" />
     </application>
 
 </manifest>
