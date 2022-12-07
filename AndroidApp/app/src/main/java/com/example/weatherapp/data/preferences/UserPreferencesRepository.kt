@@ -2,23 +2,28 @@ package com.example.weatherapp.data.preferences
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
 data class UserPreferences(
     val apiKey: String? = null,
+    val pollingInterval: Int = DEFAULT_INTERVAL,
 )
 
 internal const val PREFERENCES_STORE_NAME = "weather_app_user_preferences"
+const val DEFAULT_INTERVAL = 15
+
 
 private val Context.dataStore : DataStore<Preferences> by preferencesDataStore(
-    name = PREFERENCES_STORE_NAME
+    name = PREFERENCES_STORE_NAME,
+    corruptionHandler = ReplaceFileCorruptionHandler(
+        produceNewData = { emptyPreferences() }
+    )
 )
 
 class UserPreferencesRepository (context: Context){
@@ -26,12 +31,21 @@ class UserPreferencesRepository (context: Context){
 
     private companion object {
         val API_KEY = stringPreferencesKey("api_key")
+        val POLLING_INTERVAL = intPreferencesKey("polling_interval")
     }
 
     val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
         .map { preferences ->
             val apiKey = preferences[API_KEY]
-            UserPreferences(apiKey)
+            val pollingInterval = preferences[POLLING_INTERVAL]
+            UserPreferences(apiKey, pollingInterval ?: DEFAULT_INTERVAL)
         }
 
     suspend fun setApiKey(value: String) {
@@ -39,4 +53,11 @@ class UserPreferencesRepository (context: Context){
             preferences[API_KEY] = value
         }
     }
+
+    suspend fun setPollingInterval(value: Int) {
+        dataStore.edit { preferences ->
+            preferences[POLLING_INTERVAL] = value
+        }
+    }
+
 }

@@ -5,15 +5,15 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.work.*
+import com.example.weatherapp.client.StationClient
 import com.example.weatherapp.data.alarms.AlarmRepository
 import com.example.weatherapp.data.hardware.HardwareEntity
 import com.example.weatherapp.data.hardware.SavedHardwareRepository
+import com.example.weatherapp.data.preferences.DEFAULT_INTERVAL
 import com.example.weatherapp.data.preferences.UserPreferencesRepository
 import kotlinx.coroutines.flow.*
 
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 
 class MainViewModel(
@@ -23,22 +23,22 @@ class MainViewModel(
     private val powerManager: PowerManager,
     private val stationClient: StationClient
 ) : ViewModel() {
-    private val _hardwares : MutableStateFlow<Map<String, HardwareEntity>> = MutableStateFlow(
+    private val _hardwareUnits : MutableStateFlow<Map<String, HardwareEntity>> = MutableStateFlow(
         emptyMap()
     )
     private val _pollingEnabled : MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _errMsg : MutableStateFlow<String?> = MutableStateFlow(null)
     private val _apiKey : MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _pollingInterval : MutableStateFlow<Int> = MutableStateFlow(DEFAULT_INTERVAL)
     private val _cameraOn : MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    val hardwares : StateFlow<Map<String,HardwareEntity>>
-        get() = _hardwares
+    val hardwareUnits : StateFlow<Map<String,HardwareEntity>>
+        get() = _hardwareUnits
     val apiKey : StateFlow<String?>
         get() = _apiKey
+    val pollingInterval: StateFlow<Int>
+        get() = _pollingInterval
     val pollingEnabled : StateFlow<Boolean>
         get() = _pollingEnabled
-    val errMsg : StateFlow<String?>
-        get() = _errMsg
     val cameraOn : StateFlow<Boolean>
         get() = _cameraOn
 
@@ -59,18 +59,18 @@ class MainViewModel(
                     savedHardwareRepository.savedHardwareFlow) { prefs, saved ->
                 prefs to saved
             }.catch { err ->
-                _errMsg.value = err.message
+                Log.e("ViewModel", "Saved data error", err)
             }.collect { (prefs, saved) ->
                 _apiKey.value = prefs.apiKey
+                _pollingInterval.value = prefs.pollingInterval
                 prefs.apiKey?.let { stationClient.setApiKey(it) }
-                _hardwares.value = saved
+                _hardwareUnits.value = saved
             }
         }
     }
 
     fun onHardwareAdd(nickname: String, ipAddress: String){
         val newHw = HardwareEntity(nickname = nickname, ipAddress = ipAddress)
-        Log.d("MINE", "ADDING HARDWARE")
         viewModelScope.launch {
             savedHardwareRepository.updateHardware(newHw)
         }
@@ -89,12 +89,18 @@ class MainViewModel(
                     alarmRepository.cancelRecurringAlarm()
                     false
                 } else if(apiKey.value != null) {
-                    alarmRepository.setRecurringAlarm()
+                    alarmRepository.setRecurringAlarm(pollingInterval.value)
                     true
                 } else {
                     false
                 }
             }
+        }
+    }
+
+    fun onPollingTimeSet(minutes: Int){
+        viewModelScope.launch {
+            userPreferencesRepository.setPollingInterval(minutes)
         }
     }
 

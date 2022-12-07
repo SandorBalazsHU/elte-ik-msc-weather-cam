@@ -1,10 +1,13 @@
 package com.example.weatherapp
 
+import android.webkit.URLUtil
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -14,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.data.hardware.HardwareEntity
 import kotlinx.coroutines.launch
@@ -24,12 +28,13 @@ fun MainPage(
     viewModel: MainViewModel
 ){
 
-    val hardwareList by viewModel.hardwares.collectAsState()
+    val hardwareList by viewModel.hardwareUnits.collectAsState()
     val apiKey by viewModel.apiKey.collectAsState()
+    val pollingInterval by viewModel.pollingInterval.collectAsState()
     val scaffoldState = rememberScaffoldState(
         rememberDrawerState(initialValue = DrawerValue.Closed)
     )
-    val isHardwareDialogOpen = remember {
+    var isHardwareDialogOpen by remember {
         mutableStateOf(false)
     }
     val isPollingEnabled by viewModel.pollingEnabled.collectAsState()
@@ -38,6 +43,7 @@ fun MainPage(
     val onPollToggle = viewModel::onPollingToggle
     val onHardwareAdd = viewModel::onHardwareAdd
     val onSetApiKey = viewModel::onSetApiKey
+    val onPollingIntervalChanged = viewModel::onPollingTimeSet
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -65,7 +71,7 @@ fun MainPage(
         isFloatingActionButtonDocked = true,
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            StartButton(onPollToggle = onPollToggle, isPollingEnabled = isPollingEnabled)
+            StartButton(onPollToggle, isPollingEnabled)
         },
         drawerGesturesEnabled = false,
         drawerContent = {
@@ -76,12 +82,12 @@ fun MainPage(
                 Text("Close settings")
             }
             Divider()
-            Settings(onSetApiKey = onSetApiKey, apiKey = apiKey)
+            Settings(onSetApiKey, onPollingIntervalChanged, apiKey, pollingInterval)
         }
     ) {
         LazyColumn(
             modifier = Modifier
-                .padding(horizontal = 16.dp, 8.dp)
+                .padding(horizontal = 16.dp, 16.dp)
         ) {
             items(hardwareList.toList()){
                 HardwareRow(it.second, onHardwareAdd, onHardwareDelete)
@@ -95,7 +101,7 @@ fun MainPage(
                 ) {
                     Button(
                         onClick = {
-                            isHardwareDialogOpen.value = true
+                            isHardwareDialogOpen = true
                         },
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = MaterialTheme.colors.secondaryVariant,
@@ -114,7 +120,11 @@ fun MainPage(
             }
         }
 
-        AddHardwareDialog(isOpen = isHardwareDialogOpen, onHardwareAdd = onHardwareAdd)
+        AddHardwareDialog(
+            isOpen = isHardwareDialogOpen,
+            onHardwareAdd = onHardwareAdd,
+            onClosed = { isHardwareDialogOpen = false }
+        )
 
     }
 }
@@ -125,10 +135,10 @@ fun HardwareRow(
     onHardwareAdd : (String, String) -> Unit,
     onHardwareDelete : (String) -> Unit
 ){
-    val isOpen = remember {
+    var isDelOpen by remember {
         mutableStateOf(false)
     }
-    val isEditOpen = remember {
+    var isEditOpen by remember {
         mutableStateOf(false)
     }
     Row(
@@ -155,28 +165,21 @@ fun HardwareRow(
                 )
             }
             HardwareButton(
-                onClick = { isEditOpen.value = true },
+                onClick = { isEditOpen = true },
                 icon = Icons.Default.Settings,
                 description = "Settings",
                 text = "Edit"
             )
-//            HardwareButton(
-//                //todo: display last sent data
-//                onClick = { },
-//                icon = Icons.Default.Info,
-//                description = "Info",
-//                text = "Info"
-//            )
             HardwareButton(
-                onClick = { isOpen.value = true },
+                onClick = { isDelOpen = true },
                 icon = Icons.Default.Delete,
                 description = "Delete",
                 text = "Delete"
             )
         }
     }
-    EditHardwareDialog(isEditOpen, desc, onHardwareAdd)
-    DelHardwareDialog(isOpen, desc.nickname, onHardwareDelete)
+    EditHardwareDialog(isEditOpen, desc, onHardwareAdd) { isEditOpen = false }
+    DelHardwareDialog(isDelOpen, desc.nickname, onHardwareDelete) { isDelOpen = false }
 }
 
 
@@ -216,11 +219,12 @@ fun HardwareButton(onClick: () -> Unit,
 
 @Composable
 fun DelHardwareDialog(
-    isOpen : MutableState<Boolean>,
-    name : String,
-    onHardwareDelete : (String) -> Unit
+    isOpen: Boolean,
+    name: String,
+    onHardwareDelete: (String) -> Unit,
+    onClosed: () -> Unit
 ){
-    if(isOpen.value) {
+    if(isOpen) {
         AlertDialog(
             onDismissRequest = { },
             title = { Text("Are you sure you want to delete: $name?") },
@@ -228,7 +232,7 @@ fun DelHardwareDialog(
                 TextButton(
                     onClick = {
                         onHardwareDelete(name)
-                        isOpen.value = false
+                        onClosed()
                     }
                 ) {
                     Text("Confirm")
@@ -236,9 +240,7 @@ fun DelHardwareDialog(
             },
             dismissButton = {
                 TextButton(
-                    onClick = {
-                        isOpen.value = false
-                    }
+                    onClick = onClosed
                 ) {
                     Text("Cancel")
                 }
@@ -249,15 +251,17 @@ fun DelHardwareDialog(
 
 @Composable
 fun EditHardwareDialog(
-    isOpen : MutableState<Boolean>,
+    isOpen: Boolean,
     ent: HardwareEntity,
-    onHardwareAdd : (String, String) -> Unit
+    onHardwareAdd: (String, String) -> Unit,
+    onClosed: () -> Unit
 ){
-    if(isOpen.value){
+    if(isOpen){
         var ipAddress by remember { mutableStateOf(ent.ipAddress) }
+        val context = LocalContext.current
 
         AlertDialog(
-            onDismissRequest = { isOpen.value = false },
+            onDismissRequest = onClosed,
             title = { Text("Edit hardware") },
             text = {
                 Column {
@@ -266,7 +270,7 @@ fun EditHardwareDialog(
                         onValueChange = {
                             ipAddress = it
                         },
-                        label = { Text("IP address") }
+                        label = { Text("Address") }
                     )
 
                 }
@@ -274,9 +278,21 @@ fun EditHardwareDialog(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if(ipAddress != ""){
+                        if(ipAddress == ""){
+                            Toast.makeText(
+                                context,
+                                "Address must be nonempty!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else if (!URLUtil.isValidUrl(ipAddress)) {
+                            Toast.makeText(
+                                context,
+                                "Address must be a valid url!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
                             onHardwareAdd(ent.nickname, ipAddress)
-                            isOpen.value = false
+                            onClosed()
                         }
                     }
                 ) {
@@ -285,9 +301,7 @@ fun EditHardwareDialog(
             },
             dismissButton = {
                 TextButton(
-                    onClick = {
-                        isOpen.value = false
-                    }
+                    onClick = onClosed
                 ) {
                     Text("Cancel")
                 }
@@ -299,15 +313,17 @@ fun EditHardwareDialog(
 
 @Composable
 fun AddHardwareDialog(
-    isOpen : MutableState<Boolean>,
-    onHardwareAdd : (String, String) -> Unit
+    isOpen: Boolean,
+    onHardwareAdd: (String, String) -> Unit,
+    onClosed: () -> Unit
 ){
-    if(isOpen.value){
+    if(isOpen){
         var nickname by remember { mutableStateOf("") }
         var ipAddress by remember { mutableStateOf("") }
+        val context =  LocalContext.current
 
         AlertDialog(
-            onDismissRequest = { isOpen.value = false },
+            onDismissRequest = onClosed,
             title = { Text("Add hardware") },
             text = {
                 Column {
@@ -323,7 +339,7 @@ fun AddHardwareDialog(
                         onValueChange = {
                             ipAddress = it
                         },
-                        label = { Text("IP address") }
+                        label = { Text("Address") }
                     )
 
                 }
@@ -331,11 +347,22 @@ fun AddHardwareDialog(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if(nickname != "" && ipAddress != ""){
+                        if(nickname == "" || ipAddress == ""){
+                            Toast.makeText(
+                                context,
+                                "Nickname and Address must be nonempty!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else if (!URLUtil.isValidUrl(ipAddress)) {
+                            Toast.makeText(
+                                context,
+                                "Address must be a valid url!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
                             onHardwareAdd(nickname, ipAddress)
-                            isOpen.value = false
+                            onClosed()
                         }
-                        // todo some feedback that the values are missing
                     }
                 ) {
                     Text("Confirm")
@@ -343,9 +370,7 @@ fun AddHardwareDialog(
             },
             dismissButton = {
                 TextButton(
-                    onClick = {
-                        isOpen.value = false
-                    }
+                    onClick = onClosed
                 ) {
                     Text("Cancel")
                 }
@@ -356,8 +381,8 @@ fun AddHardwareDialog(
 
 @Composable
 fun StartButton(
-    onPollToggle : () -> Unit,
-    isPollingEnabled : Boolean,
+    onPollToggle: () -> Unit,
+    isPollingEnabled: Boolean,
 ){
     FloatingActionButton(
         onClick = onPollToggle
@@ -372,9 +397,14 @@ fun StartButton(
 @Composable
 fun Settings(
     onSetApiKey: (String) -> Unit,
-    apiKey: String?
+    onPollingIntervalChanged: (Int) -> Unit,
+    apiKey: String?,
+    pollingInterval: Int
 ){
-    val apiKeyDialogOpen = remember {
+    var apiKeyDialogOpen by remember {
+        mutableStateOf(false)
+    }
+    var pollIntervalDialogOpen by remember {
         mutableStateOf(false)
     }
 
@@ -384,30 +414,53 @@ fun Settings(
             .fillMaxWidth()
     ) {
         TextButton(
-            onClick = { apiKeyDialogOpen.value = true },
+            onClick = { apiKeyDialogOpen = true },
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
         ) {
             Text("API key")
         }
+        TextButton(
+            onClick = { pollIntervalDialogOpen = true },
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+        ) {
+            Text("Polling interval")
+        }
     }
 
-    ApiKeyDialog(isOpen = apiKeyDialogOpen, onSetApiKey = onSetApiKey, apiKey = apiKey)
+    ApiKeyDialog(
+        isOpen = apiKeyDialogOpen,
+        onSetApiKey = onSetApiKey,
+        apiKey = apiKey,
+        onClosed = {
+            apiKeyDialogOpen = false
+        }
+    )
+    PollingIntervalDialog(
+        isOpen = pollIntervalDialogOpen,
+        onPollingIntervalChanged = onPollingIntervalChanged,
+        pollingInterval = pollingInterval,
+        onClosed = {
+            pollIntervalDialogOpen = false
+        }
+    )
 }
 
-// could we make it nicer with state hoisting?
 @Composable
 fun ApiKeyDialog(
-    isOpen : MutableState<Boolean>,
-    onSetApiKey : (String) -> Unit,
-    apiKey: String?
+    isOpen: Boolean,
+    apiKey: String?,
+    onSetApiKey: (String) -> Unit,
+    onClosed: () -> Unit
 ){
-    if(isOpen.value){
+    if(isOpen){
         var apiKeyVal by remember { mutableStateOf(apiKey ?: "") }
 
         AlertDialog(
-            onDismissRequest = { isOpen.value = false },
+            onDismissRequest = onClosed,
             title = { Text("Set API key") },
             text = {
                 Column {
@@ -425,7 +478,7 @@ fun ApiKeyDialog(
                     onClick = {
                         if(apiKeyVal != ""){
                             onSetApiKey(apiKeyVal)
-                            isOpen.value = false
+                            onClosed()
                         }
                     }
                 ) {
@@ -434,13 +487,90 @@ fun ApiKeyDialog(
             },
             dismissButton = {
                 TextButton(
-                    onClick = {
-                        isOpen.value = false
-                    }
+                    onClick = onClosed
                 ) {
                     Text("Cancel")
                 }
             }
+        )
+    }
+}
+
+@Composable
+fun PollingIntervalDialog(
+    isOpen: Boolean,
+    pollingInterval: Int,
+    onPollingIntervalChanged: (Int) -> Unit,
+    onClosed: () -> Unit,
+){
+    if(isOpen){
+        val optionsList = listOf(15, 20, 30, 60)
+        val defaultIndex: Int = optionsList.indexOf(pollingInterval)
+        var selectedIndex by remember {
+            mutableStateOf(defaultIndex)
+        }
+
+        AlertDialog(
+            onDismissRequest = onClosed,
+            title = { Text("Set polling interval in minutes") },
+            text = {
+                LazyColumn {
+                    items(optionsList){
+                        SelectableOption(value = it, selectedValue = optionsList[selectedIndex]) {
+                            selectedValue ->
+                                selectedIndex = optionsList.indexOf(selectedValue)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onPollingIntervalChanged(optionsList[selectedIndex])
+                        onClosed()
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onClosed
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun SelectableOption(
+    value: Int,
+    selectedValue: Int,
+    onClick: (Int) -> Unit
+){
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .selectable(
+            selected = (value == selectedValue),
+            onClick = {
+                onClick(value)
+            }
+        )
+        .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = (value == selectedValue),
+            onClick = {
+                onClick(value)
+            }
+        )
+        Text(
+            text = "$value minutes",
+            style = MaterialTheme.typography.body1.merge(),
+            modifier = Modifier.padding(start = 16.dp)
         )
     }
 }

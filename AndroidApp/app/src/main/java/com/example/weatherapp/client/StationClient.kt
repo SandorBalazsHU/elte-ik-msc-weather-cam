@@ -1,25 +1,20 @@
-package com.example.weatherapp
+package com.example.weatherapp.client
 
 import android.os.SystemClock
 import android.util.Log
 import com.example.weatherapi.data.api.MeasurementsApi
 import com.example.weatherapi.data.api.PicturesApi
+import com.example.weatherapi.data.api.StatusApi
 import com.example.weatherapi.data.entities.MeasurementEntity
 import com.example.weatherapp.data.hardware.HardwareEntity
-import com.example.weatherapp.data.hardware.HwMeasurementEntity
+import com.example.weatherapp.data.hardware.HwMeasurementsEntity
 import com.example.weatherapp.data.hardware.MeasurementsRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okio.Buffer
 import org.openapitools.client.infrastructure.ApiClient
-import java.io.IOException
 
 
 class StationClient(
@@ -29,6 +24,7 @@ class StationClient(
 
     private val measurementService = apiClient.createService(MeasurementsApi::class.java)
     private val picturesService = apiClient.createService(PicturesApi::class.java)
+    private val statusService = apiClient.createService(StatusApi::class.java)
 
     fun setApiKey(key: String): Boolean {
         return try {
@@ -64,6 +60,13 @@ class StationClient(
              }
     }
 
+    suspend fun addStatus(status: Int): ClientResult<Int> = withContext(Dispatchers.IO) {
+        runClientCatching {
+            val res = statusService.addStatus(status)
+            res.code()
+        }
+    }
+
     suspend fun addPicture(file: java.io.File): ClientResult<Int> = withContext(Dispatchers.IO) {
         runClientCatching {
             Log.d("WeatherStationClient", "RUN CLIENT")
@@ -83,7 +86,7 @@ class StationClient(
         }
 
 
-    private fun translateMeasurement(hwEnt: HwMeasurementEntity) : MeasurementEntity =
+    private fun translateMeasurement(hwEnt: HwMeasurementsEntity) : MeasurementEntity =
         MeasurementEntity(
             temperature = hwEnt.temp,
             pressure = hwEnt.pressure,
