@@ -504,7 +504,7 @@ fun PollingIntervalDialog(
     onClosed: () -> Unit,
 ){
     if(isOpen){
-        val optionsList = listOf(15, 20, 30, 60)
+        val optionsList = listOf(1, 15, 20, 30, 60)
         val defaultIndex: Int = optionsList.indexOf(pollingInterval)
         var selectedIndex by remember {
             mutableStateOf(defaultIndex)
