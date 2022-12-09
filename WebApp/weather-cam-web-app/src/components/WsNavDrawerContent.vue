@@ -32,6 +32,7 @@
           :prepend-icon="contact.icon"
           :title="contact.name"
           :value="contact.name"
+          :href="contact.link"
         ></v-list-item>
       </v-list>
     </div>
