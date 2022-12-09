@@ -35,14 +35,12 @@
                 <v-autocomplete
                   :disabled="fetchingStations"
                   :items="
-                    stations.stations
-                      .filter(
-                        (station) => stations.getSelectedStation?.stationId !== station.stationId
-                      )
+                    stations
+                      .filter((station) => getSelectedStation?.stationId !== station.stationId)
                       .map((station) => station.stationName)
                   "
                   :label="fetchingStations ? 'Fetching...' : 'Stations'"
-                  v-model="currentlySelectedStation"
+                  v-model="selectedStation"
                 ></v-autocomplete>
               </v-col>
             </v-row>
@@ -63,23 +61,26 @@
 import { ref } from "vue";
 import { xs, calcFormSize } from "@/utils/Sizing.js";
 import { useStationStore } from "@/store/stations.js";
-const stations = useStationStore();
+import { storeToRefs } from "pinia";
+const stationsStore = useStationStore();
 const dialog = ref(false);
-const currentlySelectedStation = ref(stations.getSelectedStation?.stationName);
+
+const { getSelectedStation, stations } = storeToRefs(stationsStore);
+const selectedStation = ref(getSelectedStation.value?.stationName);
 const fetchingStations = ref(true);
 
 const cancelHander = () => (dialog.value = false);
 const saveHandler = () => {
-  const selectedId = stations.stations.find(
-    (station) => station.stationName === currentlySelectedStation.value
+  const selectedId = stations.value.find(
+    (station) => station.stationName === selectedStation.value
   )?.stationId;
-  selectedId && stations.changeSelectedStation(selectedId);
+  stationsStore.changeSelectedStation(selectedId!);
   dialog.value = false;
 };
 
 function openDialogHandler(open: boolean) {
   if (!open) return;
   fetchingStations.value = true;
-  stations.fetchUserStations().then(() => (fetchingStations.value = false));
+  stationsStore.fetchUserStations().then(() => (fetchingStations.value = false));
 }
 </script>

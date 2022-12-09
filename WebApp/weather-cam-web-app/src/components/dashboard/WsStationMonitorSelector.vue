@@ -19,8 +19,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { Station } from "@/api/openapi/index.js";
-import type HttpStatusCode from "@/utils/HttpStatusCode.js";
 import { useStationStore } from "@/store/stations.js";
 import { onMounted, ref } from "vue";
 import WsStationSelector from "@/components/dashboard/WsStationSelector.vue";
@@ -32,9 +30,7 @@ import type { HttpError } from "@/api/errors/CustomErrors.js";
 import { useTimeAgo } from "@vueuse/core";
 
 const props = defineProps<{
-  stationData: Station;
   lastTimestamp: number;
-  status: HttpStatusCode;
 }>();
 
 const stationStore = useStationStore();

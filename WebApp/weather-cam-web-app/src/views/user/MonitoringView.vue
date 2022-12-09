@@ -8,12 +8,7 @@
     <div class="wrapper mb-3 w-100 flex-wrap d-flex justify-center">
       <ws-current-station-info
         class="station-selector"
-        :status="200"
         :last-timestamp="latestMeasurement.timestamp"
-        :station-data="{
-          stationId: 1,
-          stationName: 'Home station',
-        }"
       ></ws-current-station-info>
       <ws-measurement
         :loading="loadingMeasurements"
@@ -76,7 +71,7 @@ import { useAlertStore } from "@/store/alert.js";
 import type { HttpError } from "@/api/errors/CustomErrors.js";
 import { useStationStore } from "@/store/stations.js";
 import { storeToRefs } from "pinia";
-import { useTimeAgo, useTimeoutPoll } from "@vueuse/core";
+import { useTimeoutPoll } from "@vueuse/core";
 
 const stationsStore = useStationStore();
 const measurementsStore = useMeasurementStore();
@@ -97,18 +92,26 @@ const batteryBarColor = (percent: number) => {
   if (percent < 50 && percent >= 20) return "yellow";
   return "red";
 };
+
+const fetchCallbacks = {
+  onError: onFetchMeasurementError,
+  onSuccess: onFetchMeasurementSuccess,
+};
 async function loadMeasurements() {
   loadingMeasurements.value = true;
-  const fetchCallbacks = {
-    onError: onFetchMeasurementError,
-    onSuccess: onFetchMeasurementSuccess,
-  };
-  await stationsStore.fetchUserStations(fetchCallbacks);
+
   await measurementsStore.fetchLatestMeasurement(stationsStore.selectedStationId!, fetchCallbacks);
   loadingMeasurements.value = false;
 }
 
 const timeout = useTimeoutPoll(loadMeasurements, 10000);
+
+stationsStore.$subscribe(() => {
+  loadingMeasurements.value = true;
+  measurementsStore
+    .fetchLatestMeasurement(stationsStore.selectedStationId!, fetchCallbacks)
+    .then(() => (loadingMeasurements.value = false));
+});
 
 onMounted(() => {
   loadMeasurements();
