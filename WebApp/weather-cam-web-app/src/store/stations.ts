@@ -6,14 +6,14 @@ import { defineStore } from "pinia";
 
 interface StationsState {
   stations: Station[];
-  selectedStationId: number | undefined;
+  selectedStationId: number;
 }
 
 export const useStationStore = defineStore("stations", {
   state: () =>
     ({
       stations: [] as Station[],
-      selectedStationId: undefined,
+      selectedStationId: 0,
     } as StationsState),
   getters: {
     getSelectedStation: ({ selectedStationId, stations }) =>
@@ -21,9 +21,8 @@ export const useStationStore = defineStore("stations", {
   },
   actions: {
     changeSelectedStation(stationId: number) {
-      this.selectedStationId = this.stations.find(
-        (station) => station.stationId === stationId
-      )?.stationId;
+      this.selectedStationId =
+        this.stations.find((station) => station.stationId === stationId)?.stationId ?? 0;
     },
 
     async fetchUserStations(callback?: FetchCallbacks) {
@@ -33,7 +32,8 @@ export const useStationStore = defineStore("stations", {
           throwErrorByResponse(result.raw.status);
         }
         this.stations = await result.value();
-        if (!this.selectedStationId && this.stations.length > 0) {
+        if (this.selectedStationId === undefined && this.stations.length > 0) {
+          console.log(this.selectedStationId);
           this.changeSelectedStation(this.stations[0].stationId);
         }
         callback?.onSuccess?.call(this);
@@ -42,6 +42,18 @@ export const useStationStore = defineStore("stations", {
         callback?.onError?.call(this, unifyError(error));
       }
       return this.stations;
+    },
+    async addUserStation(stationName: string, callback?: FetchCallbacks) {
+      try {
+        const result = await userApi.addStationsRaw({ stationName });
+        if (!result.raw.ok) {
+          throwErrorByResponse(result.raw.status);
+        }
+        this.fetchUserStations();
+        callback?.onSuccess?.call(this);
+      } catch (error) {
+        callback?.onError?.call(this, unifyError(error));
+      }
     },
   },
 });

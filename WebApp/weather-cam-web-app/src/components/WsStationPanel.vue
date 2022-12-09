@@ -5,13 +5,13 @@
       <span class="name-text text-truncate">{{ station.stationName }}</span>
       <template v-slot:actions>
         <template v-if="!isMobile">
-          <v-btn class="mx-2" size="large" color="secondary" prepend-icon="mdi-wrench">Edit</v-btn>
-          <v-btn color="error" size="large" prepend-icon="mdi-delete">Delete</v-btn>
+          <ws-edit-station-dialog class="mx-2" :station="props.station"></ws-edit-station-dialog>
+          <ws-delete-station-dialog :station="props.station"> </ws-delete-station-dialog>
         </template>
         <template v-else>
           <template v-if="!xs">
-            <v-btn class="mx-2" color="secondary" icon="mdi-wrench"></v-btn>
-            <v-btn color="error" icon="mdi-delete"></v-btn>
+            <ws-edit-station-dialog class="mr-2" :station="props.station"></ws-edit-station-dialog>
+            <ws-delete-station-dialog :station="props.station"> </ws-delete-station-dialog>
           </template>
         </template>
       </template>
@@ -23,10 +23,10 @@
         :status="200"
       ></ws-status-indicator>
       <div>ID: {{ station.stationId }}</div>
-      <div>API Key: {{ apiKey }}</div>
-      <div v-if="xs" class="text-right mt-2">
-        <v-btn class="mx-2" color="secondary" icon="mdi-wrench"></v-btn>
-        <v-btn color="error" icon="mdi-delete"></v-btn>
+      <div style="word-break: break-all">API Key: {{ apiKey }}</div>
+      <div v-if="xs" class="d-flex justify-end mt-2">
+        <ws-edit-station-dialog class="mr-2" :station="props.station"></ws-edit-station-dialog>
+        <ws-delete-station-dialog :station="props.station"></ws-delete-station-dialog>
       </div>
     </v-expansion-panel-text>
   </v-expansion-panel>
@@ -40,6 +40,9 @@ import { stationsApi } from "@/api/apis.js";
 import { onMounted, ref } from "vue";
 import { useAlertStore } from "@/store/alert.js";
 import WsStatusIndicator from "./WsStatusIndicator.vue";
+import WsDeleteStationDialog from "@/components/WsDeleteStationDialog.vue";
+import WsEditStationDialog from "@/components/WsEditStationDialog.vue";
+import { calcFormSize } from "@/utils/Sizing.js";
 
 const props = defineProps<{ station: Station }>();
 const fetchingApiKey = ref(false);

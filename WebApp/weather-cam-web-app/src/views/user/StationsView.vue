@@ -4,8 +4,7 @@
       <span>My stations</span>
       <v-icon size="small" class="ml-1">mdi-access-point-network</v-icon>
     </div>
-    <v-btn v-if="!isMobile" color="green" size="large" prepend-icon="mdi-plus">Add Station</v-btn>
-    <v-btn v-if="isMobile" color="green" size="default" icon="mdi-plus"></v-btn>
+    <ws-create-station-dialog></ws-create-station-dialog>
   </header>
   <v-divider class="my-2"></v-divider>
   <ws-station-panel-container>
@@ -38,6 +37,7 @@ import WsStationPanelContainer from "@/components/WsStationPanelContainer.vue";
 import WsAlertContainer from "@/components/WsAlertContainer.vue";
 import { useAlertStore } from "@/store/alert.js";
 import type { HttpError } from "@/api/errors/CustomErrors.js";
+import WsCreateStationDialog from "@/components/WsCreateStationDialog.vue";
 
 const stationsStore = useStationStore();
 const loadingStations = ref(false);
