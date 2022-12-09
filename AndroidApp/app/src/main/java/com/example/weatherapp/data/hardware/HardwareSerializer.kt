@@ -22,7 +22,7 @@ object HardwareSerializer : Serializer<HardwareMap> {
         t.writeTo(output)
 }
 
-fun toSaved(entity: HardwareEntity) =
+fun toSaved(entity: HardwareEntity): SavedHardware =
     SavedHardware.newBuilder()
         .setAddress(entity.ipAddress)
         .setName(entity.nickname)
@@ -30,10 +30,10 @@ fun toSaved(entity: HardwareEntity) =
         .build()
 
 fun fromSaved(saved: SavedHardware): HardwareEntity {
-    val addr = saved.address ?: throw CorruptionException("Undefined address.")
+    val address = saved.address ?: throw CorruptionException("Undefined address.")
     val name = saved.name ?: throw CorruptionException("Undefined name.")
    // val lastSuccess = saved.lastSuccess
-    return HardwareEntity(ipAddress = addr, nickname = name)
+    return HardwareEntity(ipAddress = address, nickname = name)
 }
 
 fun fromSavedMap(savedMap: HardwareMap): Map<String, HardwareEntity> {

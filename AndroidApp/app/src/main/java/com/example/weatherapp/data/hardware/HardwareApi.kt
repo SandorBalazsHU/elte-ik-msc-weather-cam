@@ -6,5 +6,5 @@ import retrofit2.http.GET
 interface HardwareApi {
 
     @GET("/")
-    suspend fun getMeasurements(): Response<HwMeasurementEntity>
+    suspend fun getMeasurements(): Response<HwMeasurementsEntity>
 }

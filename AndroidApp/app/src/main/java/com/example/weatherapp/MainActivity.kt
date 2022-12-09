@@ -2,13 +2,9 @@ package com.example.weatherapp
 
 import android.Manifest
 import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.os.PowerManager
-import android.os.SystemClock
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
@@ -20,17 +16,13 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.work.WorkManager
 import com.example.weatherapp.camera.CameraCapture
+import com.example.weatherapp.client.StationClient
 import com.example.weatherapp.data.alarms.AlarmRepository
 import com.example.weatherapp.data.hardware.SavedHardwareRepository
 import com.example.weatherapp.data.preferences.UserPreferencesRepository
 import com.example.weatherapp.ui.theme.WeatherAppTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

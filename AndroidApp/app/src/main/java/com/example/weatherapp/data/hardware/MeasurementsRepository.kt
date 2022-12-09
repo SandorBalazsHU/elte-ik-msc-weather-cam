@@ -5,10 +5,8 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.internal.wait
 import okhttp3.logging.HttpLoggingInterceptor
 import org.openapitools.client.infrastructure.Serializer
 import retrofit2.Retrofit
@@ -18,7 +16,7 @@ import java.util.concurrent.TimeUnit
 class MeasurementsRepository (
     private val measurementsSource : MeasurementsSource = MeasurementsSource()
 ) {
- suspend fun measurements(address: String) : HwMeasurementEntity? =
+ suspend fun measurements(address: String) : HwMeasurementsEntity? =
      measurementsSource.getMeasurements(address)
 }
 
@@ -50,7 +48,7 @@ class MeasurementsSource {
     }
 
 
-    suspend fun getMeasurements(endpoint: String) : HwMeasurementEntity? = withContext(Dispatchers.IO){
+    suspend fun getMeasurements(endpoint: String) : HwMeasurementsEntity? = withContext(Dispatchers.IO){
         val client = invoke(endpoint)
         val res = client.getMeasurements()
         //res.wait()

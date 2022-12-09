@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
  * @param humidity humidity in percentage.
  */
 @Serializable
-data class HwMeasurementEntity (
+data class HwMeasurementsEntity (
 
     /* temperature in celsius. */
     @SerialName(value = "temp")

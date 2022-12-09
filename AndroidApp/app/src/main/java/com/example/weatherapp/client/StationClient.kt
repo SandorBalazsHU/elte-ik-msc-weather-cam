@@ -1,25 +1,19 @@
-package com.example.weatherapp
+package com.example.weatherapp.client
 
 import android.os.SystemClock
 import android.util.Log
 import com.example.weatherapi.data.api.MeasurementsApi
 import com.example.weatherapi.data.api.PicturesApi
+import com.example.weatherapi.data.api.StatusApi
 import com.example.weatherapi.data.entities.MeasurementEntity
 import com.example.weatherapp.data.hardware.HardwareEntity
-import com.example.weatherapp.data.hardware.HwMeasurementEntity
+import com.example.weatherapp.data.hardware.HwMeasurementsEntity
 import com.example.weatherapp.data.hardware.MeasurementsRepository
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType
+import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okio.Buffer
+import okhttp3.internal.toImmutableList
 import org.openapitools.client.infrastructure.ApiClient
-import java.io.IOException
 
 
 class StationClient(
@@ -29,6 +23,7 @@ class StationClient(
 
     private val measurementService = apiClient.createService(MeasurementsApi::class.java)
     private val picturesService = apiClient.createService(PicturesApi::class.java)
+    private val statusService = apiClient.createService(StatusApi::class.java)
 
     fun setApiKey(key: String): Boolean {
         return try {
@@ -40,31 +35,34 @@ class StationClient(
         }
     }
 
-    suspend fun pollMeasurements(addresses: Map<String, HardwareEntity>) = withContext(Dispatchers.IO) {
-             val results = addresses.map {
-                 it.key to getMeasurement(it.key)
-             }
-            //todo: warning for unreachable hardware units
-             val goodMeasurements: List<MeasurementEntity>  =
-                 results.mapNotNull {
-                     when (val res = it.second) {
-                         is ClientResult.Success ->
-                             res.res
-                         else -> {
-                             Log.e("WeatherStationClient",
-                                 "Misc. error for hardware address ${it.first}")
-                             null
-                         }
-                     }
-                 }
-
-             runClientCatching {
-                 val res = measurementService.addMeasurements(goodMeasurements)
-                 res.code()
-             }
+    /*
+    *  Poll the hardware units, send the result to the api server.
+    * Returns false if one of the hardware units did not respond correctly.
+    * */
+    suspend fun addMeasurements(addresses: Map<String, HardwareEntity>) = withContext(Dispatchers.IO) {
+        val results: MutableList<MeasurementEntity> = mutableListOf()
+        var hasError = false
+        for ((address, _) in addresses) {
+            when(val res = getMeasurement(address)) {
+                is ClientResult.Success -> {
+                    if (res.res != null){
+                        results.add(res.res)
+                    }
+                }
+                else -> {
+                    hasError = true
+                    Log.e("WeatherStationClient",
+                        "Misc. error for hardware address $address")
+                }
+            }
+        }
+        runClientCatching {
+            measurementService.addMeasurements(results.toImmutableList())
+        }
+        (!hasError)
     }
 
-    suspend fun addPicture(file: java.io.File): ClientResult<Int> = withContext(Dispatchers.IO) {
+    suspend fun addPicture(file: java.io.File) = withContext(Dispatchers.IO) {
         runClientCatching {
             Log.d("WeatherStationClient", "RUN CLIENT")
             val bytes = file.readBytes()
@@ -72,6 +70,14 @@ class StationClient(
                 bytes.toRequestBody("application/octet-stream".toMediaTypeOrNull(), 0, bytes.size)
             val res = picturesService.addPicture("application/octet-stream", body)
             Log.d("WeatherStationClient", "add picture code: ${res.code()}")
+            res
+        }
+        Unit
+    }
+
+    private suspend fun addStatus(status: Int): ClientResult<Int> = withContext(Dispatchers.IO) {
+        runClientCatching {
+            val res = statusService.addStatus(status)
             res.code()
         }
     }
@@ -83,7 +89,7 @@ class StationClient(
         }
 
 
-    private fun translateMeasurement(hwEnt: HwMeasurementEntity) : MeasurementEntity =
+    private fun translateMeasurement(hwEnt: HwMeasurementsEntity) : MeasurementEntity =
         MeasurementEntity(
             temperature = hwEnt.temp,
             pressure = hwEnt.pressure,
@@ -99,14 +105,15 @@ sealed class ClientResult<out T> {
     data class Error(val err: Throwable): ClientResult<Nothing>()
 }
 
-inline fun <R> runClientCatching(block: () -> R): ClientResult<R> =
+suspend inline fun <R> runClientCatching(noinline block: suspend CoroutineScope.() -> R): ClientResult<R> =
     try {
-        val res = block()
+        val res = withTimeout( 10*1000L, block)
         ClientResult.Success(res)
     } catch (cancellationException: CancellationException) {
         //avoid interference with coroutines
         throw cancellationException
     } catch (e: Throwable){
+        Log.e("WeatherStationClient", "request error", e)
         ClientResult.Error(e)
     }
 

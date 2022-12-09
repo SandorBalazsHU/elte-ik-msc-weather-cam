@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 @SuppressLint("UnspecifiedImmutableFlag") //took care of it with a conditional
-class AlarmRepository (val context: Context){
+class AlarmRepository(private val context: Context){
     val alarmFlow: Flow<Long> = callbackFlow {
         val receiver = object : android.content.BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent?) {
@@ -47,12 +47,12 @@ class AlarmRepository (val context: Context){
         }
     }
 
-    fun setRecurringAlarm(){
+    fun setRecurringAlarm(minutes: Int){
         Log.d("APP", "alarm set")
         alarmManager.setInexactRepeating(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
             SystemClock.elapsedRealtime() + 1000,
-            30*1000, // Set so short for demo purposes only.
+            (minutes*60*1000).toLong(),
             pendingIntent
         )
     }
