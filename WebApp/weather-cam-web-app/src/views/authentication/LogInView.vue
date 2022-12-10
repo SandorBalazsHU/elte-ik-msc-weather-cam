@@ -53,6 +53,8 @@
         </v-card-actions>
         <ws-alert-container id="login-errors" v-show="login" :max-displayed="1" :max-stored="1">
         </ws-alert-container>
+        <ws-alert-container id="register-errors" :max-displayed="1" :max-stored="1">
+        </ws-alert-container>
       </v-form>
       <v-divider></v-divider>
       <v-tabs class="w-100" fixed-tabs bg-color="black-darken-2">
@@ -77,7 +79,8 @@ import {
   usernameLoginRules,
   usernameRegisterRules,
 } from "@/utils/FormValidators.js";
-import type { HttpError } from "@/api/errors/CustomErrors.js";
+import { throwErrorByResponse, unifyError, type HttpError } from "@/api/errors/CustomErrors.js";
+import { userApi } from "@/api/apis.js";
 
 const valid = ref(false);
 const login = ref(true);
@@ -135,7 +138,23 @@ function onLoginError(error: HttpError) {
 
 async function registerUser() {
   loading.value = true;
-
+  try {
+    const result = await userApi.registerUserRaw({
+      password: formData.password,
+      username: formData.username,
+    });
+    if (!result.raw.ok) {
+      throw Error("asd");
+    }
+    navToLoginHandler();
+    alertStore.addAlert(
+      "register-errors",
+      { message: "Successully registered!", code: 200, type: "success" },
+      "success"
+    );
+  } catch (error) {
+    alertStore.addAlert("register-errors", unifyError(error), "error");
+  }
   loading.value = false;
 }
 

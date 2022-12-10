@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 
 import { throwErrorByResponse, unifyError } from "@/api/errors/CustomErrors.js";
 import router from "@/router/index.js";
-import type { LoginUserRequest, User } from "@/api/openapi/index.js";
+import type { LoginUserRequest, User, UserUpdateable } from "@/api/openapi/index.js";
 import { changeApiConfig, userApi } from "@/api/apis.js";
 import type { FetchCallbacks } from "@/types/types.js";
 
@@ -58,6 +58,22 @@ export const useUserStore = defineStore("user", {
         this.$reset();
         callback?.onSuccess?.call(this);
         router.push({ path: "/" });
+      } catch (error) {
+        callback?.onError?.call(this, unifyError(error));
+      }
+    },
+
+    async updateUserData(newData: UserUpdateable, callback?: FetchCallbacks) {
+      try {
+        const result = await userApi.updateUserRaw({
+          username: this.userData.username,
+          userUpdateable: newData,
+        });
+        if (!result.raw.ok) {
+          throwErrorByResponse(result.raw.status);
+        }
+
+        callback?.onSuccess?.call(this);
       } catch (error) {
         callback?.onError?.call(this, unifyError(error));
       }

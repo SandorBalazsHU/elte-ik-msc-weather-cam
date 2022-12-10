@@ -6,8 +6,9 @@
         ><v-select
           style="max-width: fit-content; min-width: 20%"
           label="Select interval"
-          :items="durations"
+          :items="durations.map((d) => d.text)"
           v-model="selecedDuration"
+          @update:model-value="changeDurationHandler"
           density="compact"
           variant="solo"
         ></v-select>
@@ -18,49 +19,51 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { LineChart, useLineChart } from "vue-chart-3";
 import { Chart, type ChartData, type ChartOptions, registerables } from "chart.js";
 import { useThemeStore } from "@/store/theme.js";
 import { calcPictureSize } from "@/utils/Sizing.js";
+import { durations, type DurationText } from "@/store/chart.js";
+
+import { useChartStore, type DurationType } from "@/store/chart.js";
+import { storeToRefs } from "pinia";
+const chartStore = useChartStore();
 Chart.register(...registerables);
-const dataValues = ref([30, 40, 60, 70, 5]);
-const dataValues2 = ref([12, 33, 55, 17, 66]);
-const dataValues3 = ref([632, 843, 815, 717, 870]);
-const dataValues4 = ref([1, 5, 7, 1, 23]);
-const durations = [
-  "Last hour",
-  "Last 12 hours",
-  "Last 24 hours",
-  "Last week",
-  "Last month",
-  "Last year",
-  "All",
-];
-const selecedDuration = ref("Last 24 hours");
+
+function changeDurationHandler(duration: DurationType) {
+  console.log(durations);
+  chartStore.changeDuration(durations.find((d) => d.text === (duration as unknown))!);
+}
+const selecedDuration = ref<DurationText>("Last 24 hours");
+
+onMounted(() => {
+  chartStore.changeDuration(durations[2]);
+});
+
 const testData = computed<ChartData<"line">>(() => ({
-  labels: [1, 2, 3, 4, 5],
+  labels: chartStore.generateLabels,
   datasets: [
     {
-      data: dataValues.value,
+      data: chartStore.battery,
       borderColor: "green",
       backgroundColor: "green",
       label: "Battery",
     },
     {
-      data: dataValues2.value,
+      data: chartStore.humidity,
       borderColor: "blue",
       backgroundColor: "blue",
       label: "Humidity",
     },
     {
-      data: dataValues3.value,
+      data: chartStore.pressure,
       borderColor: "red",
       backgroundColor: "red",
       label: "Pressure",
     },
     {
-      data: dataValues4.value,
+      data: chartStore.temperature,
       borderColor: "yellow",
       backgroundColor: "yellow",
       label: "Temperature",
@@ -83,6 +86,7 @@ const options = computed<ChartOptions<"line">>(() => ({
       grid: {
         color: gridColor.value,
       },
+
       position: "bottom",
     },
     y: {

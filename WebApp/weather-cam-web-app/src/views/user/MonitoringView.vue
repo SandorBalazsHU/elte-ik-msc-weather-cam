@@ -8,7 +8,7 @@
     <div class="wrapper mb-3 w-100 flex-wrap d-flex justify-center">
       <ws-current-station-info
         class="station-selector"
-        :last-timestamp="latestMeasurement.timestamp"
+        :last-timestamp="lastActive / 1000"
       ></ws-current-station-info>
       <ws-measurement
         :loading="loadingMeasurements"
@@ -71,7 +71,7 @@ import { useAlertStore } from "@/store/alert.js";
 import type { HttpError } from "@/api/errors/CustomErrors.js";
 import { useStationStore } from "@/store/stations.js";
 import { storeToRefs } from "pinia";
-import { useTimeoutPoll } from "@vueuse/core";
+import { useTimeoutPoll, useTimestamp } from "@vueuse/core";
 
 const stationsStore = useStationStore();
 const measurementsStore = useMeasurementStore();
@@ -97,10 +97,16 @@ const fetchCallbacks = {
   onError: onFetchMeasurementError,
   onSuccess: onFetchMeasurementSuccess,
 };
+
+const lastActive = ref(0);
 async function loadMeasurements() {
   loadingMeasurements.value = true;
 
-  await measurementsStore.fetchLatestMeasurement(stationsStore.selectedStationId!, fetchCallbacks);
+  await measurementsStore
+    .fetchLatestMeasurement(stationsStore.selectedStationId!, fetchCallbacks)
+    .then(() => {
+      lastActive.value = useTimestamp().value;
+    });
   loadingMeasurements.value = false;
 }
 

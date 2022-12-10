@@ -10,7 +10,9 @@
       </div>
 
       <div class="d-flex data flex-grow-1">
-        <span class="measurement-data"> {{ data ? `${data} ${unitOfMeasure}` : "" }} </span>
+        <span class="measurement-data">
+          {{ data ? `${data.toFixed(2)} ${unitOfMeasure}` : "" }}
+        </span>
       </div>
       <v-progress-linear
         v-show="bar"

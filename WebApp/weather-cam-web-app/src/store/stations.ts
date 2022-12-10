@@ -17,12 +17,13 @@ export const useStationStore = defineStore("stations", {
     } as StationsState),
   getters: {
     getSelectedStation: ({ selectedStationId, stations }) =>
-      stations.find((station) => station.stationId === selectedStationId),
+      stations.find((station) => station.stationId === selectedStationId) ?? stations[0],
   },
   actions: {
     changeSelectedStation(stationId: number) {
       this.selectedStationId =
-        this.stations.find((station) => station.stationId === stationId)?.stationId ?? 0;
+        this.stations.find((station) => station.stationId === stationId)?.stationId ??
+        this.stations[0].stationId;
     },
 
     async fetchUserStations(callback?: FetchCallbacks) {

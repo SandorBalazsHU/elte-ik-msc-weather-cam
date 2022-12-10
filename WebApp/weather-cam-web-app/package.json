@@ -13,12 +13,8 @@
     "preview": "vite preview --port 4173",
     "test:e2e:ci": "start-server-and-test preview http://localhost:4173/ 'cypress run --e2e'",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
-    "mock-api": "prism mock https://raw.githubusercontent.com/SandorBalazsHU/elte-ik-msc-weather-cam/main/Documentation/WebApi/weather-cam-web-api-mock.yaml",
-<<<<<<< HEAD
+    "mock-api": "prism mock https://raw.githubusercontent.com/SandorBalazsHU/elte-ik-msc-weather-cam/main/Documentation/WebApi/weather-cam-web-api-mock.yaml --dynamic",
     "swagger-gen": "openapi-generator-cli generate -i https://raw.githubusercontent.com/SandorBalazsHU/elte-ik-msc-weather-cam/dev/Documentation/WebApi/weather-cam-web-api.yaml -o src/api/openapi -g typescript-fetch --additional-properties=supportsES6=true",
-=======
-    "swagger-gen": "openapi-generator-cli generate -i https://raw.githubusercontent.com/SandorBalazsHU/elte-ik-msc-weather-cam/main/Documentation/WebApi/weather-cam-web-api.yaml -o src/api/openapi -g typescript-fetch --additional-properties=supportsES6=true",
->>>>>>> 88d72520ea782f2187ea9263741390c359d12438
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
   },
