@@ -57,6 +57,17 @@ class StationDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function getStationsOfOwner(int $user_id): array {
+		try {
+			return $this->selectRow(
+				"SELECT station_id FROM stations WHERE owner = ?",
+				[$user_id]
+			);
+		} catch (Exception $e) {
+			return [];
+		}
+	}
+	
 	public function getSystemStorage(): array {
 		exec("df / | grep / | cut -f3,4 -d' '", $output);
 		$storage = explode(' ', $output[0]);

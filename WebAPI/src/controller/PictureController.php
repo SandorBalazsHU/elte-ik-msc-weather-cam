@@ -23,9 +23,88 @@ class PictureController extends BaseController {
 		}
 	}
 	
-	protected function get(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
-		// TODO: Implement get() method.
+	private function sendImage(string $file_contents) {
+		$this->sendOutput(
+			base64_encode($file_contents),
+			["Content-type: image/jpeg"]
+		);
 	}
+	
+	#region get
+	
+	protected function get(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
+		if (!isset($uri[3])) {
+			$this->error(404);
+		}
+		
+		if (is_numeric($uri[3]) && isset($uri[4]) && $uri[4] == 'pictures') {
+			$station_id = $uri[3];
+			
+			// check user access to station
+			$user_stations = $this->stationDao->getStationsOfUser($user_id);
+			if (!in_array($station_id, $user_stations)) {
+				$this->error(404);
+			}
+			
+			if (empty($uri[5])) {
+				$this->getPictureByFilter($station_id, $params);
+			}
+			
+			if (in_array($uri[5], ['first', 'latest'])) {
+				$absolute = $uri[5];
+				$this->getPictureAbsolute($station_id, $absolute);
+			}
+			
+			if (is_numeric($uri[5])) {
+				$picture_id = $uri[5];
+				$this->getPictureById($station_id, $picture_id);
+			}
+		}
+	}
+	
+	private function getPictureByFilter(int $station_id, array $params) {
+		// TODO implement method
+	}
+	
+	private function getPictureAbsolute(int $station_id, string $absolute) {
+		switch ($absolute) {
+			case 'first':
+				$picture_data = $this->pictureDao->getFirstFileInfoOfStations($station_id);
+				break;
+			case 'latest':
+				$picture_data = $this->pictureDao->getLatestFileInfoOfStations($station_id);
+				break;
+			default:
+				$this->error(404);
+		}
+		
+		if (empty($picture_data)) {
+			$this->error(404);
+		}
+	}
+	
+	private function getPictureById(int $station_id, int $picture_id) {
+		$picture_data = $this->pictureDao->getFileInfoById($picture_id);
+		
+		if (empty($picture_data)) {
+			$this->error(404);
+		}
+		if ($picture_data['station_id'] != $station_id) {
+			$this->error(403);
+		}
+		
+		$picture = $this->pictureDao->getPictureByFilename(
+			$picture_data['filename']
+		);
+		if ($picture == DatabaseAccessObject::EMPTY_RESULT) {
+			$this->error(404);
+		}
+		$this->sendImage($picture);
+	}
+	
+	#endregion
+	#------------------------------------------------------------------------------------------------------------------
+	#region post
 	
 	protected function post(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		// TODO: Implement post() method.
@@ -63,12 +142,22 @@ class PictureController extends BaseController {
 		}
 	}
 	
+	#endregion
+	#------------------------------------------------------------------------------------------------------------------
+	#region put
+	
 	protected function put(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		// TODO: Implement put() method.
 	}
 	
+	#endregion
+	#------------------------------------------------------------------------------------------------------------------
+	#region delete
+	
 	protected function delete(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		// TODO: Implement delete() method.
 	}
+	
+	#endregion
 	
 }

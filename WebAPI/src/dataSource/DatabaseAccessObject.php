@@ -57,6 +57,20 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
+	protected function selectRow($query = "", $params = []): array {
+		$query_result = $this->select($query, $params);
+		
+		$fun_result = [];
+		foreach ($query_result as $row) {
+			$fun_result[] = $row[0];
+		}
+		
+		return $fun_result;
+	}
+	
+	/**
+	 * @throws Exception
+	 */
 	protected function runQuery($query = "", $params = []): bool {
 		$stmt = $this->executeStatement($query, $params);
 		$error = $stmt->error;

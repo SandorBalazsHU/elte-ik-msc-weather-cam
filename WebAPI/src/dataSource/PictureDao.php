@@ -56,4 +56,48 @@ class PictureDao extends DatabaseAccessObject {
 		return fclose($file);
 	}
 	
+	public function getFileInfoById(int $picture_id): array {
+		try {
+			$result = $this->selectValue(
+				"SELECT * FROM images WHERE id = ?",
+				[$picture_id]
+			);
+			
+			return $result == DatabaseAccessObject::EMPTY_RESULT ? [] : $result;
+		} catch (Exception $e) {
+			return [];
+		}
+	}
+	
+	public function getFirstFileInfoOfStations(int $station_id): array {
+		try {
+			$result = $this->selectValue(
+				"SELECT * FROM images WHERE station_id=? ORDER BY id",
+				[$station_id]
+			);
+			
+			return $result == DatabaseAccessObject::EMPTY_RESULT ? [] : $result;
+		} catch (Exception $e) {
+			return [];
+		}
+	}
+	
+	public function getLatestFileInfoOfStations(int $station_id): array {
+		try {
+			$result = $this->selectValue(
+				"SELECT * FROM images WHERE station_id=? ORDER BY id DESC",
+				[$station_id]
+			);
+			
+			return $result == DatabaseAccessObject::EMPTY_RESULT ? [] : $result;
+		} catch (Exception $e) {
+			return [];
+		}
+	}
+	
+	public function getPictureByFilename($filename): string {
+		$content = file_get_contents($filename);
+		return $content ?: DatabaseAccessObject::EMPTY_RESULT;
+	}
+	
 }
