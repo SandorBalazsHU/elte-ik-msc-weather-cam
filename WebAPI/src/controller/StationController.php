@@ -78,7 +78,7 @@ class StationController extends BaseController {
 		if (empty($station['owner']) || $station['owner'] != $user_id)
 			$this->error(403);
 		
-		$status = $station['status'] ?? 500;
+		$status = $station['status'] ?? 400;
 		if ($status == 200) {
 			$this->response(200);
 		} else {

@@ -14,7 +14,6 @@ class PictureController extends BaseController {
 	}
 	
 	protected function processNoJwt(string $method, array $uri, array $params, array $body) {
-		// TODO: Implement processNoJwt() method.
 		$request_headers = getallheaders();
 		if ($method == 'POST'
 			&& isset($uri[3]) && $uri[3] == 'pictures'

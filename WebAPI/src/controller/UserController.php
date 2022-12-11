@@ -58,7 +58,7 @@ class UserController extends BaseController {
 		try {
 			$token = $this->jwt->getToken($user['user_id']);
 		} catch (Exception $e) {
-			$this->error(500);
+			$this->error(400);
 			return;
 		}
 		
@@ -68,7 +68,7 @@ class UserController extends BaseController {
 	private function getUser(int $user_id) {
 		$user = $this->userDao->getUserById($user_id);
 		if (empty($user)) {
-			$this->error(500);
+			$this->error(400);
 		}
 		
 		$this->sendJson($user);
@@ -82,7 +82,7 @@ class UserController extends BaseController {
 		if ($result) {
 			$this->response(200);
 		} else {
-			$this->error(500);
+			$this->error(400);
 		}
 	}
 	
@@ -92,7 +92,7 @@ class UserController extends BaseController {
 		if ($result) {
 			$this->sendJson($result);
 		} else {
-			$this->error(500);
+			$this->error(400);
 		}
 	}
 	
@@ -127,7 +127,7 @@ class UserController extends BaseController {
 		if ($result) {
 			$this->response(200);
 		} else {
-			$this->error(500);
+			$this->error(400);
 		}
 	}
 	
@@ -148,10 +148,10 @@ class UserController extends BaseController {
 				$output = $this->getAssocByKeys($result, ['station_id', 'api_key']);
 				$this->sendJson($output);
 			} else {
-				$this->error(500);
+				$this->error(400);
 			}
 		} else {
-			$this->error(500);
+			$this->error(400);
 		}
 	}
 	
@@ -194,7 +194,7 @@ class UserController extends BaseController {
 		if ($result) {
 			$this->sendJson(['station_id' => $station_id, 'api_key' => $api_key]);
 		} else {
-			$this->error(500);
+			$this->error(400);
 		}
 	}
 	
@@ -203,7 +203,7 @@ class UserController extends BaseController {
 		try {
 			$api_key = str_shuffle(MD5(microtime()));
 		} catch (Exception $e) {
-			$this->error(500);
+			$this->error(400);
 		}
 		return $api_key;
 	}
@@ -229,7 +229,7 @@ class UserController extends BaseController {
 		if ($result) {
 			$this->response(200);
 		} else {
-			$this->error(500);
+			$this->error(400);
 		}
 	}
 	
