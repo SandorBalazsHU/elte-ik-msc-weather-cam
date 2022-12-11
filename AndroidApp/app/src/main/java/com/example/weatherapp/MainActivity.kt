@@ -37,15 +37,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // temporary solution
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        // possible better solution, requires api level 27, maybe do for 27 >= and < 27
-        //setTurnScreenOn(true)
         requestPermissions()
+        configureWake()
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
         alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         val repo = UserPreferencesRepository(this)
         val hwRepo = SavedHardwareRepository(this)
         val alarmRepo = AlarmRepository(this)
@@ -53,7 +49,7 @@ class MainActivity : ComponentActivity() {
         viewModel = ViewModelProvider(
             this,
             MainViewModel.Companion.MainViewModelFactory(
-                repo, hwRepo, alarmRepo, powerManager, stationClient
+                repo, hwRepo, alarmRepo, stationClient
             )
         ).get(MainViewModel::class.java)
         setContent {
@@ -67,6 +63,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+
+    private fun configureWake() {
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            Toast.makeText(
+                this,
+                "Keeping screen on while app is active.",
+                Toast.LENGTH_LONG
+            ).show()
     }
 
     private fun requestPermissions(){
@@ -107,23 +113,21 @@ fun MainWindow(
 ){
     val cameraOn by viewModel.cameraOn.collectAsState()
     val localContext = LocalContext.current
+    val message by viewModel.messageFlow.collectAsState(initial = null)
+    message?.let {
+        Toast.makeText(
+            localContext,
+            printModelMessage(it),
+            Toast.LENGTH_LONG
+        ).show()
+    }
     if(cameraOn){
         CameraCapture(
             onImageFile = { Log.d("CAMERA", "Photo: $it")
-                            Toast.makeText(
-                                localContext,
-                                "Image captured!",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            viewModel.onPhotoTaken(it)
-                          },
+                viewModel.onPhotoTaken(it)
+            },
             onException = {
                 Log.e("CAMERA", "Error", it.cause)
-                Toast.makeText(
-                    localContext,
-                    "Error! Image not captured!",
-                    Toast.LENGTH_LONG
-                ).show()
                 viewModel.onCameraError(it)
             }
         )

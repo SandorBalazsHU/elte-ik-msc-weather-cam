@@ -48,7 +48,7 @@ class AlarmRepository(private val context: Context){
     }
 
     fun setRecurringAlarm(minutes: Int){
-        Log.d("APP", "alarm set")
+        Log.d("AlarmRepository", "alarm set")
         alarmManager.setInexactRepeating(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
             SystemClock.elapsedRealtime() + 1000,

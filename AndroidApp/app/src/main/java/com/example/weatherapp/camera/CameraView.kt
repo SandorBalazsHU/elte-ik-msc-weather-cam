@@ -1,25 +1,16 @@
 package com.example.weatherapp.camera
 
-import android.net.Uri
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import androidx.camera.core.*
-import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlinx.coroutines.delay
@@ -71,7 +62,7 @@ fun CameraCapture(
                     .build()
             )
         }
-        Box() {
+        Box {
             CameraPreview(
                 modifier = Modifier.fillMaxSize(),
                 onUseCase = {
@@ -93,7 +84,7 @@ fun CameraCapture(
             coroutineScope.launch {
                 try {
                     delay(10*1000L)
-                    onImageFile(imageCaptureUseCase.takePicture(context.executor))
+                    imageCaptureUseCase.takePhoto(context.executor).let(onImageFile)
                     cameraProvider.unbindAll()
                 } catch (ex: Exception){
                     onException(ex)

@@ -26,4 +26,7 @@ data class HwMeasurementsEntity (
     @SerialName(value = "humidity")
     val humidity: kotlin.Float,
 
+    @SerialName(value = "battery")
+    val battery: kotlin.Float
+
 )

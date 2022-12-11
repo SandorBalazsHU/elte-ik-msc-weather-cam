@@ -5,15 +5,18 @@ import android.util.Log
 import com.example.weatherapi.data.api.MeasurementsApi
 import com.example.weatherapi.data.api.PicturesApi
 import com.example.weatherapi.data.api.StatusApi
+import com.example.weatherapi.data.entities.ApiResponseEntity
 import com.example.weatherapi.data.entities.MeasurementEntity
 import com.example.weatherapp.data.hardware.HardwareEntity
 import com.example.weatherapp.data.hardware.HwMeasurementsEntity
 import com.example.weatherapp.data.hardware.MeasurementsRepository
 import kotlinx.coroutines.*
+import okhttp3.MediaType.Companion.get
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.toImmutableList
 import org.openapitools.client.infrastructure.ApiClient
+import retrofit2.Response
 
 
 class StationClient(
@@ -25,44 +28,41 @@ class StationClient(
     private val picturesService = apiClient.createService(PicturesApi::class.java)
     private val statusService = apiClient.createService(StatusApi::class.java)
 
-    fun setApiKey(key: String): Boolean {
-        return try {
+    fun setApiKey(key: String) {
+        try {
             apiClient.setBearerToken(key)
-            true
         } catch (ex: Exception){
             Log.e("WeatherStationClient", "Could not set api key", ex)
-            false
         }
     }
 
     /*
-    *  Poll the hardware units, send the result to the api server.
+    * Poll the hardware units, send the result to the api server.
     * Returns false if one of the hardware units did not respond correctly.
     * */
-    suspend fun addMeasurements(addresses: Map<String, HardwareEntity>) = withContext(Dispatchers.IO) {
+    suspend fun addMeasurements(addresses: Map<String, HardwareEntity>): Pair<Boolean, Int?> = withContext(Dispatchers.IO) {
         val results: MutableList<MeasurementEntity> = mutableListOf()
-        var hasError = false
-        for ((address, _) in addresses) {
-            when(val res = getMeasurement(address)) {
+        var wasSuccess = true
+        for ((name, ent) in addresses) {
+            when(val res = getMeasurement(ent.ipAddress)) {
                 is ClientResult.Success -> {
                     if (res.res != null){
                         results.add(res.res)
                     }
                 }
                 else -> {
-                    hasError = true
+                    wasSuccess = false
                     Log.e("WeatherStationClient",
-                        "Misc. error for hardware address $address")
+                        "Misc. error for hardware named $name")
                 }
             }
         }
         runClientCatching {
             measurementService.addMeasurements(results.toImmutableList())
-        }
-        (!hasError)
+        }.let { wasSuccess to getCode(it) }
     }
 
-    suspend fun addPicture(file: java.io.File) = withContext(Dispatchers.IO) {
+    suspend fun addPicture(file: java.io.File): Int? = withContext(Dispatchers.IO) {
         runClientCatching {
             Log.d("WeatherStationClient", "RUN CLIENT")
             val bytes = file.readBytes()
@@ -71,15 +71,13 @@ class StationClient(
             val res = picturesService.addPicture("application/octet-stream", body)
             Log.d("WeatherStationClient", "add picture code: ${res.code()}")
             res
-        }
-        Unit
+        }.let { getCode(it) }
     }
 
-    private suspend fun addStatus(status: Int): ClientResult<Int> = withContext(Dispatchers.IO) {
+    suspend fun addStatus(status: Int): Int? = withContext(Dispatchers.IO) {
         runClientCatching {
-            val res = statusService.addStatus(status)
-            res.code()
-        }
+            statusService.addStatus(status)
+        }.let { getCode(it) }
     }
 
     private suspend fun getMeasurement(address: String) : ClientResult<MeasurementEntity?> =
@@ -95,15 +93,24 @@ class StationClient(
             pressure = hwEnt.pressure,
             humidity = hwEnt.humidity,
             timestamp = SystemClock.elapsedRealtime(),
-            battery = -1f //TODO battery manager
+            battery = hwEnt.battery
         )
 }
 
 sealed class ClientResult<out T> {
     data class Success<T>(val res: T): ClientResult<T>()
 
-    data class Error(val err: Throwable): ClientResult<Nothing>()
+    data class Error(val err: Exception): ClientResult<Nothing>()
+
 }
+
+fun getCode(res: ClientResult<Response<ApiResponseEntity>>): Int? =
+    when(res) {
+        is ClientResult.Success ->
+            res.res.code()
+        else ->
+            null
+    }
 
 suspend inline fun <R> runClientCatching(noinline block: suspend CoroutineScope.() -> R): ClientResult<R> =
     try {
@@ -112,7 +119,7 @@ suspend inline fun <R> runClientCatching(noinline block: suspend CoroutineScope.
     } catch (cancellationException: CancellationException) {
         //avoid interference with coroutines
         throw cancellationException
-    } catch (e: Throwable){
+    } catch (e: Exception){
         Log.e("WeatherStationClient", "request error", e)
         ClientResult.Error(e)
     }
