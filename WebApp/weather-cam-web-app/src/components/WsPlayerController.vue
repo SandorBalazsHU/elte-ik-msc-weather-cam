@@ -1,7 +1,7 @@
 <template>
   <div class="gap d-flex w-100 justify-center">
-    <v-btn class="centered" density="compact" icon>
-      <v-icon>mdi-play</v-icon>
+    <v-btn @click="$emit('click_play')" class="centered" density="compact" icon>
+      <v-icon>{{ playing ? "mdi-pause" : "mdi-play" }}</v-icon>
     </v-btn>
 
     <v-progress-linear
@@ -19,7 +19,8 @@
 </template>
 
 <script lang="ts" setup>
-defineProps<{ current_picture: number; all_pictures: number }>();
+defineProps<{ playing: boolean; current_picture: number; all_pictures: number }>();
+defineEmits(["click_play"]);
 </script>
 
 <style scoped>
