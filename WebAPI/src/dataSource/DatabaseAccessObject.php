@@ -3,6 +3,7 @@
 class DatabaseAccessObject {
 	public const EMPTY_RESULT = 'EMPTY_RESULT';
 	public const VALUE_NOT_FOUND = -1;
+	public const INSERTION_FAILED = -2;
 	protected mysqli $connection;
 	
 	/**

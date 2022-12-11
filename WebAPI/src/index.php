@@ -27,7 +27,7 @@ if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 			$stationController = new StationController();
 			
 			if (is_numeric($uri[3])) {
-				if (!isset($uri[4]))
+				if (empty($uri[4]))
 					$response_handler->error(404);
 				
 				switch ($uri[4]) {
@@ -45,7 +45,7 @@ if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 			
 			switch ($uri[3]) {
 				case 'pictures':
-					if (!isset($uri[4])) {
+					if (empty($uri[4])) {
 						$pictureController->processRequest();
 					} else if ($uri[4] == 'storage') {
 						$stationController->processRequest();
@@ -54,7 +54,7 @@ if (isset($uri[1]) && $uri[1] == 'api' && isset($uri[2])) {
 					}
 					exit;
 				case 'measurements':
-					if (!isset($uri[4])) {
+					if (empty($uri[4])) {
 						$measurementController->processRequest();
 					} else if ($uri[4] == 'storage') {
 						$stationController->processRequest();
