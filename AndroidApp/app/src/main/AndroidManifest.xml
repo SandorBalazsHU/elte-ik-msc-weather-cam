@@ -50,6 +50,7 @@
             android:turnScreenOn="true"
             android:showWhenLocked="true"
             android:label="Weather Station Application"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.WeatherApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
