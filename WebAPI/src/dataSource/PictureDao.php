@@ -1,7 +1,7 @@
 <?php
 
 class PictureDao extends DatabaseAccessObject {
-	private const IMAGE_PATH = "../files";
+	private const IMAGE_PATH = "../files/";
 	
 	public function insertPicture(int $station_id): int {
 		try {
@@ -58,7 +58,7 @@ class PictureDao extends DatabaseAccessObject {
 	
 	public function getFileInfoById(int $picture_id): array {
 		try {
-			$result = $this->selectValue(
+			$result = $this->selectOne(
 				"SELECT * FROM images WHERE id = ?",
 				[$picture_id]
 			);
@@ -71,12 +71,10 @@ class PictureDao extends DatabaseAccessObject {
 	
 	public function getFirstFileInfoOfStations(int $station_id): array {
 		try {
-			$result = $this->selectValue(
+			return $this->selectOne(
 				"SELECT * FROM images WHERE station_id=? ORDER BY id",
 				[$station_id]
 			);
-			
-			return $result == DatabaseAccessObject::EMPTY_RESULT ? [] : $result;
 		} catch (Exception $e) {
 			return [];
 		}
@@ -84,19 +82,17 @@ class PictureDao extends DatabaseAccessObject {
 	
 	public function getLatestFileInfoOfStations(int $station_id): array {
 		try {
-			$result = $this->selectValue(
+			return $this->selectOne(
 				"SELECT * FROM images WHERE station_id=? ORDER BY id DESC",
 				[$station_id]
 			);
-			
-			return $result == DatabaseAccessObject::EMPTY_RESULT ? [] : $result;
 		} catch (Exception $e) {
 			return [];
 		}
 	}
 	
 	public function getPictureByFilename($filename): string {
-		$content = file_get_contents($filename);
+		$content = file_get_contents(self::IMAGE_PATH . $filename);
 		return $content ?: DatabaseAccessObject::EMPTY_RESULT;
 	}
 	

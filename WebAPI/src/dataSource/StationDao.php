@@ -57,9 +57,9 @@ class StationDao extends DatabaseAccessObject {
 		}
 	}
 	
-	public function getStationsOfOwner(int $user_id): array {
+	public function getStationIdsOfUser(int $user_id): array {
 		try {
-			return $this->selectRow(
+			return $this->selectKeys(
 				"SELECT station_id FROM stations WHERE owner = ?",
 				[$user_id]
 			);

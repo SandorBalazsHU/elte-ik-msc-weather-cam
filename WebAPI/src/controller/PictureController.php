@@ -24,10 +24,7 @@ class PictureController extends BaseController {
 	}
 	
 	private function sendImage(string $file_contents) {
-		$this->sendOutput(
-			base64_encode($file_contents),
-			["Content-type: image/jpeg"]
-		);
+		$this->sendOutput($file_contents, ["Content-type: image/jpeg"]);
 	}
 	
 	#region get
@@ -41,7 +38,7 @@ class PictureController extends BaseController {
 			$station_id = $uri[3];
 			
 			// check user access to station
-			$user_stations = $this->stationDao->getStationsOfUser($user_id);
+			$user_stations = $this->stationDao->getStationIdsOfUser($user_id);
 			if (!in_array($station_id, $user_stations)) {
 				$this->error(404);
 			}
@@ -107,7 +104,7 @@ class PictureController extends BaseController {
 	#region post
 	
 	protected function post(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
-		// TODO: Implement post() method.
+		// Implement post() method here
 	}
 	
 	private function savePicture(array $request_headers, array $params, array $body) {
@@ -147,7 +144,7 @@ class PictureController extends BaseController {
 	#region put
 	
 	protected function put(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
-		// TODO: Implement put() method.
+		// Implement put() method here
 	}
 	
 	#endregion
@@ -155,7 +152,7 @@ class PictureController extends BaseController {
 	#region delete
 	
 	protected function delete(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
-		// TODO: Implement delete() method.
+		// Implement delete() method here
 	}
 	
 	#endregion
