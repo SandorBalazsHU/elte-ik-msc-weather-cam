@@ -12,5 +12,4 @@ require_once PROJECT_ROOT_PATH . "controller/BaseController.php";
 require_once PROJECT_ROOT_PATH . "controller/JwtHandler.php";
 
 // Autoload composer dependencies
-//require_once PROJECT_ROOT_PATH . '../vendor/autoload.php';
-require_once 'vendor/autoload.php';
+require_once PROJECT_ROOT_PATH . '../vendor/autoload.php';
