@@ -114,13 +114,17 @@ fun MainWindow(
     val cameraOn by viewModel.cameraOn.collectAsState()
     val localContext = LocalContext.current
     val message by viewModel.messageFlow.collectAsState(initial = null)
-    message?.let {
-        Toast.makeText(
-            localContext,
-            printModelMessage(it),
-            Toast.LENGTH_LONG
-        ).show()
+
+    LaunchedEffect(message){
+        message?.let {
+            Toast.makeText(
+                localContext,
+                printModelMessage(it),
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
+
     if(cameraOn){
         CameraCapture(
             onImageFile = { Log.d("CAMERA", "Photo: $it")

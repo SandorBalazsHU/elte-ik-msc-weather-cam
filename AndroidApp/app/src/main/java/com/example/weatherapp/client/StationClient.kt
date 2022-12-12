@@ -30,7 +30,7 @@ class StationClient(
 
     fun setApiKey(key: String) {
         try {
-            apiClient.setBearerToken(key)
+            apiClient.setApiKey(key)
         } catch (ex: Exception){
             Log.e("WeatherStationClient", "Could not set api key", ex)
         }
