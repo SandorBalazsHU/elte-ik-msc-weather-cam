@@ -1,6 +1,5 @@
 # Composer dependencies
 vendor
-composer.lock
 
 config-db.php
 config-jwt.php
