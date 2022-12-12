@@ -4,7 +4,7 @@ class MeasurementDao extends DatabaseAccessObject {
 	
 	public function getMeasurementById(int $measurement_id): array {
 		try {
-			return $this->selectOne(
+			return $this->selectRow(
 				"SELECT * FROM measurements WHERE measurement_id = ? LIMIT 1",
 				[$measurement_id]
 			);
@@ -17,7 +17,7 @@ class MeasurementDao extends DatabaseAccessObject {
 		try {
 			$sql = "SELECT * FROM measurements
         			WHERE station_id = ? ORDER BY timestamp ASC LIMIT 1";
-			return $this->selectOne($sql, [$station_id]);
+			return $this->selectRow($sql, [$station_id]);
 		} catch (Exception $e) {
 			return array();
 		}
@@ -27,7 +27,7 @@ class MeasurementDao extends DatabaseAccessObject {
 		try {
 			$sql = "SELECT * FROM measurements
         			WHERE station_id = ? ORDER BY timestamp DESC LIMIT 1";
-			return $this->selectOne($sql, [$station_id]);
+			return $this->selectRow($sql, [$station_id]);
 		} catch (Exception $e) {
 			return array();
 		}

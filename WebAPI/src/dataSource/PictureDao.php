@@ -58,7 +58,7 @@ class PictureDao extends DatabaseAccessObject {
 	
 	public function getFileInfoById(int $picture_id): array {
 		try {
-			$result = $this->selectOne(
+			$result = $this->selectRow(
 				"SELECT * FROM images WHERE id = ?",
 				[$picture_id]
 			);
@@ -71,7 +71,7 @@ class PictureDao extends DatabaseAccessObject {
 	
 	public function getFirstFileInfoOfStations(int $station_id): array {
 		try {
-			return $this->selectOne(
+			return $this->selectRow(
 				"SELECT * FROM images WHERE station_id=? ORDER BY id",
 				[$station_id]
 			);
@@ -82,7 +82,7 @@ class PictureDao extends DatabaseAccessObject {
 	
 	public function getLatestFileInfoOfStations(int $station_id): array {
 		try {
-			return $this->selectOne(
+			return $this->selectRow(
 				"SELECT * FROM images WHERE station_id=? ORDER BY id DESC",
 				[$station_id]
 			);

@@ -35,7 +35,7 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
-	protected function selectOne($query = "", $params = []): array {
+	protected function selectRow($query = "", $params = []): array {
 		$stmt = $this->executeStatement($query, $params);
 		$result = $stmt->get_result()->fetch_object();
 		$stmt->close();

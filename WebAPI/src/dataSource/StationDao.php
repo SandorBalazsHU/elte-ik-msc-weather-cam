@@ -4,7 +4,7 @@ class StationDao extends DatabaseAccessObject {
 	
 	public function getStationById(int $station_id): array {
 		try {
-			return $this->selectOne(
+			return $this->selectRow(
 				"SELECT * FROM stations WHERE station_id = ? LIMIT 1",
 				[$station_id]
 			);
@@ -15,7 +15,7 @@ class StationDao extends DatabaseAccessObject {
 	
 	public function getStationByApiKey(string $api_key): array {
 		try {
-			return $this->selectOne(
+			return $this->selectRow(
 				"SELECT * FROM stations WHERE api_key = ? LIMIT 1",
 				[$api_key]
 			);
@@ -113,7 +113,15 @@ class StationDao extends DatabaseAccessObject {
 	}
 	
 	public function apiKeyExists(string $api_key): bool {
-		return !$this->isApiKeyUnique($api_key);
+		try {
+			$result = $this->selectRow(
+				"SELECT * FROM stations WHERE api_key=?",
+				[$api_key]
+			);
+			return !empty($result);
+		} catch (Exception $e) {
+			return false;
+		}
 	}
 	
 	public function updateStatusByApiKey($api_key, int $status_code): bool {

@@ -90,7 +90,7 @@ abstract class BaseController extends ResponseHandler {
 	protected function getJsonBody(): array {
 		$raw_body = file_get_contents('php://input');
 		$decoded_body = json_decode($raw_body, true);
-		return $decoded_body ?: [];
+		return is_array($decoded_body) ? $decoded_body : [];
 	}
 	
 	/**

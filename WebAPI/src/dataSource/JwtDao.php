@@ -15,7 +15,7 @@ class JwtDao extends DatabaseAccessObject {
 	
 	public function isTokenBlacklisted(string $jwt_token): bool {
 		try {
-			$result = $this->selectOne(
+			$result = $this->selectRow(
 				"SELECT * FROM jwt_blacklist WHERE token=? LIMIT 1",
 				[$jwt_token]
 			);
