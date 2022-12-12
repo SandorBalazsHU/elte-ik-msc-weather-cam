@@ -14,6 +14,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import org.openapitools.client.infrastructure.Serializer.kotlinxSerializationJson
 import okhttp3.MediaType.Companion.toMediaType
+import java.io.StreamTokenizer
 import java.util.concurrent.TimeUnit
 
 class ApiClient(
@@ -84,6 +85,13 @@ class ApiClient(
     fun setBearerToken(bearerToken: String): ApiClient {
         apiAuthorizations.values.runOnFirst<Interceptor, HttpBearerAuth> {
             this.bearerToken = bearerToken
+        }
+        return this
+    }
+
+    fun setApiKey(token: String): ApiClient {
+        apiAuthorizations.values.runOnFirst<Interceptor, ApiKeyAuth> {
+            this.apiKey = token
         }
         return this
     }

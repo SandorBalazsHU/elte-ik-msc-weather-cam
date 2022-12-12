@@ -10,7 +10,7 @@ import okhttp3.Response
 class ApiKeyAuth(
         private val location: String = "",
         private val paramName: String = "",
-        private var apiKey: String = ""
+        var apiKey: String = ""
 ) : Interceptor {
 
     @Throws(IOException::class)
