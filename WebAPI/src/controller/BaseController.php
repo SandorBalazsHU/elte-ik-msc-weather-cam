@@ -1,14 +1,61 @@
 <?php
 
-// TODO separate by http $method = $_SERVER['REQUEST_METHOD'];
-
-class BaseController {
-	/**
-	 * __call magic method - Called whenever we try to call an unimplemented method of this class
-	 */
-	public function __call($name, $arguments) {
+abstract class BaseController extends ResponseHandler {
+	protected JwtHandler $jwt;
+	
+	public function __construct() {
+		$this->jwt = new JwtHandler();
+	}
+	
+	public function processRequest() {
+		$method = $this->getRequestMethod();
+		$uri = $this->getUriSegments();
+		$params = $this->getQueryStringParams();
+		$body = $this->getJsonBody();
+		
+		// process endpoints that are used without a JWT token
+		$this->processNoJwt($method, $uri, $params, $body);
+		
+		// jwt validation
+		$request_headers = getallheaders();
+		if (!isset($request_headers['Authorization'])) {
+			$this->error(403);
+		}
+		$jwt_token = $request_headers['Authorization'];
+		$user_id = $this->jwt->validate($jwt_token);
+		
+		switch ($method) {
+			case 'GET':
+				$this->get($uri, $params, $body, $user_id, $jwt_token);
+				break;
+			case 'POST':
+				$this->post($uri, $params, $body, $user_id, $jwt_token);
+				break;
+			case 'PUT':
+				$this->put($uri, $params, $body, $user_id, $jwt_token);
+				break;
+			case 'DELETE':
+				$this->delete($uri, $params, $body, $user_id, $jwt_token);
+				break;
+		}
+		
 		$this->error(404);
 	}
+	
+	/**
+	 * Processes endpoints that are used without a JWT token
+	 * @return void
+	 */
+	abstract protected function processNoJwt(string $method, array $uri, array $params, array $body);
+	
+	abstract protected function get(array $uri, array $params, array $body, int $user_id, string $jwt_token);
+	
+	abstract protected function post(array $uri, array $params, array $body, int $user_id, string $jwt_token);
+	
+	abstract protected function put(array $uri, array $params, array $body, int $user_id, string $jwt_token);
+	
+	abstract protected function delete(array $uri, array $params, array $body, int $user_id, string $jwt_token);
+	
 	
 	/**
 	 * Get URI elements.
@@ -36,82 +83,25 @@ class BaseController {
 	}
 	
 	/**
-	 * Get query string params.
+	 * Get JSON encoded request body as array.
 	 *
 	 * @return array
 	 */
 	protected function getJsonBody(): array {
 		$raw_body = file_get_contents('php://input');
 		$decoded_body = json_decode($raw_body, true);
-		return $decoded_body ?: [];
+		return is_array($decoded_body) ? $decoded_body : [];
 	}
 	
 	/**
-	 * Add HTTP headers to response.
-	 * @param array $httpHeaders
-	 * @return void
+	 * Get a subset of key->value pairs of an array
+	 * @param array $arr array to get part of
+	 * @param array $keys keys to get from original array
+	 * @return array subset of key->value pairs from the original array
 	 */
-	private function addHeaders(array $httpHeaders = array()) {
-		if (is_array($httpHeaders) && count($httpHeaders)) {
-			foreach ($httpHeaders as $httpHeader) {
-				header($httpHeader);
-			}
-		}
+	protected function getAssocByKeys(array $arr, array $keys): array {
+		return array_intersect_key($arr, array_flip($keys));
 	}
 	
-	/**
-	 * Send output as HTTP response.
-	 *
-	 * @param string $output
-	 * @param string $httpHeaders
-	 */
-	protected function sendOutput(string $output, $httpHeaders = array()) {
-		header_remove('Set-Cookie');
-		$this->addHeaders($httpHeaders);
-		
-		exit($output);
-	}
-	
-	/**
-	 * Send HTTP response with JSON encoded data
-	 * @param array $data Data to JSON encode
-	 * @param array $httpHeaders
-	 * @return void
-	 */
-	protected function sendJson(array $data, array $httpHeaders = array()) {
-		header('Content-Type: application/json');
-		http_response_code(200);
-		$this->addHeaders($httpHeaders);
-		
-		exit(json_encode($data));
-	}
-	
-	protected function sendJsonError(array $data) {
-		header('Content-Type: application/json');
-		exit(json_encode($data));
-	}
-	
-	protected function error(int $code) {
-		http_response_code($code);
-		$error_msg = array("code" => $code, "type" => "failure");
-		
-		switch ($code) {
-			case 401:
-				$error_msg['message'] = 'Failed to authenticate request.';
-				break;
-			case 403:
-				$error_msg['message'] = 'Failed to authorize request';
-				break;
-			case 404:
-				$error_msg['message'] = 'Failed to find requested resource';
-				break;
-			
-			case 500:
-				$error_msg['message'] = 'Internal Server Error';
-				break;
-		}
-		
-		$this->sendJsonError($error_msg);
-	}
 	
 }

@@ -12,11 +12,14 @@ use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\UnsupportedHeaderFound;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
 
-class JwtHandler extends BaseController {
+require_once PROJECT_ROOT_PATH . "/dataSource/JwtDao.php";
+
+class JwtHandler extends ResponseHandler {
 	public static string $CLAIM_UID = 'uid';
 	public static int $CLAIM_NOT_FOUND = -1;
 	
@@ -24,12 +27,15 @@ class JwtHandler extends BaseController {
 	private SystemClock $clock;
 	private Validator $validator;
 	private InMemory $signingKey;
+	private JwtDao $jwtDao;
 	
 	public function __construct() {
 		$this->parser = new Parser(new JoseEncoder());
 		$this->clock = SystemClock::fromSystemTimezone();
 		$this->validator = new Validator();
 		$this->signingKey = InMemory::plainText(JWT_KEY);
+		
+		$this->jwtDao = new JwtDao();
 	}
 	
 	public function getToken($user_id): Token {
@@ -46,7 +52,11 @@ class JwtHandler extends BaseController {
 			->getToken($algorithm, $this->signingKey);
 	}
 	
-	public function validate($token_string): int {
+	public function validate(string $token_string): int {
+		if ($this->jwtDao->isTokenBlacklisted($token_string)) {
+			$this->error(403);
+		}
+		
 		try {
 			$token = $this->parser->parse($token_string);
 		} catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $e) {
@@ -56,10 +66,11 @@ class JwtHandler extends BaseController {
 		try {
 			$this->validator->assert($token, new IssuedBy(JWT_ISSUED_BY));
 			$this->validator->assert($token, new PermittedFor(JWT_PERMITTED_FOR));
+			$this->validator->assert($token, new LooseValidAt($this->clock, new DateInterval('PT5M')));
 		} catch (RequiredConstraintsViolated $exception) {
-			foreach ($exception->violations() as $violation) {
-				echo $violation->getMessage(), PHP_EOL;
-			}
+//			foreach ($exception->violations() as $violation) {
+//				echo $violation->getMessage(), PHP_EOL;
+//			}
 			$this->error(403);
 		}
 		
@@ -76,6 +87,16 @@ class JwtHandler extends BaseController {
 		}
 		
 		return $user['user_id'];
+	}
+	
+	public function getExpiration(string $token_string): ?DateTimeImmutable {
+		try {
+			$token = $this->parser->parse($token_string);
+			return $token->claims()->get('exp');
+		} catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $e) {
+			$this->error(403);
+			return null;
+		}
 	}
 	
 }
