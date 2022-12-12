@@ -112,10 +112,12 @@ class MainViewModel(
 
     fun onPhotoTaken(file: java.io.File){
         viewModelScope.launch {
+            Log.d("MainViewModel", "Uploading photo")
             _messageFlow.emit(ModelMessage.Info("Uploading photo: ${file.absolutePath}"))
             val code = stationClient.addPicture(file)
             val out = code?.toString() ?: "Error"
             _messageFlow.emit(ModelMessage.Info("Upload photo result: $out"))
+            Log.d("MainViewModel", "Uploading photo result: $out")
             _cameraOn.value = false
             finishPolling(true)
         }

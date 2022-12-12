@@ -21,7 +21,7 @@ import retrofit2.Response
 
 class StationClient(
     private val measurementsRepository: MeasurementsRepository = MeasurementsRepository(),
-    private val apiClient: ApiClient = ApiClient()
+    private val apiClient: ApiClient = ApiClient(authNames = arrayOf("apiKeyAuth"))
 ) {
 
     private val measurementService = apiClient.createService(MeasurementsApi::class.java)
@@ -57,9 +57,15 @@ class StationClient(
                 }
             }
         }
-        runClientCatching {
-            measurementService.addMeasurements(results.toImmutableList())
-        }.let { wasSuccess to getCode(it) }
+
+        if(results.isNotEmpty()){
+            runClientCatching {
+                measurementService.addMeasurements(results.toImmutableList())
+            }.let { wasSuccess to getCode(it) }
+        } else {
+            wasSuccess to 200
+        }
+
     }
 
     suspend fun addPicture(file: java.io.File): Int? = withContext(Dispatchers.IO) {
