@@ -137,4 +137,16 @@ class PictureDao extends DatabaseAccessObject {
 		return $content ?: DatabaseAccessObject::EMPTY_RESULT;
 	}
 	
+	public function deletePicturesOfStation($station_id): bool {
+		// TODO get files from db
+		//  delete files from filesystem
+		
+		try {
+			$sql = "DELETE FROM images WHERE station_id = ?";
+			return $this->runQuery($sql, [$station_id]);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 }

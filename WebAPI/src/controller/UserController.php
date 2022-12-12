@@ -1,11 +1,15 @@
 <?php
 require_once PROJECT_ROOT_PATH . "/dataSource/UserDao.php";
 require_once PROJECT_ROOT_PATH . "/dataSource/StationDao.php";
+require_once PROJECT_ROOT_PATH . "/dataSource/MeasurementDao.php";
+require_once PROJECT_ROOT_PATH . "/dataSource/PictureDao.php";
 require_once PROJECT_ROOT_PATH . "/dataSource/JwtDao.php";
 
 class UserController extends BaseController {
 	private UserDao $userDao;
 	private StationDao $stationDao;
+	private MeasurementDao $measurementDao;
+	private PictureDao $pictureDao;
 	private JwtDao $jwtDao;
 	
 	public function __construct() {
@@ -13,6 +17,8 @@ class UserController extends BaseController {
 		
 		$this->userDao = new UserDao();
 		$this->stationDao = new StationDao();
+		$this->measurementDao = new MeasurementDao();
+		$this->pictureDao = new PictureDao();
 		$this->jwtDao = new JwtDao();
 	}
 	
@@ -238,7 +244,27 @@ class UserController extends BaseController {
 	#region delete
 	
 	protected function delete(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
-		// TODO delete user and its stations, measurements and images
+		$user_data = $this->userDao->getUserById($user_id);
+		if (empty($user_data)) {
+			$this->error(404);
+		}
+		
+		$result = true;
+		
+		$stations = $this->stationDao->getStationIdsOfUser($user_id);
+		foreach ($stations as $station_id) {
+			$result &= $this->measurementDao->deleteMeasurementsOfStation($station_id);
+			$result &= $this->pictureDao->deletePicturesOfStation($station_id);
+		}
+		$result &= $this->stationDao->deleteStationsOfUser($user_id);
+		
+		$result &= $this->userDao->deleteUserById($user_id);
+		
+		if ($result) {
+			$this->response(200);
+		} else {
+			$this->response(400);
+		}
 	}
 	
 	# endregion

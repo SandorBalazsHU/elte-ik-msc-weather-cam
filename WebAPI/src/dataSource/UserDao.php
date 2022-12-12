@@ -51,4 +51,12 @@ class UserDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function deleteUserById(int $user_id): bool {
+		try {
+			return $this->runQuery("DELETE FROM users WHERE user_id=?", [$user_id]);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 }

@@ -135,4 +135,15 @@ class StationDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function deleteStationsOfUser(int $user_id): bool {
+		try {
+			return $this->runQuery(
+				"DELETE FROM stations WHERE owner=?",
+				[$user_id]
+			);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 }

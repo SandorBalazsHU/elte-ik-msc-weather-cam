@@ -135,4 +135,13 @@ class MeasurementDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function deleteMeasurementsOfStation($station_id): bool {
+		try {
+			$sql = "DELETE FROM measurements WHERE station_id = ?";
+			return $this->runQuery($sql, [$station_id]);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 }
