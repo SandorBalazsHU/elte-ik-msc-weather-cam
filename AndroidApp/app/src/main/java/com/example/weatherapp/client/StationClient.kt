@@ -4,7 +4,7 @@ import android.os.SystemClock
 import android.util.Log
 import com.example.weatherapi.data.api.MeasurementsApi
 import com.example.weatherapi.data.api.PicturesApi
-import com.example.weatherapi.data.api.StatusApi
+import com.example.weatherapi.data.api.StationsApi
 import com.example.weatherapi.data.entities.ApiResponseEntity
 import com.example.weatherapi.data.entities.MeasurementEntity
 import com.example.weatherapp.data.hardware.HardwareEntity
@@ -26,7 +26,7 @@ class StationClient(
 
     private val measurementService = apiClient.createService(MeasurementsApi::class.java)
     private val picturesService = apiClient.createService(PicturesApi::class.java)
-    private val statusService = apiClient.createService(StatusApi::class.java)
+    private val statusService = apiClient.createService(StationsApi::class.java)
 
     fun setApiKey(key: String) {
         try {
@@ -82,7 +82,7 @@ class StationClient(
 
     suspend fun addStatus(status: Int): Int? = withContext(Dispatchers.IO) {
         runClientCatching {
-            statusService.addStatus(status)
+            statusService.updateStationStatus(status)
         }.let { getCode(it) }
     }
 
