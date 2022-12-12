@@ -142,7 +142,7 @@ class ApiClient(
 
         @JvmStatic
         val defaultBasePath: String by lazy {
-            System.getProperties().getProperty(baseUrlKey, "https://api.weather.s-b-x.com/v1")
+            System.getProperties().getProperty(baseUrlKey, "https://api.weather.s-b-x.com/api")
         }
     }
 }
