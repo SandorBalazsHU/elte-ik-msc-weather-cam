@@ -44,7 +44,8 @@ class PictureController extends BaseController {
 			}
 			
 			if (empty($uri[5])) {
-				$this->getPictureByFilter($station_id, $params);
+				$this->getPictureWithOffset($station_id, $params);
+				return;
 			}
 			
 			if (in_array($uri[5], ['first', 'latest'])) {
@@ -59,8 +60,33 @@ class PictureController extends BaseController {
 		}
 	}
 	
-	private function getPictureByFilter(int $station_id, array $params) {
-		// TODO implement method
+	private function getPictureWithOffset(int $station_id, array $params) {
+		if (empty($params['picture_id']) || !is_numeric($params['picture_id'])
+			|| !isset($params['offset']) || !is_numeric($params['offset'])
+		) {
+			$this->error(400);
+		}
+		$picture_id = $params['picture_id'];
+		$offset = $params['offset'];
+		
+		// check original image access
+		$original_picture_data = $this->pictureDao->getFileInfoById($picture_id);
+		if (empty($original_picture_data)) {
+			$this->error(404);
+		}
+		if ($original_picture_data['station_id'] != $station_id) {
+			$this->error(403);
+		}
+		
+		// get image with offset
+		$picture_data = $this->pictureDao->getFileInfoRelative(
+			$picture_id, $station_id, $offset
+		);
+		if (empty($picture_data)) {
+			$this->error(404);
+		}
+		
+		$this->sendPictureByFilename($picture_data['filename']);
 	}
 	
 	private function getPictureAbsolute(int $station_id, string $absolute) {

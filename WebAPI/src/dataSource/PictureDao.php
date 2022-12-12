@@ -91,7 +91,48 @@ class PictureDao extends DatabaseAccessObject {
 		}
 	}
 	
-	public function getPictureByFilename($filename): string {
+	/**
+	 * Get a picture of a station relative to a given picture_id
+	 * @param int $picture_id Get picture relative to this one
+	 * @param int $station_id Result must be a picture of this station.
+	 * Same as the original picture's station.
+	 * @param int $offset Distance of given picture_id and the resulting picture
+	 * @return array
+	 */
+	public function getFileInfoRelative(
+		int $picture_id,
+		int $station_id,
+		int $offset
+	): array {
+		try {
+			$images = $this->selectCol(
+				"SELECT id FROM images WHERE station_id = ? ORDER BY id",
+				[$station_id]
+			);
+			
+			$key = array_search($picture_id, $images);
+			$original_offset = array_search($key, array_keys($images));
+			$wanted_offset = $original_offset + $offset;
+			
+			if ($wanted_offset < 0 || $wanted_offset >= count($images)) {
+				return [];
+			}
+			
+			$wanted_key = array_keys($images)[$wanted_offset];
+			$wanted_image_id = $images[$wanted_key];
+			
+			return $this->getFileInfoById($wanted_image_id);
+		} catch (Exception $e) {
+			return [];
+		}
+	}
+	
+	/**
+	 * Get raw image file content from the filesystem
+	 * @param string $filename Simple filename with mimetype without path
+	 * @return string Raw base64 encoded jpeg image data
+	 */
+	public function getPictureByFilename(string $filename): string {
 		$content = file_get_contents(self::IMAGE_PATH . $filename);
 		return $content ?: DatabaseAccessObject::EMPTY_RESULT;
 	}

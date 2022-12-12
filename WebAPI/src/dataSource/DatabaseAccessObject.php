@@ -57,9 +57,17 @@ class DatabaseAccessObject {
 	/**
 	 * @throws Exception
 	 */
-	protected function selectKeys($query = "", $params = []): array {
+	protected function selectCol($query = "", $params = []): array {
 		$query_result = $this->select($query, $params);
-		return array_keys($query_result);
+		
+		$values = [];
+		foreach ($query_result as $res) {
+			foreach ($res as $item) {
+				array_push($values, $item);
+			}
+		}
+		
+		return $values;
 	}
 	
 	/**
