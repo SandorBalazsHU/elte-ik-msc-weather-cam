@@ -73,11 +73,14 @@ class PictureController extends BaseController {
 				break;
 			default:
 				$this->error(404);
+				return;
 		}
 		
 		if (empty($picture_data)) {
 			$this->error(404);
 		}
+		
+		$this->sendPictureByFilename($picture_data['filename']);
 	}
 	
 	private function getPictureById(int $station_id, int $picture_id) {
@@ -90,9 +93,11 @@ class PictureController extends BaseController {
 			$this->error(403);
 		}
 		
-		$picture = $this->pictureDao->getPictureByFilename(
-			$picture_data['filename']
-		);
+		$this->sendPictureByFilename($picture_data['filename']);
+	}
+	
+	private function sendPictureByFilename($filename) {
+		$picture = $this->pictureDao->getPictureByFilename($filename);
 		if ($picture == DatabaseAccessObject::EMPTY_RESULT) {
 			$this->error(404);
 		}
