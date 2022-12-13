@@ -98,7 +98,7 @@ class UserController extends BaseController {
 		if ($result) {
 			$this->sendJson($result);
 		} else {
-			$this->error(400);
+			$this->error(404);
 		}
 	}
 	

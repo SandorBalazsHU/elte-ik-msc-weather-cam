@@ -6,4 +6,5 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 RewriteRule (.*)$ /src/index.php/$1 [QSA,NC,L]
 
-php_flag display_errors 1
+# Enable passing Authorization headers to PHP
+CGIPassAuth On
