@@ -21,7 +21,10 @@ abstract class BaseController extends ResponseHandler {
 		if (!isset($request_headers['Authorization'])) {
 			$this->error(403);
 		}
-		$jwt_token = $request_headers['Authorization'];
+		$jwt_token = substr(
+			$request_headers['Authorization'],
+			strlen('Bearer ')
+		);
 		$user_id = $this->jwt->validate($jwt_token);
 		
 		switch ($method) {
