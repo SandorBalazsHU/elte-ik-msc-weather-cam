@@ -109,8 +109,11 @@ class UserController extends BaseController {
 	protected function post(array $uri, array $params, array $body, int $user_id, string $jwt_token) {
 		switch ($uri[3]) {
 			case 'stations':
-				if (empty($uri[4])) $this->error(404);
-				$this->createStation($uri, $user_id, $uri[4]);
+				if (empty($params['station_name']))
+					$this->error(404);
+				
+				$station_name = $params['station_name'];
+				$this->createStation($uri, $user_id, $station_name);
 				break;
 		}
 	}
@@ -137,13 +140,23 @@ class UserController extends BaseController {
 		}
 	}
 	
-	private function createStation(array $uri, int $user_id, string $station_name, int $depth = 0) {
-		if ($depth >= 10) $this->error(500);
+	private function createStation(
+		array $uri, int $user_id, string $station_name, int $depth = 0
+	) {
+		if ($depth >= 10) {
+			echo("genFail");
+			$this->error(500);
+		}
+		
+		if ($this->stationDao->stationNameExists($station_name)) {
+			$this->error(400);
+		}
 		
 		$api_key = $this->generateApiKey();
-		$is_unique = $this->stationDao->isApiKeyUnique($api_key);
+		$exists = $this->stationDao->apiKeyExists($api_key);
 		
-		if (!$is_unique) {
+		if ($exists) {
+			// try again
 			$this->createStation($uri, $user_id, $station_name, $depth + 1);
 		}
 		
@@ -190,9 +203,9 @@ class UserController extends BaseController {
 		}
 		
 		$api_key = $this->generateApiKey();
-		$is_unique = $this->stationDao->isApiKeyUnique($api_key);
+		$exists = $this->stationDao->apiKeyExists($api_key);
 		
-		if (!$is_unique) {
+		if ($exists) {
 			$this->generateKeyForStation($uri, $user_id, $depth + 1);
 		}
 		

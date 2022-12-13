@@ -124,6 +124,18 @@ class StationDao extends DatabaseAccessObject {
 		}
 	}
 	
+	public function stationNameExists(string $station_name): bool {
+		try {
+			$result = $this->selectRow(
+				"SELECT * FROM stations WHERE station_name=?",
+				[$station_name]
+			);
+			return !empty($result);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+	
 	public function updateStatusByApiKey($api_key, int $status_code): bool {
 		try {
 			return $this->runQuery(
